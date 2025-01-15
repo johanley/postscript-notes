@@ -12,12 +12,12 @@ Notes on using the [PostScript programming language](https://en.wikipedia.org/wi
 * it's all about **print quality**: for printing outputs of the highest quality, printing houses often request PDF/EPS/PS file formats
 * it can be argued that, in a sense, PS is **at the center of the print universe**
 * programming in PS isn't getting much attention from programmers these days
-* PS gives you some insight into two worlds: graphic operations (transforming coordinate systems, graphics stack), and printing details (CYMK, color profiles) 
+* PS gives you some insight into two worlds: graphic operations (transforming coordinate systems, graphics stack), and printing details (CMYK, color profiles) 
 
 ## Lingo
 
 * PLRM - PostScript Language Reference Manual (link below)
-* Document Structuring Conventions (DSC)
+* [Document Structuring Conventions (DSC)](https://en.wikipedia.org/wiki/Document_Structuring_Conventions)
 * **distilling** a PS document means changing it from code+data to data only, roughly speaking. A PS file is "distilled" into a PDF file.  
 * the built in **operators** are the core of the language. There are quite a few of them, but 80% of the time you use 20% of the operators.
 * **page independence** is the idea that each page should be independent of all other pages; this is achieved by saving the state of all items in memory 
@@ -42,7 +42,7 @@ Also of note:
 
 ## Tools
 * [Ghostscript](https://www.ghostscript.com/) for creating, viewing, and converting PS files, and related tasks. Very commonly used when developing with PS.
-* Adobe Distiller in Adobe Acrobat converts PS files to PDF files.
+* Adobe Distiller in Adobe Acrobat converts PS files to PDF files. (I haven't used this yet, so I don't know much about it.)
 
 
 ## PS as a Programming Language
@@ -50,12 +50,12 @@ Also of note:
 * plain text files; interpreted, not compiled
 * minimalist syntax
 * **code-as-data** is central to the language: anonymous procedures are passed around as data
-* types: boolean, number, string, dictionary, array
-* data structures: strings; dictionaries, and arrays (nestable)
-* strings can contain binary data! there is no 'character' data type as such  
+* types: boolean, integer, real, name 
+* data structures: strings, dictionaries, and arrays (nestable)
+* strings can contain binary data! **there's no 'character' data type as such**  
 * strings are arrays of numbers in the range 0..255
 * a procedure is an executable array of strings (tokens in the language) 
-* it has next to nothing for implementing modularity (the 'run' operator includes one PS file in another)
+* it has next to nothing for implementing modularity (the `run` operator includes one PS file in another)
 * Language Level 3 has 385 operators  
 * it makes liberal use of **stacks and dictionaries** 
 * it uses an **operand stack** to both pass parameters and return results
@@ -67,9 +67,7 @@ are derived from programming languages such as LISP."</em> (Red Book, page 23).
 <em>"[The] names that represent operators are not reserved by the language. A PostScript program may change the meanings of operator names."</em>
 (Red Book, page 23). 
 
-<P>The generic name for everything in the language is **an object** (not in the sense of object-oriented programming!):
-* data: numbers, booleans, strings, arrays, dictionaries
-* executable things: names, operators, procedures
+<P>The generic name for everything in the language is an *object* (not in the sense of object-oriented programming!).
 
 The interpreter executes a series of objects. An object has:
 * a type: boolean, integer, real, name, operator (*simple*); string, array,dictionary, file (*composite*)
@@ -84,13 +82,14 @@ If an object is executable, executing the object depends on its type:
 **A procedure is an array of executable objects.**
 
 Syntax:
-* (blah)  - a string 
-* [1 2 (hello)] - an array
-* <<(A) 12.25 /B 3.14 >> - a dictionary (map); the order is key-value, key-value ... Keys are usually names. 
+* `(blah)`  - a string 
+* `[1 2 (hello)]` - an array
+* `<<(A) 12.25 /B 3.14 >>` - a dictionary (map); the order is key-value, key-value ... Keys are usually names. 
 I've seen the system silently coerce string-keys to name-keys!
-* /blah - a **name** literal - names of data (variables, procedures); with a slash means literal, without the slash means executable
-* {...} - a **procedure** (an executable array)
-* 5 3 sub - **the params come first!** This is '5 - 3 = 2'. 5 and 3 are placed on the stack. The 'sub' operator is executed; it puts the result 2 on the stack.
+* `/blah` - a **name** literal - names of data (variables, procedures); with a slash means literal, without the slash means executable
+* `{...}` - a **procedure** (an executable array)
+* `5 3 sub` - **the params come first!** This is '5 - 3 = 2'. 5 and 3 are placed on the stack. The 'sub' operator is executed. It consumes two 
+items from the stack, and outputs the result 2 to the stack.
 
 From the Red Book (page 23):
 **"A string is similar to an array, but its elements must be integers in the range 0 to 255."** 
