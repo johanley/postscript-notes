@@ -1,4 +1,4 @@
-# postscript-notes 
+# Postscript Notes 
 Notes on using the [PostScript programming language](https://en.wikipedia.org/wiki/PostScript) (PS).
 
 ## General
@@ -269,29 +269,24 @@ The endpoint of the current path is called the *current point*.
 There are a number of operators that interact with the current path.
 It helps to know the details of how such operators affect it.
 
-Questions to keep in mind:
-* does it start a new path (or subpath)?
-* does it consume the current path?
-* does it append to the current path?
-
 *Creates* a new path:
 * `newpath`
-* `moveto` starts a new *subpath* at a new position, but doesn't add a line segment
+* `moveto` starts a new *subpath* at a new position, but doesn't add a line segment. It's like moving a pen above paper, without making a mark.
 
 *Appends* to the current path :
-* `lineto`, `curveto`, `arc` (and similar, such as `rlineto`) 
+* `lineto`, `curveto`, `arc` (and similar operators, such as `rlineto`, which uses relative displacements) 
 * `closepath`   
 
 *Consumes*  the current path (and clears it with an implicit `newpath`):
 * `stroke`
-* `file` - this also implicitly calls `closepath` when needed!
+* `fill` - this also implicitly calls `closepath` when needed!
 
 Note: 
 * having a `newpath` immediately after a `stroke` or `fill` is redundant.
 * `stroke` paints the outline of a closed path, while `fill` paints the interior, without painting the outline.
 
 *Copies* the current path:
-* `clip` creates a clipping region using the current path, and leaves it in place
+* `clip` creates a clipping region using the current path, and leaves the current path in place
 
 
 
@@ -299,12 +294,14 @@ Note:
 
 * set up the coordinate system: `translate` (very common), `scale`, `rotate` (less common)
 * create a path
-* paint the path (`stroke` or `fill`)
+* `stroke` and/or `fill`
 
-If the same path is used more than once, consider defining the path in its own proc.
 The entire sequence is usually surrounded by `gsave` and `grestore`. 
 This restores the graphic state back to its original condition.
 
+You can both `stroke` and `fill` the same path by wrapping the first painting operation with its own `gsave`-`grestore` pair.  
+
+If the same path is used more than once, consider defining the path in its own proc.
 
 
 ## Idiom: Local Variables
