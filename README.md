@@ -4,7 +4,7 @@ Notes on using the [PostScript programming language](https://en.wikipedia.org/wi
 ## General
 
 * Adobe was founded in order to create PS in the early 1980s
-* it sparked the "desktop publishing" idea, making typesetting much cheaper 
+* it sparked the *desktop publishing* idea, making typesetting much cheaper 
 * PS is a full-blown computing language, but very much specialized on the task of telling printers how to print a document 
 * it's all about **drawing**: both text and illustrations are executed by drawing lines, curves, and circles (vector, not raster) 
 * it's all about **scalability**: it's trivial to rescale a document to a different size. (For changes to the aspect ratio, see below.)
@@ -17,12 +17,12 @@ Notes on using the [PostScript programming language](https://en.wikipedia.org/wi
 ## Lingo
 
 * PLRM - PostScript Language Reference Manual (link below)
-* [Document Structuring Conventions (DSC)](https://en.wikipedia.org/wiki/Document_Structuring_Conventions)
-* **distilling** a PS document means changing it from code+data to data only, roughly speaking. A PS file is "distilled" into a PDF file.  
-* the built in **operators** are the core of the language. There are quite a few of them, but 80% of the time you use 20% of the operators.
-* **page independence** is the idea that each page should be independent of all other pages; this is achieved by saving the state of all items in memory 
+* [Document Structuring Conventions (DSC)](https://en.wikipedia.org/wiki/Document_Structuring_Conventions) - a standard way of laying out PS files.
+* **distilling** a PS document means changing it from code+data to just data only, roughly speaking. A PS file is "distilled" into a PDF file.  
+* the built-in **operators** are the core of the language. There are quite a few of them, but 80% of the time you use 20% of the operators.
+* **page independence** is the idea that each page should be independent of all other pages. This is achieved by saving the state of all items in memory 
 at the start of a page, and then restoring that state when the page has been completed.
-* **prolog**: the start of a PS file, containing <em>procedures</em> that help to build pages. The prolog is usually written "by hand".
+* **prolog**: the start of a PS file, containing <em>procedures</em> that help build pages. The prolog is usually written "by hand".
 * **script**: placed after the prolog, a script builds pages by passing data to the procedures defined previously in the prolog.
 The script is typically created programmatically.
 * **driver**: the program that creates the final output PS file, usually by dynamically building the script 
@@ -261,7 +261,7 @@ The idiom for creating a path is:
 newpath
 12 50 moveto
 ..more path construction here..
-..`closepath` often comes at the end
+..`closepath` often comes at the end..
 ```
 
 The endpoint of the current path is called the *current point*.
@@ -310,7 +310,7 @@ You can achieve something close to that by using a temporary dictionary for your
 The pattern looks like this:
 
 ```
-/my-proc-A {
+/my-wondrous-proc {
   10 dict begin
     ...
   end 
@@ -324,10 +324,11 @@ Each `begin` is paired with an `end` operator at the end of the proc.
 This simplies removes/destroys the temporary dictionary.
 
 This is not 100% local: if proc A calls a helper proc B, then proc B sees the exact same dictionary stack as proc A.
+(In the language of object-oriented programming, the data behaves somewhat like an object's field, not a local variable defined in a method.)
 
 
 
-## Idiom: Put Data on the Stack into a Dictionary
+## Idiom: Move Data on the Stack into a Dictionary
 There is a trade-off between using data on the stack directly, versus pulling the data off the stack and storing it in a dictionary.
 Among the more experienced, there may be a tendency to use the stack directly, perhaps rearranging the order of things using stack operators. 
 
@@ -338,7 +339,7 @@ That switching is needed (unfortunately) because of how the `def` operator is de
 
 ```
 % pass dx dy as arguments
-/my-proc-A {
+/my-delightful-proc {
 10 dict begin
   /dy exch def
   /dx exch def
@@ -380,6 +381,25 @@ When you construct a closed path, instead of closing it explicitly, you should u
 close it with the `closepath` operator. 
 The reason is that it makes a visually pleasing join by default (miter).
 
+
+## Idiom: Use Whitespace to Increase Legibility
+PS can be hard to read. 
+You have to sometimes concentrate on the visualizing what operators are doing, and 
+track the state of the operand stack in your head. 
+
+Example:
+```
+%  the month appears in the top left corner of the cell
+{0 cell-dy 75 pct translate                         
+month-name cell-dx 2.5 pct cell-dy 10 pct moveto show} draw
+```
+
+If you add simple whitespace, to group together related items, then it's easier to read;
+```
+%  the month appears in the top left corner of the cell
+{0   cell-dy 75 pct   translate                         
+month-name   cell-dx 2.5 pct   cell-dy 10 pct   moveto show} draw
+```
 
 
 
@@ -449,14 +469,15 @@ One of the main advantages of PostScript is that of scalability.
 It seems a shame to throw that away by locking in to a single format.
 (Note that using the `scale` operator to change size only works if the aspect ratio remains the same.)   
 
-In the web, pages that are responsive to changes to screen size and orientation have become ubiquitous.
+In the web, [pages that are responsive](https://en.wikipedia.org/wiki/Responsive_web_design) to 
+changes to screen size and orientation have become ubiquitous.
 The exact same idea can be applied to print. 
 
 
 ## Margins That Are Sensitive to the Position of the Binding
 Many, many books published these days have margins that are the same left-right.
-This often creates annoying problems for the reader, if the text is too near the binding.
-If your output is to be bound, consider making your left-right margins asymmetric, and larger near the binding.
+This often creates annoying problems for the reader, if the text is close to the binding.
+If your output is to be bound, consider making your margins asymmetric, with more margin near the binding.
 
 
 
