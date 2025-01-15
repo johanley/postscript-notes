@@ -389,21 +389,18 @@ track the state of the operand stack in your head.
 
 Example:
 ```
-%  the month appears in the top left corner of the cell
 {0 cell-dy 75 pct translate                         
 month-name cell-dx 2.5 pct cell-dy 10 pct moveto show} draw
 ```
 
 If you add simple whitespace, to group together related items, then it's a bit easier to read:
 ```
-%  the month appears in the top left corner of the cell
 {0   cell-dy 75 pct   translate                         
 month-name   cell-dx 2.5 pct   cell-dy 10 pct   moveto show} draw
 ```
 
-You can also extend this to breaking up long things into separate lines:
+You can also extend this to using separate lines:
 ```
-% median daily high temperature appears on the right of the cell
 {cell-dx 94 pct   cell-dy 12 pct   translate
  data (daily-high) get 
  cell-dx 6 pct   cell-dy 88 pct
