@@ -41,7 +41,7 @@ Also of note:
 
 
 ## Tools
-* [Ghostscript](https://www.ghostscript.com/) for creating, viewing, and converting PS files, and related tasks. Very commonly used when developing with PS.
+* [Ghostscript](https://www.ghostscript.com/) for creating, viewing, and converting PS files, and related tasks. **Very commonly used when developing with PS.**
 * Adobe Distiller in Adobe Acrobat converts PS files to PDF files. (I haven't used this yet, so I don't know much about it.)
 
 
@@ -141,7 +141,7 @@ The Five Stacks:
 * there's no real community of users producing libraries for it
 * crickets: there's very little discussion of PS amongst modern programmers. Given the ubiquity of PDF and EPS, this is rather strange.
 * outputs in English and French that can use the 8859-1 (Latin-1) character encoding are straightforward (see below).
-* outputs in Chinese, Japanese, Korean and so on is possible, but more complicated.
+* outputs in Chinese, Japanese, Korean and so on are possible, but more complicated.
 
 In Language Level 3, there are 385 operators listed in the manual.
 Initially, this gives you the impression that PS is large and complex. 
@@ -249,7 +249,62 @@ After this is done, the new font, under the new name you have given it, is avail
 
 
 
-  
+## Understanding the Path
+
+<em>"In the PostScript language, **paths** define shapes, trajectories, and regions of all sorts.
+Programs use paths to draw lines, define the shapes of filled areas, and specify boundaries for clipping other graphics."</em>
+
+<em>"A path is made up of one or more disconnected **subpaths**, each comprising a sequence of connected segments."</em>
+
+The idiom for creating a path is:
+```
+newpath
+12 50 moveto
+..more path construction here..
+..`closepath` often comes at the end
+```
+
+The endpoint of the current path is called the *current point*.
+
+There are a number of operators that interact with the current path.
+It helps to know the details of how such operators affect it.
+
+Questions to keep in mind:
+* does it start a new path (or subpath)?
+* does it consume the current path?
+* does it append to the current path?
+
+*Creates* a new path:
+* `newpath`
+* `moveto` starts a new *subpath* at a new position, but doesn't add a line segment
+
+*Appends* to the current path :
+* `lineto`, `curveto`, `arc` (and similar, such as `rlineto`) 
+* `closepath`   
+
+*Consumes*  the current path (and clears it with an implicit `newpath`):
+* `stroke`
+* `file` - this also implicitly calls `closepath` when needed!
+
+Note: 
+* having a `newpath` immediately after a `stroke` or `fill` is redundant.
+* `stroke` paints the outline of a closed path, while `fill` paints the interior, without painting the outline.
+
+*Copies* the current path:
+* `clip` creates a clipping region using the current path, and leaves it in place
+
+
+
+## The Drawing Pattern
+
+* set up the coordinate system: `translate` (very common), `scale`, `rotate` (less common)
+* create a path
+* paint the path (`stroke` or `fill`)
+
+If the same path is used more than once, consider defining the path in its own proc.
+The entire sequence is usually surrounded by `gsave` and `grestore`. 
+This restores the graphic state back to its original condition.
+
 
 
 ## Idiom: Local Variables
@@ -308,9 +363,8 @@ Here's an example. It includes some DSC comments (Document Structuring Conventio
   %%Page: 1 1 
   %%BeginPageSetup 
    /pgsave save def
-     ...      
   %%EndPageSetup
-    ...
+    ...the page is drawn here..
   pgsave restore
   showpage
   %%PageTrailer  
@@ -342,7 +396,7 @@ gsave
 grestore
 ```
 
-It's possible to put that pattern into a proc:
+It's possible to put that pattern into a proc, as a template:
 ```
 % pass a procedure 
 % draw something, and then have this proc restore the graphics state
@@ -378,14 +432,14 @@ Variation: you might consider putting the `translate` operator inside the draw p
 
 
 
-## Practice: Use CMYK for Print, RGB for Screens
+## Use CMYK for Print, RGB for Screens
 Adobe has the idea of *color spaces*. 
 You almost always use the CMYK color space for print outputs, and RGB for an output being viewed on a screen. 
 
 
 
  
-## Practice: Consider Using Percent Coordinates
+## Consider Using Percent Coordinates
 Probably the first decision in many projects is the choice of dimensions for the page.
 If you code explicitly to those dimensions, then that one decision will be all over your code.
 That one decision becomes more or less locked-in.
@@ -399,13 +453,13 @@ It seems a shame to throw that away by locking in to a single format.
 (Note that using the `scale` operator to change size only works if the aspect ratio remains the same.)   
 
 In the web, pages that are responsive to changes to screen size and orientation have become ubiquitous.
-The same idea can be applied to print. 
+The exact same idea can be applied to print. 
 
 
-## Practice: Margins That Are Sensitive to the Position of the Binding
+## Margins That Are Sensitive to the Position of the Binding
 Many, many books published these days have margins that are the same left-right.
 This often creates annoying problems for the reader, if the text is too near the binding.
-Consider making your margins asymmetric, and larger near the binding.
+If your output is to be bound, consider making your left-right margins asymmetric, and larger near the binding.
 
 
 
