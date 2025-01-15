@@ -60,6 +60,10 @@ Also of note:
 * it makes liberal use of **stacks and dictionaries** 
 * it uses an **operand stack** to both pass parameters and return results
 * there's no strict concept of a reserved word: the behaviour of built-in operators can be overridden by a program!
+* the default origin of the coordinate system on the page is the lower left corner. The x coord increases to the right, and the y coord increases upwards.
+* PS has three Language Levels 1-3; I assume most modern implementations probably implement Level 3, since it's been around for a long time.
+* the documentation for the language reflects the lessened capabilities of typical computers dating from the 1980s and 1990s. 
+I assume that those concerns have become obsolete.
 
 <em>"[PostScript] includes the ability to treat programs as data and to monitor and control many aspects of the language's execution state; these notions
 are derived from programming languages such as LISP."</em> (Red Book, page 23).
@@ -98,21 +102,21 @@ From the Red Book (page 23):
 a distinct "character" syntax or data type and does not require that the integer elements of a string encode any particular character set. 
 String objects may also be used to hold arbitrary binary data.**""
 
-"To enhance program portability, strings appearing literally as part of a PostScript program should be limited to characters from the 
-printable ASCII character set, with other characters inserted by means of the \ddd escape conventions..."
+*"To enhance program portability, strings appearing literally as part of a PostScript program should be limited to characters from the 
+printable ASCII character set, with other characters inserted by means of the \ddd escape conventions..."*
 (I'm successfully ignoring this advice when injecting data into a PostScript template. I don't think it's necessary for my purposes, at least.) 
 
-PostScript predates Unicode! See below for an important remark about encoding.
+**PostScript predates Unicode.** See below for an important remark about encoding.
 
 Dictionaries: 
 * are central to the language
 * are where data is stored
 * there's always a <em>current dictionary</em>
-* there's a **stack of dictionaries**: systemdict (the lowest, for built-in operators; read-only), globaldict, GlobalFontDirectory, userdict, FontDirectory, ... 
+* there's a **stack of dictionaries**: `systemdict` (the lowest, for built-in operators; read-only), `globaldict`, `GlobalFontDirectory`, `userdict`, `FontDirectory`, ... 
 * you often create your own dictionaries to go on top of userdict (local variable idiom)
 * **searches by key-name proceed from the top of the dictionary stack to the bottom**
 * **if you define something with the same name as a built-in operator, you will hide/override the built-in implementation**
-* the operator **def** adds new data to a dictionary (it acts like a 'put') 
+* the operator `def` adds new data to a dictionary (it acts like a 'put') 
 
 
 The Five Stacks:
@@ -123,29 +127,30 @@ The Five Stacks:
 * execution stack: procedures and files being executed; the call stack. Programs don't talk to this directly.
 
 
-**Stack operations are important because they are used often.** 
+**Stack operations are important because they are used so often.** 
 
 
 ## Working with PS as a Programmer  
 * Adobe's documentation for the language is robust and authorative
 * it's definitely low-level
-* it's curt and can be hard to read
+* it's curt
+* reading it often requires more concentration than is usual for a programming language
 * I don't know of anything resembling an IDE for PS
-* debugging PS could not be more rudimentary. Adobe has an <em>ehander.ps</em> which can give better stack traces etc., but I haven't used it yet.
+* debugging PS is very rudimentary. Adobe has an <em>ehander.ps</em> which can give better stack traces etc., but I haven't used it yet.
 * the conversion from PS to PDF for the final output is a non-issue, since it's handled by well-known and stable tools (Ghostscript and Adobe Acrobat/Distiller).
 * there's no real community of users producing libraries for it
 * crickets: there's very little discussion of PS amongst modern programmers. Given the ubiquity of PDF and EPS, this is rather strange.
-* working with languages like English and French that can use the 8859-1 (Latin-1) character encoding is straightforward (see below).
-* working with languages like Chinese or Japanese is possible, but more complicated.
+* outputs in English and French that can use the 8859-1 (Latin-1) character encoding are straightforward (see below).
+* outputs in Chinese, Japanese, Korean and so on is possible, but more complicated.
 
-In Language Level 3, there are 385 operators listed.
+In Language Level 3, there are 385 operators listed in the manual.
 Initially, this gives you the impression that PS is large and complex. 
 But after using it for a few weeks, it seems that the opposite is the case: 80% of the time, you use 20% of the operators. 
 As usual, it's not only about the language, but the language <em>plus the libraries</em>.
-In a sense, PS is all language and no libraries, so you could argue that its overall size is small.
+In a sense, PS is all language and few libraries, so you could argue that its overall size is small.
 
-This makes sense: PS is a special purpose language, one designed mainly for printing documents.
-There are no libraries for date-time control, regular expressions, network communication, and so on.
+This makes sense: PS is a special purpose language, designed mainly for printing documents.
+There are no libraries for date-time control, regular expressions, threads, and so on.
 
 There are some common items that most programmers feel should have been part of the language.
 There's no help in the core language operators for:
@@ -153,9 +158,6 @@ There's no help in the core language operators for:
 * text flow
 * table creation 
 
-
-PS gives you a feeling of power, by building on top of robust low-level operations  
-Example: tables
 
 ## Producing Documents Programmatically With PS
 
@@ -174,7 +176,7 @@ At the other end would be tools like Adobe's [InDesign](https://www.adobe.com/ca
 
 
 ## The 'Lifecycle' of a Glyph, and Encoding
-In PS, the **show** operator marks a page with text characters.
+In PS, the `show` operator marks a page with text characters.
 Here, a simple literal is passed the operator:
 
 ```
@@ -187,7 +189,7 @@ It's important to understand how the system marks the letter 'H' on the page:
 * that number is passed to the `show` operator. PS calls this number the *character code*.
 * the current font has all of its info in a font-dictionary. One entry in that dictionary defines how it maps an incoming 
 number (the character code) to a glyph that it knows how to draw.
-* that entry has '/Encoding' as its key, and its value is an array containing 256 names. This array is called the **encoding vector**.
+* that entry has `/Encoding` as its key, and its value is an array containing 256 names. This array is called the **encoding vector**.
 * the names in the encoding vector are the names of glyphs supported by the font, such as `/Hsmall` and `/hyphen`
 * the incoming character code is used is an index into the encoding vector
 * a glyph name is returned
@@ -196,15 +198,15 @@ number (the character code) to a glyph that it knows how to draw.
 * when finished, the `currentposition` is updated by the font to be in the desired position for the next letter
 * the update to the new position is a displacement dx and dy from the initial position that was originally passed
 * each glyph can have a different displacement
-* for English, dx&gt;0 and dy=0 (they flow left to right)
-* for Arabic or Hebrew  dx&lt;0 and dy=0 (they flow right to left)
-* for vertical Chinese, dx=0 and dy&lt;0 (they flow top to bottom)
+* for English, dx&gt;0 and dy=0 (flow left to right)
+* for Arabic or Hebrew  dx&lt;0 and dy=0 (flow right to left)
+* for vertical Chinese, dx=0 and dy&lt;0 (flow top to bottom)
 * for monospaced (fixed width) fonts, the displacement is the same for every glyph. Most fonts are not monospaced.
 
 Many fonts support fewer than 256 glyphs.
-In that case, the entry in the encoding vector is a special name `.notdef`.
+In that case, the encoding vector will have entries of `.notdef`.
 It can be repeated in many places in the encoding vector.
-If the system passes in a character code that corresponds to a .notdef entry, then the font is required to define a special glyph to act as a placeholder.
+If the system passes in a character code that corresponds to a `.notdef` entry, then the font is required to define a special glyph to act as a placeholder.
 This is the source of some weird characters that you sometimes see when the encoding is not correct in a system. 
 
 
@@ -213,7 +215,7 @@ This is the source of some weird characters that you sometimes see when the enco
 ## Re-encoding Fonts to Latin-1 (8859-1)
 PS was designed before [Unicode](https://en.wikipedia.org/wiki/Unicode) was invented.
 It's possible to use it to print documents in languages such as Chinese, with large character sets, but 
-it's more complicated than creating a document using a Latin-1 (8859-1) encoding. 
+it's more complicated than creating a document using a Latin-1 (8859-1) encoding. (I've never done that, so I have no insight on that.) 
 
 For documents in Western European languages like English and French, here are the steps that you need to do:
 1. Your PS files need to be encoded using Latin-1 (8859-1).
@@ -221,11 +223,11 @@ For documents in Western European languages like English and French, here are th
 3. You need to "re-encode" every font that you use, to use Latin-1.
 
 The re-encoding of a font is necessary since the default encoding is an old Adobe encoding that nobody uses anymore.
-The re-encoding code (below) copies a font's definition into a new place, with a new font-name, and retains all of the info except for its Encoding entry.
-The Encoding entry is changed to Latin-1 (8859-1).
+The re-encoding code (below) copies a font's definition into a new place, with a new font-name, and retains all of the info except for its `Encoding` entry.
+The `Encoding` entry is changed to Latin-1 (8859-1).
 
 Here's a procedure that re-encodes an existing font:
-<pre>
+```
 % new-font-name old-font-name
 /latinize {
   findfont
@@ -241,37 +243,25 @@ Here's a procedure that re-encodes an existing font:
   definefont  % internally sets a FID (font-id) for the new font
   pop % remove the new font object from the operand stack
 } bind def
-</pre>
+```
 
 After this is done, the new font, under the new name you have given it, is available like any other font in the system.
 
 
 
-
-
-
-## Responsive Documents
-Being Insensitive to Changes in Width/Height
-Relative factors, not absolutes
-Percentages, not inches or millimeters
-
-
-* PS has three Language Levels 1-3; I assume most modern implementations probably implement Level 3, since it's been around for a long time.
-* the documentation for the language reflects the lessened capabilities of typical computers dating from the 1980s and 1990s. 
-I assume that those concerns have become obsolete.
   
 
 
 ## Idiom: Local Variables
 PS has no built-in scoping of variables to a procedure.
 You can achieve something close to that by using a temporary dictionary for your data.
-The patter looks like this:
+The pattern looks like this:
 
 ```
 /my-proc-A {
-10 dict begin
-  ...
-end 
+  10 dict begin
+    ...
+  end 
 }
 ```
 
@@ -285,14 +275,16 @@ This is not 100% local: if proc A calls a helper proc B, then proc B sees the ex
 
 
 
-## Idiom: Put Data on the Stack into a Local Variable
-There is a trade-off between using data on the stack directly, versus pulling the data off the stack and storing it in a variable.
-Among the more experienced, there may be a tendency to use the stack directly, perhaps rearranging the order using stack operators. 
+## Idiom: Put Data on the Stack into a Dictionary
+There is a trade-off between using data on the stack directly, versus pulling the data off the stack and storing it in a dictionary.
+Among the more experienced, there may be a tendency to use the stack directly, perhaps rearranging the order of things using stack operators. 
 
 For the following proc, say it has two arguments passed to it, called dx and dy.
 This implementation defines two items in its temporary dictionary, to store the data under a name.
 Note the use of the `exch` operator, which is used to switch the order of the top two things on the stack.
 That switching is needed (unfortunately) because of how the `def` operator is defined.
+
+```
 % pass dx dy as arguments
 /my-proc-A {
 10 dict begin
