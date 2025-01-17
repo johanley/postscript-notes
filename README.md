@@ -34,8 +34,8 @@ The script is typically created programmatically.
 PS has three <em>Language Levels</em>. The three editions of this book correspond to the three levels. 
 The [third edition (1999)](https://www.adobe.com/jp/print/postscript/pdfs/PLRM.pdf) is the most up to date. 
 The [second edition (1990)](https://archive.org/details/postscriptlangua0000taft) is useful because it includes an appendix for the Document Structuring Conventions (DSC).
+* The [Green Book](https://archive.org/details/postscriptlangua00reid): Program Design (1988) is a gentle intro to the language
 * The [Blue Book](https://archive.org/details/postscriptlangua0000unse): Tutorial and Cookbook (1986)
-* The [Green Book](https://archive.org/details/postscriptlangua00reid): Program Design (1988)
 
 Also of note: 
 * [Mathematical Illustrations](https://personal.math.ubc.ca/~cass/graphics/manual/) by Bill Casselman, a mathematician at UBC.
@@ -56,17 +56,18 @@ Also of note:
 * types: boolean, integer, real, name (their word for an identifier) 
 * data structures: strings, dictionaries, and arrays (nestable)
 * strings can contain binary data! **there's no 'character' data type as such**  
-* strings are arrays of numbers in the range 0..255
+* strings are arrays of numbers in the range 0..255 (a character's number is determined by an *encoding*)
 * a procedure is an executable array of strings (tokens in the language) 
 * it has next to nothing for implementing modularity (the `run` operator includes one PS file in another)
-* the programmer writes **procedures**, but the system has built-in **operators** (385 of them in Language Level 3). They both behave nearly the same.
+* the programmer writes **procedures**, but the system has built-in **operators** (385 of them in Language Level 3). 
+In your code, operators and procedures are used in the exact same way. 
 * PS makes liberal use of **stacks and dictionaries** 
-* PS uses an **operand stack** to both pass parameters and return results
+* PS uses an **operand stack** to pass parameters and return results
 * PS **may have been the first language to implement dictionaries**, but I'm not sure. The documentation emphasizes in several places 
 dictionaries are a unique aspect of the language.
 * there's no strict concept of a reserved word: the behaviour of built-in operators can be overridden by a program!
-* the default origin of the coordinate system on the page is the lower left corner. The x coord increases to the right, and the y coord increases upwards.
-* PS has three Language Levels 1-3; I assume most modern implementations probably implement Level 3, since it's been around for a long time.
+* the default origin of the coordinate system on the page is the lower left corner. By default, the x coord increases to the right, and the y coord increases upwards.
+* PS has three Language Levels 1-3. I assume most modern implementations probably implement Level 3, since it's been around for a long time.
 * the documentation for the language reflects the lessened capabilities of typical computers dating from the 1980s and 1990s. 
 I assume that those concerns have become obsolete.
 
@@ -76,11 +77,11 @@ are derived from programming languages such as LISP."</em> (Red Book, page 23).
 <em>"[The] names that represent operators are not reserved by the language. A PostScript program may change the meanings of operator names."</em>
 (Red Book, page 23). 
 
-<P>The generic name for everything in the language is an *object* (not in the sense of object-oriented programming!).
+<P>The generic name for everything in the language is an *object*, but this is not meant in the same sense as object-oriented programming.
 
 The interpreter executes a series of objects. An object has:
 * a type: boolean, integer, real, name, operator (*simple*); string, array,dictionary, file (*composite*)
-* attributes: literal or executable; access control (read, execute, both); type, length (for composite objects)
+* attributes: literal or executable; access control (read, execute, both); length (for composite objects)
 * a value
  
 If an object is executable, executing the object depends on its type:
@@ -105,7 +106,7 @@ From the Red Book (page 23):
 
 **"String objects are conventionally used to hold text, one character per string element. However, the PostScript language does not have
 a distinct "character" syntax or data type and does not require that the integer elements of a string encode any particular character set. 
-String objects may also be used to hold arbitrary binary data.**""
+String objects may also be used to hold arbitrary binary data.**"
 
 *"To enhance program portability, strings appearing literally as part of a PostScript program should be limited to characters from the 
 printable ASCII character set, with other characters inserted by means of the \ddd escape conventions..."*
@@ -118,12 +119,12 @@ printable ASCII character set, with other characters inserted by means of the \d
 Dictionaries: 
 * are central to the language
 * are where data is stored
-* there's always a <em>current dictionary</em>
+* there's always a <em>current dictionary</em>, which simply the one on top of the stack
 * there's a **stack of dictionaries**: `systemdict` (the lowest, for built-in operators; read-only), `globaldict`, `GlobalFontDirectory`, `userdict`, `FontDirectory`, ... 
 * you often create your own dictionaries to go on top of userdict (local variable idiom)
 * **searches by key-name proceed from the top of the dictionary stack to the bottom**
 * **if you define something with the same name as a built-in operator, you will hide/override the built-in implementation**
-* the operator `def` adds new data to a dictionary (it acts like a 'put') 
+* the operator `def` adds new data to the current dictionary (it acts like a *put* - create or update) 
 
 
 The Five Stacks:
@@ -148,7 +149,9 @@ Data can actually exist in only one of two places:
 * it's curt
 * reading it often requires more concentration than is usual for a programming language
 * I don't know of anything resembling an IDE for PS
-* debugging PS is very rudimentary. Adobe has an <em>ehander.ps</em> which can give better stack traces etc., but I haven't used it yet.
+* Visual Studio has an [extension for PS](https://marketplace.visualstudio.com/items?itemName=mxschmitt.postscript). 
+* Notepad++ has built-in syntax highlighting for PS 
+* debugging PS is very rudimentary. Adobe has an <em>ehandler.ps</em> which can give better stack traces etc., but I haven't used it yet.
 * the conversion from PS to PDF for the final output is a non-issue, since it's handled by well-known and stable tools (Ghostscript and Adobe Acrobat/Distiller).
 * there's no real community of users producing libraries for it
 * crickets: there's very little discussion of PS amongst modern programmers. Given the ubiquity of PDF and EPS, this is rather strange.
@@ -210,9 +213,10 @@ number (the character code) to a glyph that it knows how to draw.
 * when finished, the `currentposition` is updated by the font to be in the desired position for the next letter
 * the update to the new position is a displacement dx and dy from the initial position that was originally passed
 * each glyph can have a different displacement
-* for English, dx&gt;0 and dy=0 (flow left to right)
-* for Arabic or Hebrew  dx&lt;0 and dy=0 (flow right to left)
-* for vertical Chinese, dx=0 and dy&lt;0 (flow top to bottom)
+* the displacement can even depend on the surrounding characters (ligatures, Arabic characters)
+* for English, dx&gt;0 and dy=0 (flow from left to right)
+* for Arabic or Hebrew  dx&lt;0 and dy=0 (flow from right to left)
+* for vertical Chinese, dx=0 and dy&lt;0 (flow from top to bottom)
 * for monospaced (fixed width) fonts, the displacement is the same for every glyph. Most fonts are not monospaced.
 
 Many fonts support fewer than 256 glyphs.
@@ -276,7 +280,8 @@ newpath
 ..`closepath` often comes at the end..
 ```
 
-The endpoint of the current path is called the *current point*.
+The endpoint of the current path is called the *current point*. 
+The `moveto` is not needed if the origin is already at the desired position (I believe).
 
 There are a number of operators that interact with the current path.
 It helps to know the details of how such operators affect it.
@@ -333,14 +338,14 @@ The pattern looks like this:
 }
 ```
 
-The first line has a `begin` operator that creates an anonymous dictionary and puts it on top of the dictionary stack. 
+The first line has two operators that create an anonymous dictionary, and then put it on top of the dictionary stack. 
 In this case, the dict is initialized to hold 10 items; but, if you accidentally use it to store more than 10 items, the system 
 will automatically re-size the dict as needed. 
 Each `begin` is paired with an `end` operator at the end of the proc.
-This simplies removes/destroys the temporary dictionary.
+The `end` operator simply removes/destroys the temporary dictionary, when it's no longer needed.
 
 This is not 100% local: if proc A calls a helper proc B, then proc B sees the exact same dictionary stack as proc A.
-(In the language of object-oriented programming, the data behaves somewhat like an object's field, not a local variable defined in a method.)
+(In the language of object-oriented programming, the data behaves somewhat like an object's *field*, not a local variable defined in a method.)
 
 
 
