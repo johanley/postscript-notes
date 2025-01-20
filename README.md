@@ -430,17 +430,36 @@ You can also extend this to using separate lines:
 
 ```
 
-## Fonts
-To start with, you may want to use a TrueType font, because they are widely supported by different tools.
+## Font Selection
+PostScript supports different [font types](https://en.wikipedia.org/wiki/PostScript_fonts).
 
-The language specification defines several kinds of supported [font types](https://en.wikipedia.org/wiki/PostScript_fonts).
-Ghostscript has 35 [free-to-use fonts](https://en.wikipedia.org/wiki/Ghostscript#Free_fonts), that correspond to the core fonts defined in 
-Language Level 2, plus some other non-free ones that correspond to about half of the core fonts defined in Language Level 3.
+<em>"Ghostscript can use any Type 0, 1, 3, 4, or 42 font acceptable to other PostScript language interpreters or to ATM, including MultiMaster fonts. 
+Ghostscript can also use TrueType font files."</em>
+
+This makes no mention of OpenType OTF fonts. Ghostscript [may support them](https://bugs.ghostscript.com/show_bug.cgi?id=694790), however.
+
+The main ones here are:
+* Type 1
+* Type 42, which means TrueType fonts
+
+PostScript docs make no explicit mention of OTF fonts, but they appear to be supported in Adobe Acrobat's Distiller ([example](https://helpx.adobe.com/ca/acrobat/using/pdf-fonts.html)), 
+a tool which translates PS files into PDF files.
+This may be related to the fact that the differences between OTF and TrueType are apparently small, OTF being an extension of TTF.
+
+Be aware that font file extensions (.ttf, .otf, and so on) are sometimes not a good indicator of the actual precise font type.
+
+Surprisingly, Adobe is [phasing out support for Type 1 fonts in some tools](https://helpx.adobe.com/ca/fonts/kb/postscript-type-1-fonts-end-of-support.html)
+
+There's no standard set of fonts required by the PostScript language.
+
+Ghostscript has 35 [free-to-use fonts](https://en.wikipedia.org/wiki/Ghostscript#Free_fonts), plus some other non-free ones.
 Many open-source projects rely on fonts from Ghostscript.
 
 You need to tell Ghostscript where to find your font files. 
-You can control this in different ways. 
-I would recommend editing its ``Fontmap`` config file.
+You can control this in different ways. For example:
+
+* set the ``GS_FONTPATH``environment variable
+* edit its ``Fontmap.GS`` config file, and add a line stating the name of the font and the corresponding file location
 
 
 ## Idiom: Use a Proc For Drawing
