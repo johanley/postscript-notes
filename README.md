@@ -149,7 +149,8 @@ Data can actually exist in only one of two places:
 * it's curt
 * reading it often requires more concentration than is usual for a programming language
 * I don't know of anything resembling an IDE for PS
-* Visual Studio has an [extension for PS](https://marketplace.visualstudio.com/items?itemName=mxschmitt.postscript). 
+* Visual Studio has an [extension for PS](https://marketplace.visualstudio.com/items?itemName=mxschmitt.postscript).
+* There's an [Eclipse-based IDE](https://marketplace.eclipse.org/content/postscript-development-tools#details) 
 * Notepad++ has built-in syntax highlighting for PS 
 * debugging PS is very rudimentary. Adobe has an <em>ehandler.ps</em> which can give better stack traces etc., but I haven't used it yet.
 * the conversion from PS to PDF for the final output is a non-issue, since it's handled by well-known and stable tools (Ghostscript and Adobe Acrobat/Distiller).
@@ -429,6 +430,17 @@ You can also extend this to using separate lines:
 
 ```
 
+## Fonts
+To start with, you may want to start with a TrueType font, because they are widely supported by different tools.
+
+The language specification defines several kinds of supported [font types](https://en.wikipedia.org/wiki/PostScript_fonts).
+Ghostscript has 35 [free-to-use fonts](https://en.wikipedia.org/wiki/Ghostscript#Free_fonts), that correspond to the core fonts defined in 
+Language Level 2, plus some other non-free ones that correspond to about half of the core fonts defined by Language Level 3.
+Many open-source projects rely on fonts from Ghostscript.
+
+You need to tell Ghostscript where to find your font files. 
+You can control this in different ways. 
+I would recommend editing its ``Fontmap`` config file.
 
 
 ## Idiom: Use a Proc For Drawing
@@ -500,6 +512,10 @@ It seems a shame to throw that away by locking in to a single format.
 In the web, [pages that are responsive](https://en.wikipedia.org/wiki/Responsive_web_design) to 
 changes to screen size and orientation have become ubiquitous.
 The exact same idea can be applied to print. 
+
+When you use percentages instead of absolute units, it will usually give you 90% of what you need when the aspect ratio changes significantly.
+Typically, you will still need to make small adjustments here and there to get it just right.
+(The same is true on the web. For example, the size of margins, as a percent of the screen dimensions, is usually larger when the screen is physically larger.) 
 
 
 ## Margins That Are Sensitive to the Position of the Binding
