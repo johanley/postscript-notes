@@ -431,11 +431,11 @@ You can also extend this to using separate lines:
 ```
 
 ## Fonts
-To start with, you may want to start with a TrueType font, because they are widely supported by different tools.
+To start with, you may want to use a TrueType font, because they are widely supported by different tools.
 
 The language specification defines several kinds of supported [font types](https://en.wikipedia.org/wiki/PostScript_fonts).
 Ghostscript has 35 [free-to-use fonts](https://en.wikipedia.org/wiki/Ghostscript#Free_fonts), that correspond to the core fonts defined in 
-Language Level 2, plus some other non-free ones that correspond to about half of the core fonts defined by Language Level 3.
+Language Level 2, plus some other non-free ones that correspond to about half of the core fonts defined in Language Level 3.
 Many open-source projects rely on fonts from Ghostscript.
 
 You need to tell Ghostscript where to find your font files. 
