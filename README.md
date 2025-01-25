@@ -556,3 +556,19 @@ From the Green Book:
 
 *"The application should always control placement of text, and should know the character widths beforehand."* 
 
+
+
+## Images Are Usually Referenced With Full Path Names (?)
+Ghostscript has a `runlibfile`, and you can configure Ghostscript to find PS files in your project's directories.
+I'm not certain, but it seems that the same mechanism is not available when opening image files with the `file` command.
+In that case, you need to specify the full file path.
+
+
+## Embed fonts in PDFs
+It's always safest to embed fonts in your output PDFs.
+Ghostscript can create a PDF output using `-sDEVICE=pdfwrite`. 
+Be aware that, if you're using one of Ghostscripts core fonts, then by default the font will NOT be embedded in the output PDF.
+[Override that default behaviour](https://ghostscript.readthedocs.io/en/latest/VectorDevices.html#note-11) by adding this to your PS: 
+
+  % https://stackoverflow.com/questions/79386904/postscript-text-outline-doesnt-match-the-text
+  `<< /NeverEmbed [ ] >> setdistillerparams`
