@@ -568,7 +568,6 @@ In that case, you need to specify the full file path.
 It's always safest to embed fonts in your output PDFs.
 Ghostscript can create a PDF output using `-sDEVICE=pdfwrite`. 
 Be aware that, if you're using one of Ghostscripts core fonts, then by default the font will NOT be embedded in the output PDF.
-[Override that default behaviour](https://ghostscript.readthedocs.io/en/latest/VectorDevices.html#note-11) by adding this to your PS: 
+[Override that default behaviour](https://stackoverflow.com/questions/41205112/ghostscript-stubbornly-refuses-to-embed-fonts) by adding this to your PS: 
 
-  % https://stackoverflow.com/questions/79386904/postscript-text-outline-doesnt-match-the-text
   `<< /NeverEmbed [ ] >> setdistillerparams`
