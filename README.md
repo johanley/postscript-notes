@@ -56,18 +56,18 @@ Also of note:
 
 ## PS as a Programming Language
 * a special-purpose language for describing documents
-* plain text files; interpreted, not compiled
+* plain text files; interpreted, not compiled; garbage collection
 * minimalist syntax
 * no reserved words! You can re-define the behaviour of built-in operators
 * **post-fix syntax** is used, with the params coming before the operator/procedure
 * **code is data and data is code** is central to the language: anonymous procedures are passed around as data
 * types: boolean, integer, real, name (their word for an identifier) 
-* data structures: strings, dictionaries, and arrays (nestable)
+* data structures: dictionaries, arrays, strings (nestable)
 * strings can contain binary data! **there's no 'character' data type as such**  
 * strings are arrays of numbers in the range 0..255 (a character's number is determined by an *encoding*)
 * a procedure is an executable array of strings (tokens in the language) 
-* it has next to nothing for implementing modularity (the `run` operator includes one PS file in another)
-* (I think a namespace can be emulated by using a ProcSet resource, but I've never done that)
+* it has a dynamic namespace, implemented by the dictionay stack
+* it doesn't seem to have much for implementing modularity (the `run` operator includes one PS file in another)
 * the programmer writes **procedures**, but the system has built-in **operators** (385 of them in Language Level 3). 
 In your code, operators and procedures are used in the exact same way. 
 * PS makes liberal use of **stacks and dictionaries** 
@@ -128,12 +128,53 @@ printable ASCII character set, with other characters inserted by means of the \d
 Dictionaries: 
 * are central to the language
 * are where data is stored
-* there's always a <em>current dictionary</em>, which simply the one on top of the stack
-* there's a **stack of dictionaries**: `systemdict` (the lowest, for built-in operators; read-only), `globaldict`, `GlobalFontDirectory`, `userdict`, `FontDirectory`, ... 
-* you often create your own dictionaries to go on top of userdict (local variable idiom)
-* **searches by key-name proceed from the top of the dictionary stack to the bottom**
+* there's a **stack of dictionaries** with three permanent members: `systemdict` (the lowest, for built-in operators; read-only), `globaldict`, and  `userdict`
+* the <em>current dictionary</em>, which simply the one on top of the stack
+* you often create your own dictionaries to go on top of userdict; such dictionaries are usually short-lived, and provide "extra names" that exist only during the execution of a proc. 
+* the **dictionary stack implements a dynamic namespace**, against which names are looked up at a given line in your code 
+* **searches by key-name proceed from the top of the dictionary stack to the bottom**. This allows you to easily build default-plus-override behaviour.
 * **if you define something with the same name as a built-in operator, you will hide/override the built-in implementation**
-* the operator `def` adds new data to the current dictionary (it acts like a *put* - create or update) 
+* the operator `def` adds new data to the current dictionary (it acts like a *put* - create or update)
+* warning: strings `(blah)` and names `/blah` are interchangeable when used as keys in dictionaries. If you create an entry with a string as key, the 
+dictionary will return that key as a name data-type! 
+
+
+*"The interpreter maintains a dictionary stack defining the current dynamic name space."*
+
+The dictionary stack, from top to bottom:
+* (anonymous) - a temporary dictionary created in the context of a single proc; a temporary modification to the current namespace
+* `userdict` - used by programs, local VM; permanent
+* `globaldict` - used by programs, global VM; permanent
+* `systemdict` - read-only, built-in operators; permanent
+
+In error messages, keep an eye on information about the state of the dictionary stack.
+An example from Ghostscript:
+
+<pre>
+Dictionary stack:
+   --dict:757/1123(ro)(G)--   --dict:0/20(G)--   --dict:89/200(L)--</pre>
+   
+This says that, at the time of this erorr, there were 3 dictionaries on the dictionary stack.
+These three will always be present. 
+They are, in order from left to right, `systemdict`, `globaldict`, and `userdict`.
+
+For the `globaldict`, the above says:
+* it has 757 entries, and has allocated room for 1123 entries 
+* it's read-only (ro)
+* it's in global VM (G)
+
+
+Local VM and Global VM:
+* the distinction was added in Level 2 of the language
+* global VM: stores things that exist for the full duration of your program
+* local VM: a kind of workspace in which each page creates its output *independently of the other pages*
+* a page wraps its code in a `save`-`restore` pair. The `save` operator saves the state of local VM. 
+The `restore` operator restores the state of local VM, at the end of generating a page. 
+In this way, each page starts with the same initial conditions, and has no effect upon other pages.
+* the `save`-`restore` pair has no effect on global VM.
+* global VM can be used to store, for example, procs and constants that should exist for the duration of the program, and 
+be accessible to all pages.
+* no global-to-local cross-talk: a composite object in global VM can't have its value in local VM (because local VM gets clobbered at the end of every page).
 
 
 The Five Stacks:
