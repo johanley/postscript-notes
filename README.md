@@ -125,18 +125,19 @@ String objects may also be used to hold arbitrary binary data.**"
 printable ASCII character set, with other characters inserted by means of the \ddd escape conventions..."*
 (I'm successfully ignoring this advice when injecting data into a PostScript template. I don't think it's necessary for my purposes, at least.) 
 
-**PostScript predates Unicode.** See below for an important remark about encoding.
+**The first version of PostScript predates Unicode.** See below for an important remark about encoding. 
+PostScript can handle any character set, but extended character sets (Chinese, Japanese, and so on) are more complex to use than small character sets.
 
 *"PostScript fonts are executable programs that draw the character shapes using the same path construction and painting mechanisms as all other graphics."*
 
-Dictionaries: 
+**Dictionaries**: 
 * are central to the language
 * are where data is stored
 * there's a **stack of dictionaries** with three permanent members: `systemdict` (the lowest, for built-in operators), `globaldict`, and  `userdict`
 * the <em>current dictionary</em> is simply the one on top of the stack
 * you often create your own dictionaries to go on top of userdict; such dictionaries are usually short-lived, and provide "extra names" that exist only during the execution of a proc. 
-* the **dictionary stack implements a dynamic namespace**, against which names are looked up at a given line in your code. *This is the most important thing about the dictionary stack.* 
-* **searches by key-name proceed from the top of the dictionary stack to the bottom**. This allows you to easily build default-plus-override behaviour.
+* the **dictionary stack implements a dynamic namespace, against which names are looked up at a given line in your code. This is the most important thing about the dictionary stack.** 
+* **searches by key-name proceed from the top of the dictionary stack to the bottom**. This allows you to easily build default-plus-override behaviour, if desired.
 * **if you define something with the same name as a built-in operator, you will hide/override the built-in implementation**
 * the operator `def` adds new data to the current dictionary (it acts like a *put* - create or update)
 * warning: strings `(blah)` and names `/blah` are interchangeable when used as keys in dictionaries. If you create an entry with a string as key, the 
@@ -636,7 +637,8 @@ Typically, you will still need to make small adjustments here and there to get i
 Many, many books published these days have margins that are the same left-right.
 This often creates annoying problems for the reader, if the text is close to the binding.
 If your output is to be bound, consider making your margins asymmetric, with more margin near the binding.
-(The `setpagedevice` operator has settings to control this, but it may be best to do it explicitly in your code, to ensure its device-independent.)
+The `setpagedevice` operator has settings to control this, but it may be best to do it explicitly in your code, to ensure its device-independent.
+(See Table 6.4 in the docs, and the `ImageShift` setting.)
 
 
 
