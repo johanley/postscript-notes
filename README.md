@@ -129,14 +129,6 @@ PostScript can handle any character set, but extended character sets (Chinese, J
 
 *"PostScript fonts are executable programs that draw the character shapes using the same path construction and painting mechanisms as all other graphics."*
 
-Names:
- 
-*"A name is an atomic symbol uniquely defined by a sequence of characters. Names serv the same purpose as "identifiers" in other
-programming languages: as tags for variables, procedures, and so on. However, PostScript names are not just language artifacts, but are 
-first class-data objects, similar to "atoms" in LISP."*
-
-"Names do not *have* values, unlike variable or procedure names in other programming languages. However, names can be *associated* with values in dictionaries." 
-
 **Dictionaries**: 
 * are central to the language
 * are where data is stored
@@ -180,6 +172,30 @@ For the `globaldict`, the above says:
 * it's in global VM (G)
 
 
+**Names**:
+ 
+*"A name is an atomic symbol uniquely defined by a sequence of characters. Names serv the same purpose as "identifiers" in other
+programming languages: as tags for variables, procedures, and so on. However, PostScript names are not just language artifacts, but are 
+first class-data objects, similar to "atoms" in LISP."*
+
+"Names do not *have* values, unlike variable or procedure names in other programming languages. However, names can be *associated* with values in dictionaries."
+
+By default, names are bound *late*: the system looks up the value (in the namespace/dictionary stack) associated with an executable name only at execution-time,
+when a procedure is invoked. The `bind` operator changes this behaviour, but only for the *operators* in a proc (and not procs). 
+At the time the `bind` operator executes on a proc, it can modify its contents by replacing its operator names within it 
+with the associated values *at the time the bind is executed*.
+This also applies to all procs *called by* the given proc, to arbitrary depth.
+
+Benefits of `bind`: 
+* it avoids possible changes to the definition of operators in the namespace, between the definiton of a proc and its execution.  
+* it usually results in faster execution. 
+* *"It is worthwhile to apply `bind` to any procedure that will be executed more than a few times."*
+
+For names that aren't operators, the exact same behaviour is implemented by replacing the name `blah` with `//blah`.
+Again, this doesn't immediately *execute* the name, it immediately *replaces* it with its value according to the current namespace (dictionary stack). 
+
+
+
 Local VM and Global VM:
 * the distinction was added in Level 2 of the language
 * global VM: stores things that exist for the full duration of your program
@@ -193,6 +209,10 @@ be accessible to all pages.
 * no global-to-local cross-talk: a composite object in global VM can't have its value in local VM (because local VM gets clobbered at the end of every page).
 * it's dangerous to put mutable items in global VM (for the usual reasons)
 
+"Typically, global VM should be used to hold procedure *definitions* and constant data; local VM should be used to hold temporary data needed 
+during *execution* of the procedures."
+
+"Only composite objects occupy VM. An 'object in VM' means a 'composite object whose *value* occupies VM'."
 
 The Five Stacks:
 * operand stack: data being passed in and out of procedures. *Often referred to simply as 'the stack'. Operations on the stack are important*.
