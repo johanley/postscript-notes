@@ -435,7 +435,7 @@ In that case, it's neither necessary nor desirable to pass *dx* and *dy* as para
 (An exception: if you want to give the data different names for some reason.)
 
 ## Idiom: Save/Restore for Page Independence
-Adobe recommends having pages independent of each other.
+**Adobe very strongly recommends having pages independent of each other.**
 The typical way to accomplish this is to wrap the code that generates a page in a ``save\restore`` pair.
 In this way, the state of memory (local VM, not global VM) is saved at the beginning of the page, and resurrected at the end, such that each page 
 starts with local VM memory that is in the exact same state.
