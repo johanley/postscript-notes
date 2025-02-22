@@ -289,7 +289,7 @@ This is the source of some weird characters that you sometimes see when the enco
 
 
 ## Re-encoding Fonts to Latin-1 (8859-1)
-PS was designed before [Unicode](https://en.wikipedia.org/wiki/Unicode) was invented.
+PS was first published before [Unicode](https://en.wikipedia.org/wiki/Unicode) was invented.
 It's possible to use it to print documents in languages such as Chinese, with large character sets, but 
 it's more complicated than creating a document using a Latin-1 (8859-1) encoding. (I've never done that, so I have no insight on that.) 
 
@@ -298,7 +298,7 @@ For documents in Western European languages like English and French, here are th
 2. Every time your application reads/writes a PS file, the Latin-1 encoding needs to be used.
 3. In your PS code, every time you start using a font, you need to "re-encode" the font to use Latin-1.
 
-The re-encoding of a font is necessary since the default encoding is an old Adobe encoding that nobody uses anymore.
+The re-encoding of a font is necessary since the default encoding is an old Adobe encoding that nobody uses anymore (I think).
 The re-encoding code (below) copies a font's definition into a new place, with a new font-name, and retains all of the info except for its `Encoding` entry.
 The `Encoding` entry is changed to Latin-1 (8859-1).
 
@@ -332,9 +332,9 @@ Programs use paths to draw lines, define the shapes of filled areas, and specify
 
 <em>"A path is made up of one or more disconnected **subpaths**, each comprising a sequence of connected segments."</em>
 
-The idiom for creating a path is:
+An example of creating a path:
 ```
-newpath
+newpath 
 12 50 moveto
 ..more path construction here..
 ..`closepath` often comes at the end..
@@ -347,10 +347,10 @@ There are a number of operators that interact with the current path.
 
 *Creates* a new path:
 * `newpath`
-* `moveto` starts a new *subpath* at a new position, but doesn't add a line segment. It's like moving a pen above paper, without making a mark.
+* `moveto` starts a new *path* or *subpath* at a new position, but doesn't add a line segment. It's like moving a pen above paper, without making a mark.
 
 *Appends* to the current path :
-* `lineto`, `curveto`, `arc` (and similar operators, such as `rlineto`, which uses relative displacements) 
+* `lineto`, `curveto`, `arc` (and similar operators, such as `rlineto`, which use relative displacement) 
 * `closepath`
 * `show` (for text) displaces the current position to a place nearby the drawn text (as defined by the font)   
 
@@ -374,9 +374,9 @@ Note:
 
 * set up the coordinate system: `translate` (very common), `scale`, `rotate` (less common)
 * create a path
-* `stroke` and/or `fill`
+* `stroke` and/or `fill`, and sometimes use a `clip`
 
-The entire sequence is usually surrounded by `gsave` and `grestore`. 
+The entire sequence is often surrounded by `gsave` and `grestore`. 
 This restores the graphic state back to its original condition.
 
 You can both `stroke` and `fill` the same path by wrapping the first painting operation with its own `gsave`-`grestore` pair.  
@@ -403,17 +403,19 @@ will automatically re-size the dict as needed (except in Language Level 1).
 Each `begin` is paired with an `end` operator at the end of the proc.
 The `end` operator simply removes/destroys the temporary dictionary, when it's no longer needed.
 
-This is not 100% local: if proc A calls a helper proc B, then proc B sees the exact same dictionary stack as proc A.
-(In the language of object-oriented programming, the data behaves somewhat like an object's *field*, not a local variable defined in a method.)
+This is just the proper use of the dictionary stack, *whose primary purpose is to be a dynamic namespace*. 
+
+Warning: this is not 100% local, in the following sense: if proc A calls a helper proc B, then proc B sees the exact same dictionary stack as proc A.
+**In the language of object-oriented programming, the "local" data behaves more like an object's *field*, rather than a local variable defined in a method.**
 
 
 
-## Idiom: Move Data on the Stack into a Temporary Dictionary
+## Idiom: Move Data on the Stack into the Current Namespace
 There is a trade-off between using data on the stack directly, versus pulling the data off the stack and storing it in a dictionary.
-Among the more experienced, there may be a tendency to use the stack directly, perhaps rearranging the order of things using stack operators. 
+Among the more experienced, there may be a tendency to use the stack directly, perhaps rearranging the order of things using built-in stack operators. 
 
-For the following proc, say it has two arguments passed to it, called dx and dy.
-This implementation defines two items in its temporary dictionary, to store the data under a name.
+For the following proc, say it has two arguments passed to it, called *dx* and *dy*.
+This implementation defines two items in a temporary dictionary (and thus adds them to the current namespace).
 Note the use of the `exch` operator, which is used to switch the order of the top two things on the stack.
 That switching is needed (unfortunately) because of how the `def` operator is defined.
 
@@ -428,12 +430,15 @@ end
 }
 ```
 
+It's important to note that none of this is needed  if *dx* and *dy* are already in the current namespace when `my-delightful-proc` is called.
+In that case, it's neither necessary nor desirable to pass *dx* and *dy* as params. 
+(An exception: if you want to give the data different names for some reason.)
 
 ## Idiom: Save/Restore for Page Independence
 Adobe recommends having pages independent of each other.
 The typical way to accomplish this is to wrap the code that generates a page in a ``save\restore`` pair.
-In this way, the state of memory is saved at the beginning of the page, and resurrected at the end, such that each page 
-starts with (local) memory that is in the exact same state.
+In this way, the state of memory (local VM, not global VM) is saved at the beginning of the page, and resurrected at the end, such that each page 
+starts with local VM memory that is in the exact same state.
 
 Here's an example. It includes some DSC comments (Document Structuring Conventions):
 
@@ -453,11 +458,11 @@ Here's an example. It includes some DSC comments (Document Structuring Conventio
 You can include one PS file in another by using the `run` operator.
 This simply opens a given file and injects its content into the current position.
 
-`run(some-code.ps)`
+`(some-code.ps) run`
 
 Ghostscript has a variation on this idea:
 
-`runlibfile(some-code.ps)`
+`(some-code.ps) runlibfile`
 
   
 ## Idiom: Get Clean Joins With closepath
@@ -473,23 +478,17 @@ track the state of the operand stack in your head.
 
 Example:
 ```
-{0 cell-dy 75 pct translate                         
-month-name cell-dx 2.5 pct cell-dy 10 pct moveto show} draw
+{cell-dx 58 pct cell-dy 23 pct translate
+ data (tidal-range) get data (tides) get cell-dx 40 pct cell-dy 50 pct daily-tide-details} draw
 ```
 
-If you add simple whitespace, to group together related items, then it's a bit easier to read:
+If you add simple whitespace, to group together related items, then it's a bit easier to read. 
+You can also group together related items using line-breaks:
 ```
-{0   cell-dy 75 pct   translate                         
-month-name   cell-dx 2.5 pct   cell-dy 10 pct   moveto show} draw
-```
-
-You can also extend this to using separate lines:
-```
-{cell-dx 94 pct   cell-dy 12 pct   translate
- data (daily-high) get 
- cell-dx 6 pct   cell-dy 88 pct
- temperature-daily-high} draw
-
+{cell-dx 58 pct   cell-dy 23 pct   translate
+ data(tidal-range)get   data(tides)get    
+ cell-dx 40 pct   cell-dy 50 pct 
+ daily-tide-details} draw
 ```
 
 ## Font Selection
@@ -552,10 +551,6 @@ It's possible to put that pattern into a proc, as a template:
 } draw 
 ```
 
-Variation: you might consider putting the `translate` operator inside the `draw` proc itself.
-
-
-
 
 ## Idiom: List The Contents of a Dictionary
 
@@ -570,7 +565,7 @@ Variation: you might consider putting the `translate` operator inside the `draw`
 ## Show the currentpoint
 
 Knowing "where you are" on the page is often important.
-Here's a proc that draws a little circle and cross at the currentpoint, in red. 
+Here's a proc that draws a little circle and cross at the `currentpoint`, in red. 
 
 ```
 % size-r 
@@ -630,7 +625,9 @@ The exact same idea can be applied to print.
 
 When you use percentages instead of absolute units, it will usually give you 90% of what you need when the aspect ratio changes significantly.
 Typically, you will still need to make small adjustments here and there to get it just right.
-(The same is true on the web. For example, the size of margins, as a percent of the screen dimensions, is usually larger when the screen is physically larger.) 
+The same is true on the web. 
+For example, the size of margins, *as a percent of the screen dimensions*, is usually larger when the screen is physically larger.
+ 
 
 
 ## Margins That Are Sensitive to the Position of the Binding
@@ -655,6 +652,9 @@ From the Green Book:
 *"The application should always control placement of text, and should know the character widths beforehand."* 
 
 That being said, you can certainly implement basic text flow completely in PostScript.
+If it's done in the driver, then you'll likely need to read and parse font metric files in order 
+to compute the `currentpoint`.
+(If you restrict yourself to a monospaced font, you can avoid this.)
 
 
 ## Images Are Usually Referenced With Full Path Names (?)
@@ -681,7 +681,7 @@ To minimize such issues, use:
 
 ## Convert a Character Code to a String
 A character code is a number. Sometimes you are given such numbers by a built-in operator. 
-You usually want to convert that number to a string.
+You usually want to convert that number back into a string.
 The trick is to use the `put` operator. For example, the Blue Book has this snippet on page 167, Circular Text:
  
   `( ) dup 0 charcode put`
@@ -692,5 +692,5 @@ I'm not sure why `dup` is present here.
 If you have a path that you want to both `stroke` and `clip`, you likely want to perform the stroke first.
 If you clip first, then half of the stroke will likely be cut off.
 
-## Accessing the proc's in a library
+## Accessing the Proc's in a Library
 Here's some [example code on stackoverflow](https://stackoverflow.com/questions/79454801/postscript-defining-a-namespace-for-a-library).
