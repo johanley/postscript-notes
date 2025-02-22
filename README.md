@@ -95,7 +95,6 @@ The interpreter executes a series of objects. An object has:
 * a type: boolean, integer, real, name, operator (*simple*); string, array,dictionary, file (*composite*)
 * attributes: literal or executable; access control (read, execute, both); length (for composite objects)
 * a value
-* typical code doesn't interact with type or attribute information directly
  
 If an object is executable, executing the object depends on its type:
 * for a number: pushes a copy of the number onto the operand stack
@@ -130,6 +129,14 @@ PostScript can handle any character set, but extended character sets (Chinese, J
 
 *"PostScript fonts are executable programs that draw the character shapes using the same path construction and painting mechanisms as all other graphics."*
 
+Names:
+ 
+*"A name is an atomic symbol uniquely defined by a sequence of characters. Names serv the same purpose as "identifiers" in other
+programming languages: as tags for variables, procedures, and so on. However, PostScript names are not just language artifacts, but are 
+first class-data objects, similar to "atoms" in LISP."*
+
+"Names do not *have* values, unlike variable or procedure names in other programming languages. However, names can be *associated* with values in dictionaries." 
+
 **Dictionaries**: 
 * are central to the language
 * are where data is stored
@@ -152,6 +159,9 @@ The dictionary stack, from top to bottom:
 * `userdict` - used by programs, local VM; permanent
 * `globaldict` - used by some programs, global VM; permanent
 * `systemdict` - read-only, built-in operators, global VM; permanent
+
+Note how the order reflects what you might informally call the *life expectancy* of the data.
+From bottom to top, the life expectancy of the data gets shorter and shorter, roughly speaking.  
 
 In error messages, keep an eye on information about the state of the dictionary stack.
 An example from Ghostscript:
