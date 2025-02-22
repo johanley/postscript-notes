@@ -181,10 +181,11 @@ first class-data objects, similar to 'atoms' in LISP."*
 "Names do not *have* values, unlike variable or procedure names in other programming languages. However, names can be *associated* with values in dictionaries."
 
 By default, names are bound *late*: the system looks up the value (in the namespace/dictionary stack) associated with an executable name only at execution-time,
-when a procedure is invoked. The `bind` operator changes this behaviour, but only for the *operators* in a proc (and not procs). 
-At the time the `bind` operator executes on a proc, it can modify its contents by replacing its operator names within it 
+when a procedure is invoked. 
+The `bind` operator changes this behaviour, but only for the *operators* in a proc (and on not other procs that the given proc will invoke). 
+At the time the `bind` operator executes on a proc, it can modify its contents, by replacing operator names within it 
 with the associated values *at the time the bind is executed*.
-This also applies to all procs *called by* the given proc, to arbitrary depth.
+This also applies to all procs *called by* the given proc, to an arbitrary depth.
 
 Benefits of `bind`: 
 * it avoids possible changes to the definition of operators in the namespace, between the definiton of a proc and its execution.  
@@ -192,11 +193,11 @@ Benefits of `bind`:
 * *"It is worthwhile to apply `bind` to any procedure that will be executed more than a few times."*
 
 For names that aren't operators, the exact same behaviour is implemented by replacing the name `blah` with `//blah`.
-Again, this doesn't immediately *execute* the name, it immediately *replaces* it with its value according to the current namespace (dictionary stack). 
+Again, this doesn't immediately *execute* the name, it immediately *replaces* it with its value according to the current namespace (the dictionary stack). 
 
 
 
-Local VM and Global VM:
+**Local VM and Global VM**:
 * the distinction was added in Level 2 of the language
 * global VM: stores things that exist for the full duration of your program
 * local VM: a kind of workspace in which each page creates its output *independently of the other pages*
@@ -214,7 +215,7 @@ during *execution* of the procedures."
 
 "Only composite objects occupy VM. An 'object in VM' means a 'composite object whose *value* occupies VM'."
 
-The Five Stacks:
+**The Five Stacks**:
 * operand stack: data being passed in and out of procedures. *Often referred to simply as 'the stack'. Operations on the stack are important*.
 * dictionary stack: where most of your data is stored: you create dictionaries on the top of this stack. Name searches are executed against it.
 * graphics state stack: allows you to save-restore different graphic states
@@ -240,7 +241,7 @@ Data exists only in these places:
 * Notepad++ has built-in syntax highlighting for PS 
 * debugging PS can be very rudimentary. 
 * the conversion from PS to PDF for the final output is a non-issue, since it's handled by well-known and stable tools (Ghostscript and Adobe Acrobat/Distiller).
-* there's no significant community of users producing libraries for it
+* there appears to be no significant community of users producing libraries for it
 * there's little discussion of PS amongst modern programmers. Given the ubiquity of PDF and EPS, this is rather strange.
 * outputs in English and French that can use the 8859-1 (Latin-1) character encoding are straightforward (see below).
 * outputs in Chinese, Japanese, Korean and so on are possible, but more complicated.
@@ -460,7 +461,7 @@ end
 }
 ```
 
-It's important to note that none of this is needed  if *dx* and *dy* are already in the current namespace when `my-delightful-proc` is called.
+It's important to **note that none of this is needed  if *dx* and *dy* are already in the current namespace when `my-delightful-proc` is called.**
 In that case, it's neither necessary nor desirable to pass *dx* and *dy* as params. 
 (An exception: if you want to give the data different names for some reason.)
 
