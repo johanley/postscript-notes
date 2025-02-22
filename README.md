@@ -174,9 +174,9 @@ For the `globaldict`, the above says:
 
 **Names**:
  
-*"A name is an atomic symbol uniquely defined by a sequence of characters. Names serv the same purpose as "identifiers" in other
+*"A name is an atomic symbol uniquely defined by a sequence of characters. Names serve the same purpose as 'identifiers' in other
 programming languages: as tags for variables, procedures, and so on. However, PostScript names are not just language artifacts, but are 
-first class-data objects, similar to "atoms" in LISP."*
+first class-data objects, similar to 'atoms' in LISP."*
 
 "Names do not *have* values, unlike variable or procedure names in other programming languages. However, names can be *associated* with values in dictionaries."
 
