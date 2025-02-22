@@ -138,7 +138,8 @@ PostScript can handle any character set, but extended character sets (Chinese, J
 * you often create your own dictionaries to go on top of userdict; such dictionaries are usually short-lived, and provide "extra names" that exist only during the execution of a proc. 
 * the **dictionary stack implements a dynamic namespace, against which names are looked up at a given line in your code. This is the most important thing about the dictionary stack.** 
 * **searches by key-name proceed from the top of the dictionary stack to the bottom**. This allows you to easily build default-plus-override behaviour, if desired.
-* **if you define something with the same name as a built-in operator, you will hide/override the built-in implementation**
+It also means that a name will shadow/hide any identical name appearing in a lower dictionary.
+* **if you define something with the same name as a built-in operator, you will hide/override the built-in implementation**.
 * the operator `def` adds new data to the current dictionary (it acts like a *put* - create or update)
 * warning: strings `(blah)` and names `/blah` are interchangeable when used as keys in dictionaries. If you create an entry with a string as key, the 
 dictionary will return that key as a name data-type! 
@@ -150,7 +151,7 @@ The dictionary stack, from top to bottom:
 * (anonymous) - a temporary dictionary created in the context of a single proc; a temporary modification to the current namespace
 * `userdict` - used by programs, local VM; permanent
 * `globaldict` - used by some programs, global VM; permanent
-* `systemdict` - read-only, built-in operators; permanent
+* `systemdict` - read-only, built-in operators, global VM; permanent
 
 In error messages, keep an eye on information about the state of the dictionary stack.
 An example from Ghostscript:
@@ -194,9 +195,9 @@ The Five Stacks:
 
 **Stack operations are important because they are used so often.** 
 
-Data can actually exist in only one of two places:
-* on the operand stack
-* in a dictionary
+Data exists only in these places:
+* on the operand stack (where it has no name)
+* somewhere in the dictionary stack (where it has a name, and is part of the current namespace)
 
 
 ## Working with PS as a Programmer  
@@ -207,14 +208,14 @@ Data can actually exist in only one of two places:
 * Visual Studio has an [extension for PS](https://marketplace.visualstudio.com/items?itemName=mxschmitt.postscript).
 * There's an [Eclipse-based plug-in](https://marketplace.eclipse.org/content/postscript-development-tools#details) 
 * Notepad++ has built-in syntax highlighting for PS 
-* debugging PS is very rudimentary. Adobe has an <em>ehandler.ps</em> which can give better stack traces etc., but I haven't used it yet.
+* debugging PS can be very rudimentary. 
 * the conversion from PS to PDF for the final output is a non-issue, since it's handled by well-known and stable tools (Ghostscript and Adobe Acrobat/Distiller).
 * there's no significant community of users producing libraries for it
 * there's little discussion of PS amongst modern programmers. Given the ubiquity of PDF and EPS, this is rather strange.
 * outputs in English and French that can use the 8859-1 (Latin-1) character encoding are straightforward (see below).
 * outputs in Chinese, Japanese, Korean and so on are possible, but more complicated.
 
-In Language Level 3, there are 385 operators listed in the manual.
+In Language Level 3, there are about 385 operators listed in the manual.
 Initially, this gives you the impression that PS is large and complex. 
 But after using it for a few weeks, it seems that the opposite is the case: 80% of the time, you use 20% of the operators. 
 As usual, it's not only about the language, but the language <em>plus the libraries</em>.
@@ -223,11 +224,10 @@ In a sense, PS is all language and few libraries, so you could argue that its ov
 This makes sense: PS is a special purpose language, designed mainly for printing documents.
 There are no libraries for date-time control, regular expressions, threads, and so on.
 
-There are some common items that most programmers feel should have been part of the language.
-There's no help in the core language operators for:
-* string concatenation!
+There are some common items that you may feel should have been part of the language:
+* simple string concatenation (!)
 * text flow
-* table creation 
+* table layouts
 
 PostScript seems to have been designed to implement the core operations as robustly as possible, and to 
 leave higher-level considerations such as text flow to the application programmer.  
@@ -246,7 +246,7 @@ In PS, managing text becomes more complicated when:
 * the blocks of text are large, and can flow onto subsequent pages (widows, orphans, and so on)
 * the blocks of text change fonts in mid-stream (because you have to interpret your own <em>ad hoc</em> markup mechanism)
 
-Pure PS is entirely at the low end of the spectrum. 
+For general typesetting, pure PS is entirely at the low end of the spectrum. 
 At the other end would be tools like Adobe's [InDesign](https://www.adobe.com/ca/products/indesign.html).
 
 
@@ -259,24 +259,24 @@ Here, a simple literal is passed the operator:
 ```
  
 It's important to understand how the system marks the letter 'H' on the page:
-* the system **passes a number to `show`**, not a character! There is no 'character' data type in PS. *In PS, 'string' means a string of numbers, all in the range 0..255.*
-* the number comes *from the file's encoding of the character*. For English/French, the file encoding must be Latin-1 (8859-1).
+* the system **passes a number to `show`**, not a character! **There is no 'character' data type in PS.** *In PS, 'string' means a string of numbers, all in the range 0..255.*
+* the number comes *from the file's encoding of the character*. For English/French, your file encoding should very likely be Latin-1 (8859-1).
 * that number is passed to the `show` operator. PS calls this number the *character code*.
 * the current font has all of its info in a font-dictionary. One entry in that dictionary defines how it maps an incoming 
 number (the character code) to a glyph that it knows how to draw.
-* that entry has `/Encoding` as its key, and its value is an array containing 256 glyph names. This array is called the **encoding vector**.
+* that entry has `/Encoding` as its key, and its value is an array containing 256 glyph names. **This array is called the encoding vector**.
 * the names in the encoding vector are the names of glyphs supported by the font, such as `/Hsmall` and `/hyphen`
-* the incoming character code is used as an index into the encoding vector
+* **the incoming character code is used as an index into the encoding vector**
 * a glyph name is returned
 * it's used to look up the drawing instructions for that glyph
 * the glyph is drawn at the `currentposition`
-* when finished, the `currentposition` is updated by the font to be in the desired position for the next letter
-* the update to the new position is a displacement dx and dy from the initial position that was originally passed
+* when finished, the `currentposition` is updated by the font to be a new position, in preparation for the next glyph
+* the update to the new position is a displacement *dx* and *dy* from the initial position that was originally passed
 * each glyph can have a different displacement
 * the displacement can even depend on the surrounding characters (ligatures, Arabic characters)
-* for English, dx&gt;0 and dy=0 (flow from left to right)
-* for Arabic or Hebrew  dx&lt;0 and dy=0 (flow from right to left)
-* for vertical Chinese, dx=0 and dy&lt;0 (flow from top to bottom)
+* for English, *dx&gt;0* and *dy=0* (flow from left to right)
+* for Arabic or Hebrew  *dx&lt;0* and *dy=0* (flow from right to left)
+* for vertical Chinese, *dx=0* and *dy&lt;0* (flow from top to bottom)
 * for monospaced (fixed width) fonts, the displacement is the same for every glyph. Most fonts are not monospaced.
 
 Many fonts support fewer than 256 glyphs.
@@ -692,7 +692,5 @@ I'm not sure why `dup` is present here.
 If you have a path that you want to both `stroke` and `clip`, you likely want to perform the stroke first.
 If you clip first, then half of the stroke will likely be cut off.
 
-## Namespaces
-You can create a namespace by simply using a dictionary.
-The idea behind a namespace is to avoid name collisions, and to keep separate things separate.
+## Accessing the proc's in a library
 Here's some [example code on stackoverflow](https://stackoverflow.com/questions/79454801/postscript-defining-a-namespace-for-a-library).
