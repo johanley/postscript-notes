@@ -91,12 +91,12 @@ In your code, operators and procedures appear in much the same way, but they are
 I assume that those concerns have become obsolete.
 
 
-The combination of postfix notation and the operand stack has interesting consequences:
+**The combination of postfix notation and the operand stack has interesting consequences:**
 * **no need for parameter names**
 * **no need for parentheses for operator precedence**
 
-In essence, the operand stack allows the use of an ordering convention instead of a naming convention.
-Ordering conventions are powerful. Would you rather calculate using Roman numerals (a naming convention), or 
+In essence, it allows the use of an *ordering convention* instead of a *naming convention*.
+**Ordering conventions are powerful.** Would you rather calculate using Roman numerals (a naming convention), or 
 using place-value notation (an ordering convention)?
 
 <em>"[PostScript] includes the ability to treat programs as data and to monitor and control many aspects of the language's execution state; these notions
