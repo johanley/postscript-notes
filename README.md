@@ -131,13 +131,13 @@ If an object is executable, executing the object depends on its type:
 |real|y|||y<sup>1</sup>|||
 |operator|y||||y||
 |name|y|||/blah|blah||
-|string||y|y|y|tokens|y|
+|string||y|y|y|tokenized<sup>2</sup>|y|
 |array||y|y|[..]|{..}|y|
 |dict||y|y|y<sup>1</sup>||y|
 
 1. Almost always literal. You can make these executable, but there's no change in behaviour. It still gets treated as data (pushed onto the stack).
 
-
+2. The string will be tokenized by the PostScript interpreter, and treated as input (that is, like ordinary code).
 
 
 
