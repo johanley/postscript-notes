@@ -131,7 +131,9 @@ If an object is executable, executing the object depends on its type:
 |real|y|||ND||
 |operator|y||||y|
 |name|y|||/a|a|
-|name||y|y|y|y|
+|string||y|y|y|y|
+|array||y|y|[]|{}|
+|dict||y|y|ND||
 
 
 
