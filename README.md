@@ -124,7 +124,7 @@ If an object is executable, executing the object depends on its type:
 * for an operator: do a built-in action (add numbers, paint characters, etc.)
 
 
-|Type|Simple|Composite|RWX control|Literal|Exec|Value in VM|
+|Type|Simple|Composite|Access control|Literal|Exec|Value in VM|
 |---|---|---|---|---|---|---|
 |boolean|y|||y<sup>1</sup>|||
 |integer|y|||y<sup>1</sup>|||
