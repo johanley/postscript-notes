@@ -124,7 +124,7 @@ If an object is executable, executing the object depends on its type:
 * for an operator: do a built-in action (add numbers, paint characters, etc.)
 
 
-|Type|Simple|Composite|Access control|Literal|Exec|Value in VM|
+|Type|Simple|Composite|Access control|Literal|Executable|Value in VM|
 |---|---|---|---|---|---|---|
 |boolean|y|||y<sup>1</sup>|||
 |integer|y|||y<sup>1</sup>|||
@@ -134,6 +134,8 @@ If an object is executable, executing the object depends on its type:
 |string||y|y|y|tokenized<sup>2</sup>|y|
 |array||y|y|[..]<sup>3</sup>|{..}|y|
 |dict||y|y|y<sup>1</sup>||y|
+
+In PostScript, *literal* means it gets pushed onto the operand stack.
 
 1. You can make these executable, but there's no change in behaviour. It still gets treated as data (pushed onto the stack).
 
