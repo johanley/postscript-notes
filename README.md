@@ -126,13 +126,13 @@ If an object is executable, executing the object depends on its type:
 
 |Type|Simple|Composite|Access|Literal|Exec|
 |---|---|---|---|---|---|
-|boolean|y|||ND||
+|boolean|y|||NDy^1||
 |integer|y|||ND||
 |real|y|||ND||
 |operator|y||||y|
-|name|y|||/a|a|
-|string||y|y|y|y|
-|array||y|y|[]|{}|
+|name|y|||/blah|blah|
+|string||y|y|y|tokens|
+|array||y|y|[..]|{..}|
 |dict||y|y|ND||
 
 
