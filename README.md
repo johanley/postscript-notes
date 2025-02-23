@@ -102,8 +102,14 @@ using place-value notation (an ordering convention)?
 <em>"[PostScript] includes the ability to treat programs as data and to monitor and control many aspects of the language's execution state; these notions
 are derived from programming languages such as LISP."</em> (Red Book, page 23).
 
+*"...there is not a distinction between data and programs; any PostScript object may be treated as data or be executed as part of a program."* (Red Book, page 24).
+
+Important to remember: the words *treat as data* mean one thing in PostScript: push it on to the operand stack.
+
 <em>"[The] names that represent operators are not reserved by the language. A PostScript program may change the meanings of operator names."</em>
 (Red Book, page 23). 
+
+**Objects**
 
 <P>The generic name for everything in the language is an <em>object</em>, but this is not meant in the same sense as object-oriented programming.
 
@@ -116,6 +122,19 @@ If an object is executable, executing the object depends on its type:
 * for a number: pushes a copy of the number onto the operand stack
 * for a name: look up the name in a dictionary, fetch the related value, and execute it
 * for an operator: do a built-in action (add numbers, paint characters, etc.)
+
+
+|Type|Simple|Composite|Access|Literal|Exec|
+|---|---|---|---|---|---|
+|boolean|y|||ND||
+|integer|y|||ND||
+|real|y|||ND||
+|operator|y||||y|
+
+
+
+
+
 
 
 **Types of Simple Objects**:
