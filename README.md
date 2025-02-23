@@ -132,11 +132,11 @@ The interpreter executes a series of objects. An object:
 
 In PostScript, *literal* means it gets pushed onto the operand stack.
 
-1. You can make these executable, but there's no change in behaviour. It still gets treated as data (pushed onto the stack).
+<sup>1</sup> You can make these executable, but there's no change in behaviour. It still gets treated as data (pushed onto the stack).
 
-2. The string will be tokenized by the PostScript interpreter, and treated as input (that is, like ordinary code).
+<sup>2</sup> The string will be tokenized by the PostScript interpreter, and treated as input (that is, like ordinary code).
 
-3. The array `[3 2 add]` will contain `[5]`. The elements of the array literal are executed.
+<sup>3</sup> The array `[3 2 add]` will contain `[5]`. The elements of the array literal are executed.
 
  
 If an object is executable, executing the object depends on its type:
