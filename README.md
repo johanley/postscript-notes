@@ -130,7 +130,7 @@ If an object is executable, executing the object depends on its type:
 |integer|y|||y<sup>1</sup>|||
 |real|y|||y<sup>1</sup>|||
 |operator|y||||y||
-|name|y|||/blah|blah||
+|name|y|||/blah|blah|y|
 |string||y|y|y|tokenized<sup>2</sup>|y|
 |array||y|y|[..]|{..}|y|
 |dict||y|y|y<sup>1</sup>||y|
