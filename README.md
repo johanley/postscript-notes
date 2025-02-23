@@ -124,7 +124,7 @@ If an object is executable, executing the object depends on its type:
 * for an operator: do a built-in action (add numbers, paint characters, etc.)
 
 
-|Type|Simple|Composite|Access|Literal|Exec|Value in VM|
+|Type|Simple|Composite|RWX control|Literal|Exec|Value in VM|
 |---|---|---|---|---|---|---|
 |boolean|y|||y<sup>1</sup>|||
 |integer|y|||y<sup>1</sup>|||
@@ -139,7 +139,7 @@ If an object is executable, executing the object depends on its type:
 
 2. The string will be tokenized by the PostScript interpreter, and treated as input (that is, like ordinary code).
 
-3. The array `[3 2 add]` will contain `[5]`. The elements of the array are executed.
+3. The array `[3 2 add]` will contain `[5]`. The elements of the array literal are executed.
 
 
 
