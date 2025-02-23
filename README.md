@@ -113,16 +113,11 @@ Important to remember: the words *treat as data* mean one thing in PostScript: p
 
 <P>The generic name for everything in the language is an <em>object</em>, but this is not meant in the same sense as object-oriented programming.
 
-The interpreter executes a series of objects. An object has:
-* a type: boolean, integer, real, name, operator (*simple*); string, array,dictionary, file (*composite*)
-* attributes: literal or executable; access control (read, execute, both); length (for composite objects)
-* a value
- 
-If an object is executable, executing the object depends on its type:
-* for a number: pushes a copy of the number onto the operand stack
-* for a name: look up the name in a dictionary, fetch the related value, and execute it
-* for an operator: do a built-in action (add numbers, paint characters, etc.)
-
+The interpreter executes a series of objects. An object:
+* has a *type*
+* has a *value*
+* is either a *literal* or an *executable* 
+* may have an *access control* attribute (according to type) 
 
 |Type|Simple|Composite|Access control|Literal|Executable|Value in VM|
 |---|---|---|---|---|---|---|
@@ -142,6 +137,14 @@ In PostScript, *literal* means it gets pushed onto the operand stack.
 2. The string will be tokenized by the PostScript interpreter, and treated as input (that is, like ordinary code).
 
 3. The array `[3 2 add]` will contain `[5]`. The elements of the array literal are executed.
+
+
+ 
+If an object is executable, executing the object depends on its type:
+* for a number: pushes a copy of the number onto the operand stack
+* for a name: look up the name in a dictionary, fetch the related value, and execute it
+* for an operator: do a built-in action (add numbers, paint characters, etc.)
+
 
 
 
