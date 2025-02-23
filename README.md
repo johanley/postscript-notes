@@ -124,16 +124,16 @@ If an object is executable, executing the object depends on its type:
 * for an operator: do a built-in action (add numbers, paint characters, etc.)
 
 
-|Type|Simple|Composite|Access|Literal|Exec|
+|Type|Simple|Composite|Access|Literal|Exec|Value in VM|
 |---|---|---|---|---|---|
-|boolean|y|||y<sup>1</sup>||
-|integer|y|||y<sup>1</sup>||
-|real|y|||y<sup>1</sup>||
-|operator|y||||y|
-|name|y|||/blah|blah|
-|string||y|y|y|tokens|
-|array||y|y|[..]|{..}|
-|dict||y|y|y<sup>1</sup>||
+|boolean|y|||y<sup>1</sup>|||
+|integer|y|||y<sup>1</sup>|||
+|real|y|||y<sup>1</sup>|||
+|operator|y||||y||
+|name|y|||/blah|blah||
+|string||y|y|y|tokens|y|
+|array||y|y|[..]|{..}|y|
+|dict||y|y|y<sup>1</sup>||y|
 
 1. Almost always literal. You can make these executable, but there's no change in behaviour. It still gets treated as data (pushed onto the stack).
 
