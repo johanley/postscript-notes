@@ -130,6 +130,8 @@ If an object is executable, executing the object depends on its type:
 |integer|y|||ND||
 |real|y|||ND||
 |operator|y||||y|
+|name|y|||/a|a|
+|name||y|y|y|y|
 
 
 
