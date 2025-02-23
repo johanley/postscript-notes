@@ -126,7 +126,7 @@ If an object is executable, executing the object depends on its type:
 
 |Type|Simple|Composite|Access|Literal|Exec|
 |---|---|---|---|---|---|
-|boolean|y|||NDy^1||
+|boolean|y|||y<sup>1</sup>||
 |integer|y|||ND||
 |real|y|||ND||
 |operator|y||||y|
