@@ -125,7 +125,7 @@ If an object is executable, executing the object depends on its type:
 
 
 |Type|Simple|Composite|Access|Literal|Exec|Value in VM|
-|---|---|---|---|---|---|
+|---|---|---|---|---|---|---|
 |boolean|y|||y<sup>1</sup>|||
 |integer|y|||y<sup>1</sup>|||
 |real|y|||y<sup>1</sup>|||
