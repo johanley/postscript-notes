@@ -138,11 +138,12 @@ In PostScript, *literal* means it gets pushed onto the operand stack.
 
 <sup>3</sup> The array `[3 2 add]` will contain `[5]`. The elements of the array literal are executed.
 
- 
 If an object is executable, executing the object depends on its type:
-* for a number: pushes a copy of the number onto the operand stack
 * for a name: look up the name in a dictionary, fetch the related value, and execute it
 * for an operator: do a built-in action (add numbers, paint characters, etc.)
+* for a string: the PostScript interpreter tokenizes the string, and treats it as code
+* for an executable array: if encountered *directly*, then treated as data; if *indirectly* (by look-up), then each element is executed in sequence. (There's 
+a special rule just for executable arrays.)
 
 **A procedure is an array of executable objects.** 
 There is no type specific to procedures.
