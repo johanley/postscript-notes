@@ -138,31 +138,11 @@ In PostScript, *literal* means it gets pushed onto the operand stack.
 
 3. The array `[3 2 add]` will contain `[5]`. The elements of the array literal are executed.
 
-
  
 If an object is executable, executing the object depends on its type:
 * for a number: pushes a copy of the number onto the operand stack
 * for a name: look up the name in a dictionary, fetch the related value, and execute it
 * for an operator: do a built-in action (add numbers, paint characters, etc.)
-
-
-
-
-
-
-**Types of Simple Objects**:
-* boolean
-* integer
-* real
-* operator
-* name
-* others: mark, null, fontId
-
-**Types of Composite Objects**:
-* dictionary
-* array
-* string
-* others: packedarray, file, save, gstate  
 
 **A procedure is an array of executable objects.** 
 There is no type specific to procedures.
@@ -170,7 +150,7 @@ Thus, **an operator and a procedure are not the same kind of object.**
 They are of different types. 
 They appear in your code in much the same way, but there are some behavioral differences.
 
-Arrays can contain objects of various types.
+Arrays can contain objects of different types.
 
 
 Syntax:
