@@ -148,9 +148,6 @@ In PostScript, *literal* means it gets pushed onto the operand stack.
 
 <sup>3</sup> The array `[3 2 add]` will contain `[5]`. The elements of the array literal are executed.
 
-Access control applies only to the value of composite objects. 
-**There's no built-in mechanism for making a single piece of data '42' a read-only constant.** 
-The `readonly` operator applies only to *all* the values of composite objects, taken as a whole.
 
 (Items with their value in VM (virtual memory) use pointers as part of their internal representation.
 When such things are copied, the pointer is copied, and not the data.) 
