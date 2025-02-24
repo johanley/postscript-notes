@@ -49,7 +49,8 @@ The script is typically generated programmatically (by a *driver* application).
 * the words *treat as data* mean *push it on to the operand stack* 
 * **the stack**, in unqualified form, refers to the *operand stack* (see below)
 * the **namespace** is simply the (dynamic) dictionary stack, against which names are resolved
-* the term **dictionary** is used here, not *map*; both of these terms imply structures which link a *key* to a corresponding *value*  
+* the term **dictionary** is used here, not *map*; both of these terms imply structures which link a *key* to a corresponding *value*
+* the term **name** is used instead of *identifier*  
  
 
 ## Standard References from Adobe
@@ -147,6 +148,9 @@ In PostScript, *literal* means it gets pushed onto the operand stack.
 
 <sup>3</sup> The array `[3 2 add]` will contain `[5]`. The elements of the array literal are executed.
 
+Access control applies only to the value of composite objects. 
+**There's no built-in mechanism for making simple data read-only constants.**
+
 (Items with their value in VM (virtual memory) use pointers as part of their internal representation.
 When such things are copied, the pointer is copied, and not the data.) 
 
@@ -205,19 +209,20 @@ It also means that a name will shadow/hide any identical name appearing in a low
 * **if you define something with the same name as a built-in operator, you will hide/override the built-in implementation**.
 * the operator `def` adds new data to the current dictionary (it acts like a *put* - create or update)
 * warning: strings `(blah)` and names `/blah` are interchangeable when used as keys in dictionaries. If you create an entry with a string as key, the 
-dictionary will return that key as a name data-type! 
+dictionary will silently coerce that key into a name data-type! 
 
 
 *"The interpreter maintains a dictionary stack defining the current dynamic name space."*
 
 The dictionary stack, from top to bottom:
-* (anonymous) - a temporary dictionary created in the context of a single proc; a temporary modification to the current namespace
+* (anonymous) - a temporary dictionary created in the context of a single proc; a temporary modification to the current namespace. This may 
+not be present. It's by no means necessary to create one temporarily in a proc, but they often are.
 * `userdict` - used by programs, local VM; permanent
 * `globaldict` - used by some programs, global VM; permanent
 * `systemdict` - read-only, built-in operators, global VM; permanent
 
 Note how the order reflects what you might informally call the *life expectancy* of the data.
-From bottom to top, the life expectancy of the data gets shorter and shorter, roughly speaking.  
+From top to bottom, the life expectancy of the data gets longer and longer, roughly speaking.  
 
 In error messages, keep an eye on information about the state of the dictionary stack.
 An example from Ghostscript:
@@ -226,14 +231,14 @@ An example from Ghostscript:
 Dictionary stack:
    --dict:757/1123(ro)(G)--   --dict:0/20(G)--   --dict:89/200(L)--</pre>
    
-This says that, at the time of this erorr, there were 3 dictionaries on the dictionary stack.
-These three will always be present. 
+This says that, at the time of this error, there were 3 dictionaries on the dictionary stack.
+These three will always be present, because they are permanent and can't be deleted.
 They are, in order from left to right, `systemdict`, `globaldict`, and `userdict`.
 
 For the `globaldict`, the above says:
-* it has 757 entries, and has allocated room for 1123 entries 
-* it's read-only (ro)
-* it's in global VM (G)
+* it has defined 757 entries, and has allocated room for a total of 1123 entries 
+* it's read-only *(ro)*
+* it's in global VM *(G)*
 
 
 **Names**:
@@ -249,15 +254,17 @@ when a procedure is invoked.
 The `bind` operator changes this behaviour, but only for the *operators* in a proc (and on not other procs that the given proc will invoke). 
 At the time the `bind` operator executes on a proc, it can modify its contents, by replacing operator names within it 
 with the associated values *at the time the bind is executed*.
-This also applies to all procs *called by* the given proc, to an arbitrary depth.
+This also applies to all procs *called by* the given proc, to an arbitrary depth. But remember, this inlining is applied only to *operators*, not to *procs*.
 
 Benefits of `bind`: 
 * it avoids possible changes to the definition of operators in the namespace, between the definiton of a proc and its execution.  
 * it usually results in faster execution. 
-* *"It is worthwhile to apply `bind` to any procedure that will be executed more than a few times."*
+* *"It is worthwhile to apply `bind` to any procedure that will be executed more than a few times."* 
+(This advice applied in the 1980s and 1990s; is it still really relevant today? I don't know.) 
 
-For names that aren't operators, the exact same behaviour is implemented by replacing the name `blah` with `//blah`.
-Again, this doesn't immediately *execute* the name, it immediately *replaces* it with its value according to the current namespace (the dictionary stack). 
+The same sort of behaviour can be implemented for names that *aren't* operators, by replacing the name `blah` with `//blah`.
+Again, this doesn't immediately *execute* the name, it immediately *replaces* it with its value according to the current namespace (the dictionary stack).
+ 
 
 
 
@@ -274,8 +281,8 @@ be accessible to all pages.
 * no global-to-local cross-talk: a composite object in global VM can't have its value in local VM (because local VM gets clobbered at the end of every page).
 * it's dangerous to put mutable items in global VM (for the usual reasons)
 
-"VM is a storage pool for the values of all composite objects. 
-The adjective 'virtual' emphasizes the behavior of this memory visible at the PostScript language level, not its implementation in computer storage."
+*"VM is a storage pool for the values of all composite objects. 
+The adjective 'virtual' emphasizes the behavior of this memory visible at the PostScript language level, not its implementation in computer storage."*
 
 "Typically, global VM should be used to hold procedure *definitions* and constant data; local VM should be used to hold temporary data needed 
 during *execution* of the procedures."
@@ -790,10 +797,15 @@ I'm not sure why `dup` is present here.
 If you have a path that you want to both `stroke` and `clip`, you likely want to perform the stroke first.
 If you clip first, then half of the stroke will likely be cut off.
 
-## Common Errors
+## Simple Mistakes
 * misspelling a name
-* forgetting to `def` an object
 * using prefix instead of postfix
+* forgetting to `def` an object
+* forgetting to `selectfont` before a `show`: no error occurs, but no mark is made on the page
+
+# Globaldict 
+`globaldict` should likely be avoided in most cases. 
+Use it only if you're sure you need it.
 
 ## Accessing the Proc's in a Library
 Here's some [example code on stackoverflow](https://stackoverflow.com/questions/79454801/postscript-defining-a-namespace-for-a-library).
