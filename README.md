@@ -164,6 +164,7 @@ There is no type specific to procedures.
 Thus, **an operator and a procedure are not the same kind of object.** 
 They are of different types. 
 They appear in your code in much the same way, but there are some behavioral differences.
+For example, `bind` applies to operators, not to procs. 
 
 Arrays can contain objects of different types.
 
