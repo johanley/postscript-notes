@@ -44,27 +44,28 @@ operators...so that rather than building up the page image, these operators woul
 names to a new text file...This distilled file is a PostScript file, but has only the graphics commands. All loops, conditional
 statements, and control statements are absent from the file...From this file it is straightforward to build a data file that represents
 the document while retaining device independence: it was no longer a program itself. Typefaces referenced can also be included in the file."*
-[John Warnock](https://www.jstor.org/stable/23558230)
+[John Warnock](https://www.jstor.org/stable/23558230) on the origin of PDF.
 
 ## Lingo Used in PostScript Culture
 
 * PLRM - PostScript Language Reference Manual (link below), the Red Book. Treated as Sacred Writ.
-* [Document Structuring Conventions (DSC)](https://en.wikipedia.org/wiki/Document_Structuring_Conventions) - a standard way of laying out PS files.
+* [Document Structuring Conventions (DSC)](https://en.wikipedia.org/wiki/Document_Structuring_Conventions) - a standard way of laying out PS files, centered on separating pages explicitly.
 * **distilling** a PS document means changing it from code+data to just data only, roughly speaking. A PS file is "distilled" into a PDF file. A PDF file is a 
-static data structure, essentially a tree of dictionaries, not really meant for direct human consumption.  
+static data structure, essentially a tree of dictionaries, not really meant for direct human consumption as a text file.
 * the built-in **operators** are the core of the language. There are about 385 of them in Language Level 3, but 80% of the time you use 20% of the operators.
-* operators are built-in to the language, while a **procedure** is written by the programmer; these two kind of objects have different types
+* operators are built-in to the language, while a **procedure** is written by the programmer; these two kind of objects have different types, but appear in your program in nearly the same way.
 * **page independence** is the idea that each page should be independent of all other pages. This is achieved by saving the state of memory (local VM)
 at the start of a page, and then restoring that state when the page has been completed.
+* **device independence** is the idea that the printed output doesn't depend on the printer.
 * **prolog**: the start of a PS file, containing <em>procedures</em> that help build pages. The prolog is usually written "by hand".
 * **script**: placed after the prolog, a script builds pages by passing data to the procedures defined previously in the prolog.
 The script is typically generated programmatically (by a *driver* application).
 * **driver**: the program that creates the final output PS file, usually by dynamically building the script
 * **translator**: a specialized tool that translates one page description language (PCL, DVI) into another (PostScript)
-* the words *treat as data* mean *push it on to the operand stack* 
+* **treat as data** in PostScritp means *push it on to the operand stack* 
 * **the stack**, in unqualified form, refers to the *operand stack* (see below)
 * the **namespace** is simply the (dynamic) dictionary stack, against which names are resolved
-* the term **dictionary** is used here, not *map*; both of these terms imply structures which link a *key* to a corresponding *value*
+* the term **dictionary** is used here, not *map*; both of these terms imply structures which link a unique *key* to a corresponding *value*
 * the term **name** is used instead of *identifier*  
  
 
@@ -75,14 +76,14 @@ The [third edition (1999)](https://www.adobe.com/jp/print/postscript/pdfs/PLRM.p
 The [second edition (1990)](https://archive.org/details/postscriptlangua0000taft) is useful because it includes two appendices for the 
 Document Structuring Conventions (DSC) and the Encapsulated PostScript (EPS) specification.
 
-These secondary references are more dated than the Red Book. They have some useful ideas, but shouldn't be taken too seriously, in my opinion:
+The following secondary references are more dated than the Red Book. They have some useful ideas, but shouldn't be taken too seriously, in my opinion:
 * The [Green Book](https://archive.org/details/postscriptlangua00reid): Program Design (1988) is a gentle intro to the language
 * The [Blue Book](https://archive.org/details/postscriptlangua0000unse): Tutorial and Cookbook (1986)
 
 Also of interest:
+* [Mathematical Illustrations](https://personal.math.ubc.ca/~cass/graphics/manual/) by Bill Casselman, a mathematician at UBC.
 * [Thinking in PostScript](https://hint.userweb.mwn.de/compiler/ThinkingInPostScript.pdf) by Glenn Reid (1990). 
 * [Taking Advantage of PostScript](https://www3.nd.edu/~jsherman/portfolio/PSforD/PSforD.pdf) by John Sherman, University of Notre Dame. 
-* [Mathematical Illustrations](https://personal.math.ubc.ca/~cass/graphics/manual/) by Bill Casselman, a mathematician at UBC.
 * [Learning PostScript by Doing](https://staff.science.uva.nl/a.j.p.heck/Courses/Mastercourse2005/tutorial.pdf) by André Heck, University of Amsterdam (2005).
 * James Gosling, the creator of Java, also [worked on the NeWS windowing system](https://donhopkins.medium.com/alan-kay-on-should-web-browsers-have-stuck-to-being-document-viewers-and-a-discussion-of-news-5cb92c7b3445), which was based on PostScript.
 * [L-Systems in PostScript](https://levelup.gitconnected.com/programming-l-systems-in-postscript-3959abdfba90) by Michel Charpentier.
@@ -101,12 +102,12 @@ Also of interest:
 * **post-fix syntax** is used, with the params coming before the operator/procedure
 * **code is data and data is code** is central to the language: anonymous procedures are passed around as data
 * composite data structures: dictionaries, arrays, strings 
-* strings can contain binary data! **there's no 'character' data type as such**  
+* strings can contain binary data (with ASCII encodings)! **there's no 'character' data type as such**  
 * strings are arrays of numbers in the range 0..255 (a character's number is determined by the *encoding* you've chosen to use)
-* a procedure is an executable array of tokens 
+* a procedure is defined as an *executable array* of tokens 
 * it has a dynamic namespace, implemented by the dictionary stack
 * it doesn't seem to have much for implementing modularity (the `run` operator includes one PS file in another)
-* the programmer writes **procedures**, but the system has built-in **operators** (385 of them in Language Level 3). 
+* the programmer writes **procedures**, but the system has built-in **operators** (about 385 of them in Language Level 3). 
 In your code, operators and procedures appear in much the same way, but they aren't the same thing, and the language defines them as different types.  
 * PS makes liberal use of **stacks and dictionaries** 
 * PS uses an **operand stack** to pass parameters and return results
@@ -130,7 +131,7 @@ are derived from programming languages such as LISP."</em> (Red Book, page 23).
 
 *"...there is not a distinction between data and programs; any PostScript object may be treated as data or be executed as part of a program."* (Red Book, page 24).
 
-**Important to remember: the words *treat as data* mean one thing in PostScript: push it on to the operand stack.**
+**The words *treat as data* mean one thing in PostScript: push it on to the operand stack.**
 
 <em>"[The] names that represent operators are not reserved by the language. A PostScript program may change the meanings of operator names."</em>
 (Red Book, page 23). 
@@ -171,8 +172,8 @@ When such things are copied, the pointer is copied, and not the data.)
 If an object is executable, executing the object depends on its type:
 * for a name: look up the name in a dictionary, fetch the related value, and execute it
 * for an operator: do a built-in action (add numbers, paint characters, etc.)
-* for a string: the PostScript interpreter tokenizes the string, and treats it as code
-* for an executable array: if encountered *directly*, then treated as data (and execution is deferred); if *indirectly* (by look-up), then each element is executed in sequence. 
+* for an executable string: the PostScript interpreter tokenizes the string, and treats it as code
+* for an executable array: if encountered *directly*, then it's treated as data (and execution is deferred); if *indirectly* (by look-up), then each element is executed in sequence. 
 (This is a special rule just for executable arrays.)
 
 **A procedure is an array of executable objects.** 
@@ -180,7 +181,7 @@ There is no type specific to procedures.
 Thus, **an operator and a procedure are not the same kind of object.** 
 They are of different types. 
 They appear in your code in much the same way, but there are some behavioral differences.
-For example, `bind` applies to operators, not to procs. 
+For example, `bind` applies to operators, but not to procs. 
 
 Arrays can contain objects of different types.
 
@@ -266,7 +267,7 @@ first class-data objects, similar to 'atoms' in LISP."*
 
 By default, names are bound *late*: the system looks up the value (in the namespace/dictionary stack) associated with an executable name only at execution-time,
 when a procedure is invoked. 
-The `bind` operator changes this behaviour, but only for the *operators* in a proc (and on not other procs that the given proc will invoke). 
+The `bind` operator changes this behaviour, but only for the *operators* in a proc. 
 At the time the `bind` operator executes on a proc, it can modify its contents, by replacing operator names within it 
 with the associated values *at the time the bind is executed*.
 This also applies to all procs *called by* the given proc, to an arbitrary depth. But remember, this inlining is applied only to *operators*, not to *procs*.
@@ -322,13 +323,13 @@ Data exists only in these places:
 
 ## Working with PS as a Programmer  
 * Adobe's documentation for the language is robust and authorative
-* it's definitely low-level
+* it's definitely low-level, but it's also not difficult to build on top of it (charts, tables, and so on)
 * it's curt
 * reading it often requires more concentration than is usual for a programming language, because you need to track changes to state over time *in your head*
 * Visual Studio has an [extension for PS](https://marketplace.visualstudio.com/items?itemName=mxschmitt.postscript).
 * There's an [Eclipse-based plug-in](https://marketplace.eclipse.org/content/postscript-development-tools#details) 
 * Notepad++ has built-in syntax highlighting for PS 
-* debugging PS can be very rudimentary. 
+* debugging PS is very rudimentary if you have no help from tools
 * the conversion from PS to PDF for the final output is a non-issue, since it's handled by well-known and stable tools (Ghostscript and Adobe Acrobat/Distiller).
 * there appears to be no significant community of users producing libraries for it
 * there's little discussion of PS amongst modern programmers. Given the ubiquity of PDF and EPS, this is rather strange.
@@ -353,7 +354,7 @@ There are some common items that you may feel should have been part of the langu
 PostScript seems to have been designed to implement the core operations as robustly as possible, and to 
 leave higher-level considerations such as text flow to the application programmer.
 
-With the exception of general text flow, implementing the above items is straightforward given PostScript's 
+However, with the possible exception of general text flow, implementing the above items is straightforward given PostScript's 
 built-in operators.   
 
 
@@ -364,7 +365,7 @@ The simplest case for using pure PS to generate documents is when:
 * the general emphasis is on data, in some sense, instead of large amounts of text
 * you can use its drawing capabilities to make illustrations (graphs, charts, diagrams, and so on)
 
-For example, reports generated by typical systems can fall into this category.
+Reports generated by typical systems often fit the above description.
 
 In PS, managing text becomes more complicated when: 
 * the blocks of text are large, and can flow onto subsequent pages (widows, orphans, and so on)
@@ -379,11 +380,13 @@ In PS, the `show` operator marks a page with text characters.
 Here, a simple literal is passed the operator:
 
 ```
+10 10 moveto
 (Hello) show
 ```
  
 It's important to understand how the system marks the letter 'H' on the page:
-* the system **passes a number to `show`**, not a character! **There is no 'character' data type in PS.** *In PS, 'string' means a string of numbers, all in the range 0..255.*
+* the system **passes a number to `show`**, not a character! **There is no 'character' data type in PS.** *In PS, 'string' means a string of numbers, all in the range 0..255.*, that are using
+an encoding
 * the number comes *from the file's encoding of the character*. For English/French, your file encoding should very likely be Latin-1 (8859-1).
 * that number is passed to the `show` operator. PS calls this number the *character code*.
 * the current font has all of its info in a font-dictionary. One entry in that dictionary defines how it maps an incoming 
@@ -456,12 +459,14 @@ Programs use paths to draw lines, define the shapes of filled areas, and specify
 
 <em>"A path is made up of one or more disconnected **subpaths**, each comprising a sequence of connected segments."</em>
 
-An example of creating a path:
+An example of creating a path (a square in this case):
 ```
 newpath 
-12 50 moveto
-..more path construction here..
-..`closepath` often comes at the end..
+ 15 15 moveto  % starting point
+ 50 0 rlineto  % line to the right 
+ 0 50 rlineto  % line up
+ 50 neg 0 rlineto % line to the left
+closepath  % close the square, go back to the start
 ```
 
 The endpoint of the current path is called the *current point*. 
@@ -531,7 +536,6 @@ This is just the proper use of the dictionary stack, *whose primary purpose is t
 
 Warning: this is not 100% local, in the following sense: if proc A calls a helper proc B, then proc B sees the exact same dictionary stack as proc A.
 **In the language of object-oriented programming, the "local" data behaves more like an object's *field*, rather than a local variable defined in a method.**
-
 
 
 ## Idiom: Move Data on the Stack into the Current Namespace
@@ -747,6 +751,13 @@ You almost always use the CMYK color space for print outputs, and RGB for an out
 
 
 
+## Idiom: Define a Representative Scale
+A proc is usually related to some region of the page.
+That region will always have something that can be used as a *representative scale* (either passed as an argument or present in the current dictionary).
+The geometry of items can then be defined as a multiple or fraction of that representative scale.
+For example, in a table, you might choose the height of an *x* character in the current font as a representative scale for the height of cells in the table.
+In this way, changing to a larger font will cause the table's row height to increase proportionally.
+
  
 ## Consider Using Percent Coordinates
 Probably the first decision in many projects is the choice of dimensions for the page.
@@ -840,11 +851,11 @@ If you clip first, then half of the stroke will likely be cut off.
 * forgetting to `def` an object
 * forgetting to `selectfont` before a `show`: no error occurs, but no mark is made on the page
 
-# Globaldict 
+## Globaldict 
 `globaldict` should likely be avoided in most cases. 
 Use it only if you're sure you need it.
 
-# Dictionary operators refer to different sets of dictionaries.
+## Dictionary operators refer to different sets of dictionaries.
 Operations that can use the *whole* dictionary stack: `load`, `store`, `where`
 Operations that use only the *current* dictionary: `def`, `begin`, `end`
 Operations that use an *explicit* dictionary: `get`, `put`, `known`
