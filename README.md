@@ -619,7 +619,7 @@ The reason is that it makes a visually pleasing join by default.
 
 ## Idiom: Use Whitespace to Increase Legibility
 PS can be hard to read. 
-You have to sometimes concentrate on the visualizing what operators are doing, and 
+You have to sometimes concentrate on visualizing what operators are doing, and 
 track the state of the operand stack in your head. 
 
 Example:
@@ -755,6 +755,7 @@ You almost always use the CMYK color space for print outputs, and RGB for an out
 A proc is usually related to some region of the page.
 That region will always have something that can be used as a *representative scale* (either passed as an argument or present in the current dictionary).
 The geometry of items can then be defined as a multiple or fraction of that representative scale.
+
 For example, in a table, you might choose the height of an *x* character in the current font as a representative scale for the height of cells in the table.
 In this way, changing to a larger font will cause the table's row height to increase proportionally.
 
