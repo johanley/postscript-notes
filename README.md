@@ -858,7 +858,9 @@ Use it only if you're sure you need it.
 
 ## Dictionary operators refer to different sets of dictionaries.
 Operations that can use the *whole* dictionary stack: `load`, `store`, `where`
+
 Operations that use only the *current* dictionary: `def`, `begin`, `end`
+
 Operations that use an *explicit* dictionary: `get`, `put`, `known`
 
 ## Accessing the Proc's in a Library
