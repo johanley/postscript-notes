@@ -99,7 +99,7 @@ Also of interest:
 * plain text files; interpreted, not compiled; garbage collection
 * remarkably little syntax
 * **no reserved words**; you can re-define the behaviour of built-in operators
-* **post-fix syntax** is used, with the params coming before the operator/procedure
+* **postfix syntax** is used, with the params coming before the operator/procedure
 * **code is data and data is code** is central to the language: anonymous procedures are passed around as data
 * composite data structures: dictionaries, arrays, strings 
 * strings can contain binary data (with ASCII encodings)! **there's no 'character' data type as such**  
