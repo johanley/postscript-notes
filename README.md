@@ -570,7 +570,7 @@ A proc doesn't always need to move parameter data from the stack into a dictiona
 Sometimes it's possible to consume the data directly from the stack.
 In this case, tweaking the order of params passed to a proc can help you implement its body more simply.
 
-This example makes a tick-mark in a circular diagram; the tick-mark radiates out from the center of a circle.
+This example makes a tick-mark in a circular diagram; the tick-mark radiates out from the center of a circle:
 
 ```
 % dr radius angle 
