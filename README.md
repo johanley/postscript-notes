@@ -566,21 +566,22 @@ In that case, it's neither necessary nor desirable to pass *dx* and *dy* as para
 ## Idiom: Consume Nameless Data Directly From the Stack
 
 It's not necessary to move data from the stack into a dictionary.
+
 Sometimes it's possible to consume the data directly from the stack.
-In this case, changing the order of the params to a proc can help you implement the body of a proc more simply.
+In this case, changing the order of params passed to a proc can help you implement its body more simply.
 
 ```
 % dr radius angle 
 % A tick mark on a circle, radiating out from its center.
 % The currentpoint is the center of the circle.
 % The angle is counter-clockwise from the +X-direction (in degrees).
-% dr is the size of the tick (the caller should define it as a percentage of r)
+% dr is the size of the tick (it should be a percentage of the radius)
 /perimeter-tick {
   gsave
     rotate  % eat the angle; put +X in the desired direction
     0 translate % eat the radius; go out to the circumference
     0 0 moveto 
-    0 rlineto % eat the dr; tick in the +X-direction
+    0 rlineto % eat the dr as a dx; a tick in the +X-direction
     stroke 
   grestore
 } def
