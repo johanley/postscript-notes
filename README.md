@@ -563,6 +563,30 @@ It's important to **note that none of this is needed  if *dx* and *dy* are alrea
 In that case, it's neither necessary nor desirable to pass *dx* and *dy* as params. 
 (An exception: if you want to give the data different names for some reason.)
 
+## Idiom: Consume Nameless Data Directly From the Stack
+
+It's not necessary to move data from the stack into a dictionary.
+Sometimes it's possible to consume the data directly from the stack.
+In this case, changing the order of the params to a proc can help you implement the body of a proc more simply.
+
+```
+% dr radius angle 
+% A tick mark on a circle, radiating out from its center.
+% The currentpoint is the center of the circle.
+% The angle is counter-clockwise from the +X-direction (in degrees).
+% dr is the size of the tick (the caller should define it as a percentage of r)
+/perimeter-tick {
+  gsave
+    rotate  % eat the angle; put +X in the desired direction
+    0 translate % eat the radius; go out to the circumference
+    0 0 moveto 
+    0 rlineto % eat the dr; tick in the +X-direction
+    stroke 
+  grestore
+} def
+```
+
+
 ## Idiom: Save/Restore for Page Independence
 **Adobe very strongly recommends having pages independent of each other.**
 The typical way to accomplish this is to wrap the code that generates a page in a ``save\restore`` pair.
@@ -711,34 +735,41 @@ It's possible to put that pattern into a proc, as a template:
 ## Show the currentpoint
 
 Knowing "where you are" on the page is often important.
-Here's a proc that draws a little circle and cross at the `currentpoint`, in red. 
+Here's a proc that draws a little circle and cross at the `currentpoint`, in red.
+It also indicates the directions of the x-axis and y-axis in different colours. 
 
 ```
 % size-r 
-% debugging - show the location of the currentpoint (in red)
+% debugging - show the location of the currentpoint 
+% the +X-axis is in red, the +Y-axis in green
 % the currentpoint must exist
-% pass a representative size for the mark to be made
+% pass a representative size for the marks made by this proc
 /show-currentpoint {
 gsave
  /r exch def
  currentpoint   
  /y exch def
  /x exch def
-
  r 0.1 mul setlinewidth
+ 
+ % circle in red
  0.5 0 0 setrgbcolor
- newpath            % we want the currentpoint, but not the currentpath           
+ newpath    % we want the currentpoint, but not the currentpath           
  x y moveto
- r 0 rmoveto
  x y r 0 360 arc 
  stroke
- 
- x y moveto         % back to start
+
+ % x-axis in red
+ x y moveto        
  r neg 0   rmoveto 
- r 2 mul 0 rlineto  % horizontal
- r neg 0   rmoveto  % back to start
- 0 r neg   rmoveto
- 0 r 2 mul rlineto   % vertical
+ r 3 mul 0 rlineto % horizontal
+ stroke
+ 
+ % y-axis in green
+ 0 0.5 0 setrgbcolor
+ x y moveto  
+ 0 r neg  rmoveto 
+ 0 r 3 mul rlineto % vertical
  stroke
 grestore
 } def
