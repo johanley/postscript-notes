@@ -565,7 +565,7 @@ In that case, it's neither necessary nor desirable to pass *dx* and *dy* as para
 
 ## Idiom: Consume Nameless Data Directly From the Stack
 
-It's not necessary to move data from the stack into a dictionary.
+A proc doesn't always need move parameter data from the stack into a dictionary.
 
 Sometimes it's possible to consume the data directly from the stack.
 In this case, changing the order of params passed to a proc can help you implement its body more simply.
