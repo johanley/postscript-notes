@@ -570,7 +570,23 @@ A proc doesn't always need to move parameter data from the stack into a dictiona
 Sometimes it's possible to consume the data directly from the stack.
 In this case, tweaking the order of params passed to a proc can help you implement its body more simply.
 
-This example makes a tick-mark in a circular diagram; the tick-mark radiates out from the center of a circle:
+
+This example converts radial coordinates to rectangular coordinates:
+ 
+```
+% r theta -> x y
+/r-theta-to-x-y {
+ 2 copy   % r th r th
+ cos mul  % r th x 
+ 3 1 roll % x r th   'roll' acts like a circular queue 
+ sin mul  % x y
+} def
+
+```
+
+Note the use of comments to help you keep track of the state of the stack.
+
+This second example makes a tick-mark in a circular diagram; the tick-mark radiates out from the center of a circle:
 
 ```
 % dr radius angle 
@@ -588,6 +604,7 @@ This example makes a tick-mark in a circular diagram; the tick-mark radiates out
   grestore
 } def
 ```
+
 
 
 ## Idiom: Save/Restore for Page Independence
