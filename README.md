@@ -13,8 +13,8 @@ defined a page... At Adobe we had a radical new idea: we would make programs wri
 * Adobe was founded in order to create PS in the early 1980s
 * it sparked the *desktop publishing* idea, making typesetting much cheaper; it was the first tool to use scalable fonts 
 * PS is a full-blown computing language, but very much specialized on the task of telling printers how to print a document 
-* it's all about **drawing**: both text and illustrations are executed by drawing lines and curves (vector, not raster) 
-* it's all about **scalability**: it's trivial to rescale a document to a different size. (For changes to the aspect ratio, however, see below.)
+* it's all about **graphics and drawing**: both text and illustrations are executed by drawing lines and curves (vector, not raster) 
+* it's all about **resolution independence**: it's trivial to rescale a document to a different size. (For changes to the aspect ratio, however, see below.)
 * it's all about **print quality**: for printing outputs of the highest quality, printing houses often request PDF/EPS/PS file formats
 * it can be argued that, in a sense, PS is **at the center of the print universe**
 * PS is the basis for [PDF](https://en.wikipedia.org/wiki/PDF) and [EPS (encapsulated PostScript)](https://en.wikipedia.org/wiki/Encapsulated_PostScript)
