@@ -820,7 +820,7 @@ That one decision becomes more or less locked-in.
 In that case, the decision about the actual format can be implemented in a single line of code,
 with all other coordinates being defined relative to some base as a percentage.
 
-**One of the main advantages of PostScript is that of scalability. 
+**One of the main advantages of PostScript is that of resolution independence. 
 It seems a shame to throw that away by locking in to a single format.**
 (Note that using the `scale` operator to change size only works if the aspect ratio remains the same.)   
 
