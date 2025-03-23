@@ -29,9 +29,6 @@ Interesting aside: [this gentleman](https://youtu.be/5BIP_N9qQm4?t=2301) asserts
 the maintainers of the [TeX  library](https://en.wikipedia.org/wiki/TeX) chose not to use an open source library for generating PDFs, 
 because they couldn't do the job.
 
-Question: could it be that the internal data structure used by PDFs (essentially a tree of dictionaries) is simply not 
-amenable to the job of producing PDFs programmatically? 
-I don't know the answer, but it's a valid question.
 
 
 ## General
