@@ -21,7 +21,8 @@ To produce a PDF file programmatically, there seem to be two basic choices :
 * the *indirect* method : generate PostScript code, and then convert it into a PDF file (using a tool such as [Ghostscript](https://www.ghostscript.com/) or Adobe Acrobat)
 
 I have used both methods. 
-In my experience, the indirect method using PostScript is more productive, and gives me feelings of increased power and control.
+Personally, I prefer the indirect method using PostScript. 
+It gives me feelings of increased power and control.
 It also lets me build mock-ups faster.
 On the other hand, if your document needs features that exist in PDF but not in PostScript (attachments, forms, etc.), then you'll likely prefer the direct method.
 
