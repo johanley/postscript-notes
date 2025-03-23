@@ -14,6 +14,13 @@ defined a page... At Adobe we had a radical new idea: we would make programs wri
 **For most people, the main use of PostScript is to produce an intermediate .ps PostScript file, 
 which is then converted into a PDF file for your final output.**
 
+(There are quite a number of PDF libraries which output PDF files directly.
+[This gentleman](https://youtu.be/5BIP_N9qQm4?t=2298) asserts that they aren't of the highest quality.
+Could it be that the data format used by PDFs (essentially a tree of dictionaries, I believe) is not amenable to the job of producing 
+PDFs programmatically using a library? Personally, my experience of using the iText library wasn't very pleasant.)  
+
+
+
 * Adobe was founded in order to create PS in the early 1980s
 * it sparked the *desktop publishing* idea, making typesetting much cheaper; it was the first tool to use scalable fonts 
 * PS is a full-blown computing language, but very much specialized on the task of telling printers how to print a document 
