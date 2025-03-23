@@ -1,8 +1,6 @@
 # Postscript Notes 
 Notes on using the [PostScript programming language](https://en.wikipedia.org/wiki/PostScript) (PS).
 
-**For most people, the main use of PostScript is to produce an intermediate .ps PostScript file, 
-which is then converted into a PDF file for your final output.**
 
 This is not a complete tutorial. 
 These notes are meant to assist you in reading the Red Book (see below), and emphasize important ideas that you should pay attention to.
@@ -12,6 +10,9 @@ defined a page... At Adobe we had a radical new idea: we would make programs wri
 [John Warnock](https://www.jstor.org/stable/23558230)
 
 ## General
+
+**For most people, the main use of PostScript is to produce an intermediate .ps PostScript file, 
+which is then converted into a PDF file for your final output.**
 
 * Adobe was founded in order to create PS in the early 1980s
 * it sparked the *desktop publishing* idea, making typesetting much cheaper; it was the first tool to use scalable fonts 
