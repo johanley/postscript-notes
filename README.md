@@ -17,7 +17,7 @@ which is then converted into a PDF file for the final output.**
 
 
 To produce a PDF file programmatically, there seem to be two basic choices:
-* the *direct* method: use a PDF library to generate a PDF file directly
+* the *direct* method: use a PDF library to generate a PDF file directly (this is probably more common)
 * the *indirect* method: generate PostScript code, and then convert it into a PDF file (using a tool such as [Ghostscript](https://www.ghostscript.com/) or Adobe Acrobat)
 
 I have used both methods. 
