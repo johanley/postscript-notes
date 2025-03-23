@@ -16,14 +16,14 @@ which is then converted into a PDF file for your final output.**
 
 There are quite a number of open source PDF libraries which output PDF files directly.
 [This gentleman](https://youtu.be/5BIP_N9qQm4?t=2301) asserts that they aren't of the highest quality.
-Could it be that the data format used by PDFs (essentially a tree of dictionaries, I believe) is simply not amenable to the job of producing 
-PDFs programmatically? 
 
-Personally, my experience with the iText library has not been very pleasant.
-For me, using PostScript instead has been both more productive and enjoyable.
+Question: could it be that the data format used by PDFs (essentially a tree of dictionaries, I believe) is simply not amenable to the job of producing 
+PDFs programmatically? I don't know the answer, but it's a valid question.
 
-If you've been having similar frustrations with tools that generate PDFs directly, it's worth considering 
-using PostScript to generate PDFs *indirectly*.   
+Personally, my experience with the iText library has certainly not been very pleasant.
+Using PostScript instead has been both more productive and more enjoyable.
+
+If you've been having similar frustrations with tools that generate PDFs directly, please consider using PostScript to generate PDFs *indirectly*.   
 
 
 ## General
