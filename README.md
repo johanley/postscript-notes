@@ -16,7 +16,7 @@ defined a page... At Adobe we had a radical new idea: we would make programs wri
 which is then converted into a PDF file for the final output.**
 
 
-To produce a PDF file programmatically, there are two choices:
+To produce a PDF file programmatically, there seem to be two basic choices:
 * the *direct* method: use a PDF library to generate a PDF file directly
 * the *indirect* method: generate PostScript code, and then convert it into a PDF file (using a tool such as [Ghostscript](https://www.ghostscript.com/) or Adobe Acrobat)
 
@@ -27,7 +27,7 @@ On the other hand, if your document needs features that exist in PDF but not in 
 
 Interesting aside: [this gentleman](https://youtu.be/5BIP_N9qQm4?t=2301) asserts that 
 the maintainers of the [TeX  library](https://en.wikipedia.org/wiki/TeX) chose not to use an open source library for generating PDFs, 
-because they couldn't do the job.
+because they couldn't do the job as well as their own code.
 
 
 
