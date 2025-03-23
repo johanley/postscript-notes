@@ -12,7 +12,7 @@ defined a page... At Adobe we had a radical new idea: we would make programs wri
 
 ## PDF Libraries Versus PostScript
 
-**For most people, the main use of PostScript is to produce an intermediate .ps PostScript file, 
+**For most people, the main use of PostScript is to produce an intermediate *.ps* PostScript file, 
 which is then converted into a PDF file for your final output.**
 
 
