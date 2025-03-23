@@ -13,7 +13,7 @@ defined a page... At Adobe we had a radical new idea: we would make programs wri
 ## PDF Libraries Versus PostScript
 
 **For most people, the main use of PostScript is to produce an intermediate *.ps* PostScript file, 
-which is then converted into a PDF file for your final output.**
+which is then converted into a PDF file for the final output.**
 
 
 To produce a PDF file programmatically, there are two choices:
@@ -21,7 +21,7 @@ To produce a PDF file programmatically, there are two choices:
 * the *indirect* method: generate PostScript code, and then convert it into a PDF file (using a tool such as [Ghostscript](https://www.ghostscript.com/) or Adobe Acrobat)
 
 I have used both methods. 
-In my experience, the indirect method using PostScript is more productive, and gives me feelings of increased power and control.   
+In my experience, the indirect method using PostScript is more productive, and gives me feelings of increased power and control.
 It also lets me build mock-ups faster.
 
 Interesting aside: [this gentleman](https://youtu.be/5BIP_N9qQm4?t=2301) asserts that 
