@@ -8,11 +8,14 @@ These notes are meant to assist you in reading the Red Book (see below), and emp
 defined a page... At Adobe we had a radical new idea: we would make programs written in PostScript the representation of a page."*
 [John Warnock](https://www.jstor.org/stable/23558230)
 
+
+
+## PDF Libraries Versus PostScript
+
 **For most people, the main use of PostScript is to produce an intermediate .ps PostScript file, 
 which is then converted into a PDF file for your final output.**
 
 
-## PDF Libraries Versus PostScript
 To produce a PDF file programmatically, there are two choices:
 * the *direct* method: use a PDF library to generate a PDF file directly
 * the *indirect* method: generate PostScript code, and then converts it into a PDF file (using a tool such as Ghostscript or Adobe Acrobat)
