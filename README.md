@@ -23,7 +23,7 @@ To produce a PDF file programmatically, there are two choices:
 I have used both methods. 
 In my experience, the indirect method using PostScript is more productive, and gives me feelings of increased power and control.
 It also lets me build mock-ups faster.
-On the other hand, if you need PDF features that don't exist in PostScript, then you'll likely prefer the direct method.
+On the other hand, if your document needs features that exist in PDF but not in PostScript, then you'll likely prefer the direct method.
 
 Interesting aside: [this gentleman](https://youtu.be/5BIP_N9qQm4?t=2301) asserts that 
 the maintainers of the [TeX  library](https://en.wikipedia.org/wiki/TeX) chose not to use an open source library for generating PDFs, 
