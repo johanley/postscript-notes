@@ -15,7 +15,7 @@ which is then converted into a PDF file for your final output.**
 (There are quite a number of open source PDF libraries which output PDF files directly.
 [This gentleman](https://youtu.be/5BIP_N9qQm4?t=2301) asserts that they aren't of the highest quality.
 Could it be that the data format used by PDFs (essentially a tree of dictionaries, I believe) is simply not amenable to the job of producing 
-PDFs programmatically? Personally, my experiences with the iText library have not been very pleasant.)  
+PDFs programmatically? Personally, my experience with the iText library has not been very pleasant.)  
 
 
 ## General
