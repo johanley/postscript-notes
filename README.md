@@ -12,10 +12,10 @@ defined a page... At Adobe we had a radical new idea: we would make programs wri
 which is then converted into a PDF file for your final output.**
 
 
-## Direct-PDF Versus Indirect-PostScript
+## PDF Libraries Versus PostScript
 To produce a PDF file programmatically, there are two choices:
-* the *direct* method: your code uses a PDF library to generate a PDF file directly
-* the *indirect* method: your code generates PostScript code, and then converts it into a PDF file (using a tool such as Ghostscript or Adobe Acrobat)
+* the *direct* method: use a PDF library to generate a PDF file directly
+* the *indirect* method: generate PostScript code, and then converts it into a PDF file (using a tool such as Ghostscript or Adobe Acrobat)
 
 I have used both methods. 
 In my experience, the indirect method using PostScript is more productive, and gives me feelings of increased power and control.   
