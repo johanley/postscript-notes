@@ -20,10 +20,10 @@ Could it be that the data format used by PDFs (essentially a tree of dictionarie
 PDFs programmatically? 
 
 Personally, my experience with the iText library has not been very pleasant.
-For me, using PostScript instead has been both more productive and more pleasant.
+For me, using PostScript instead has been both more productive and enjoyable.
 
 If you've been having similar frustrations with tools that generate PDFs directly, it's worth considering 
-using PostScript to generate them indirectly.   
+using PostScript to generate PDFs *indirectly*.   
 
 
 ## General
