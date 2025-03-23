@@ -1,6 +1,9 @@
 # Postscript Notes 
 Notes on using the [PostScript programming language](https://en.wikipedia.org/wiki/PostScript) (PS).
 
+**For most people, the main use of PostScript is to produce an intermediate .ps PostScript file, 
+which is then converted into a PDF file for your final output.**
+
 This is not a complete tutorial. 
 These notes are meant to assist you in reading the Red Book (see below), and emphasize important ideas that you should pay attention to.
 
