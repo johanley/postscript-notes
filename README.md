@@ -778,6 +778,25 @@ It's possible to put that pattern into a proc, as a template:
 } bind def
 ```
 
+## Idiom: Redefine a built-in operator.
+The PostScript language lets you to redefine the behaviour of built-in names.
+It's likely best to exercise care when doing so.
+
+Here's an example which (temporarily) redefines the `moveto` command to accept numbers that are in 
+the problem domain, instead of the regular `xy` coordinates:
+```
+% the 'load' command fetches a name and puts it 
+% on the stack without executing it; this lets you 
+% store an alias for the built-in operator
+/moveto-orig /moveto load def
+
+% redefine the moveto name, to change the behaviour
+/moveto {
+  % rescale the inputs from the problem domain to regular xy
+  moveto-orig
+}
+```
+
 ## Show the currentpoint
 
 Knowing "where you are" on the page is often important.
