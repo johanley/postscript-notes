@@ -951,11 +951,10 @@ Note that **the operand stack is not affected by `save-restore` operations**.
 
 ## X-Height
 The vertical alignment of text can be subtle.
-If the placement of the text depends on the bounding-box of the text as a whole, 
+If the placement of the text uses the bounding-box of the text as a whole, 
 the result can be displeasing when the text has large ascenders or descenders.
 
-To avoid this, one might compute the placement of the text not using the height of the text as a whole, but 
-rather using the height of a small letter *x*, and dividing by two.
+To avoid this, one might compute the placement of the text using the height of a small letter *x*, and dividing by two.
 
 
 ## Simple Mistakes
