@@ -944,11 +944,26 @@ I'm not sure why `dup` is present here.
 If you have a path that you want to both `stroke` and `clip`, you likely want to perform the stroke first.
 If you clip first, then half of the stroke will likely be cut off.
 
+## Ensure the Stack is Empty
+After a page has been rendered, check to ensure the operand stack is indeed empty.
+You can do this using by temporarily putting a `pstack` at the end of the page.  
+Note that **the operand stack is not affected by `save-restore` operations**.
+
+## X-Height
+The vertical alignment of text can be subtle.
+If the placement of the text depends on the bounding-box of the text as a whole, 
+the result can be displeasing when the text has large ascenders or descenders.
+
+To avoid this, one might compute the placement of the text not using the height of the text as a whole, but 
+rather using the height of a small letter *x*, and dividing by two.
+
+
 ## Simple Mistakes
 * misspelling a name
 * using prefix instead of postfix
 * forgetting to `def` an object
 * forgetting to `selectfont` before a `show`: no error occurs, but no mark is made on the page
+* failing to consume all of the items on the operand stack - this can show up as an `invalidrestore` error, showing the unconsumed items on the stack.
 
 ## Globaldict 
 `globaldict` should likely be avoided in most cases. 
