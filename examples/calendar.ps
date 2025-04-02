@@ -1,0 +1,286 @@
+%!PS-Adobe-3.0
+%%Title: (Calendar)
+%%Version: 1.0
+%%Creator: (John O'Hanley)
+%%CreationDate: (2024-12-23)
+%%LanguageLevel: 3.0
+%%DocumentMedia: Plain 612 792 60 white ()
+%%DocumentNeededResources: font Times-Roman
+%%BoundingBox: 10 10 602 782
+%%Orientation: Portrait 
+%%Pages: 1
+%%EndComments 
+
+% -- END OF THE HEADER --
+
+% DSC: 
+%  - Document Structure Convention (DSC) comments start with '%%' and are case-sensitive.
+%  - No extra lines are allowed in the header (above).
+%  - Include a space after any colon ':' character in the header.
+
+% Lines in PostScript should not be more than 255 characters.
+
+%%BeginDefaults 
+%%EndDefaults
+
+%%BeginProlog
+  % Only procedure definitions go here.
+  % Include even if empty.
+
+% str -> dx dy
+% return the width/height (dx, dy) of the given text
+% this is useful for centering in various ways
+% https://stackoverflow.com/questions/3618194/how-to-determine-string-height-in-postscript luser droog
+/text-dim {
+  gsave
+    0 0 moveto
+    % the bounding box of the text
+    false charpath flattenpath pathbbox % x0 y0 x1 y1
+  grestore
+  % manipulate items directly on the stack; 'roll' changes the order 
+  3 -1 roll sub % x0 x1 dy
+  3 1 roll sub % dy -dx
+  -1 mul % dy dx
+  exch % dx dy
+} def
+
+% text 
+% center text horizontally AND vertically at the currentpoint
+/show-ctr-xy {
+  dup text-dim % text dx dy
+  -2 div % text dx -dy/2
+  exch % text -dy/2 dx
+  -2 div exch % text -dx/2 -dy/2
+  rmoveto % text
+  show
+} def
+
+
+%%EndProlog 
+
+
+%%BeginSetup               
+  % modify items in the graphics state that won't be changed by initgraphics/showpage/erasepage
+  % often: statusdict and setpagedevice
+  % example: set the scale in the user coord system, current font, paper size/weight/color,...
+
+  % letter (8.5*11) * 72
+  % the tolerance is 5 units in each dimension
+  % the order of the width/height actually doesn't matter
+  <</PageSize [612 792]>> setpagedevice  
+%%EndSetup 
+
+%%Page: (1) 1
+%%BeginPageSetup 
+  % page independence: save the state of the VM; restore it the end of the page
+  /pgsave save def     
+  % other: margins, orientation, ...  
+  /Times-Roman 6 selectfont
+%%EndPageSetup
+
+% in order to work in inches
+/inch {72 mul} def
+
+% a string-buffer needed by the 'cvs' operator (which converts things to strings)
+/sbuff 50 string def
+
+% A calendar month.
+% The month-name is placed above a 7x7 square grid.
+% The grid has both the day-names and the numbers.
+% The day-names and numbers are centered in each cell of the grid.
+% The origin is the bottom left corner of the grid.
+% Pass the month name, the number data, and the size of the (square) grid.
+% Example, where the data is an array of 42 strings = 7d x 6w strings for the day-numbers:
+%  (January) data 72 draw-month
+/draw-calendar-month {
+20 dict begin
+  /month-size exch def
+  /cell-size month-size 7 div def % square! used for both dx and dy
+  /dy-month-name 0.1 inch def  % gap between month-name and day-names
+  % In other languages, these would need to be translated of course:
+  /day-names << 1 (S) 2 (M) 3 (T) 4 (W) 5 (T) 6 (F) 7 (S) >> def
+
+  % box for the month
+  %0 0 month-size month-size rectstroke
+  /data exch def
+  sbuff cvs /month-name exch def   % cvs: to convert (coerced!) literal-keys /January back into strings (January)!
+  % row-or-col idx to the corresponding y-or-x coordinate in the middle of the cell
+  /idx-to-coord {
+    cell-size mul  cell-size 2 div   sub  
+  } def
+  % pass row col, translate to x y
+  /row-col-to-xy {
+     /col exch def
+     /row exch def
+     col idx-to-coord % x from col
+     month-size row idx-to-coord sub % y from row
+  } def
+  % pass row, col, text
+  /show-centered-at {
+    /text exch def
+    row-col-to-xy moveto
+    text show-ctr-xy
+  } def
+  % month-name above the grid
+  month-size 2 div   month-size dy-month-name add   moveto 
+  month-name   show-ctr-xy
+  % day-names in row 1
+  1 1 7 {
+    /col exch def
+    1 col   day-names col get   show-centered-at
+  }
+  for
+  % pass row, col
+  /daynum-at {
+    /col exch def
+    /row exch 1 sub def
+    /idx 7 row mul 7 sub col add def
+    data idx 1 sub get
+  } def
+  % show the day-numbers
+  2 1 7 {
+    /row exch def
+    1 1 7 {
+      /col exch def
+      row col   row col daynum-at  show-centered-at
+    } for
+  } for
+end  
+} def
+
+% translate first to the lower left of the grid for January.
+% pass an array of 12 maps.
+% map: key is month-name, value is an array of 42 strings = 6 x 7 representing the day-numbers
+/draw-calendar-year {
+10 dict begin
+  /month-size 1 inch def % square! used for dx, dy
+  /count 0 def
+  /dx 1.1 month-size mul def
+  /dy 1.2 month-size mul def
+  { {month-size draw-calendar-month} forall % each month has a single key-value pair in its dict
+    /count count 1 add def
+    count 3 mod 0 ne {
+      dx 0 translate % same row, but to the right
+    }{
+      % new row needed; translate 'back to the left, and down one row'
+      2 dx mul neg  dy neg   translate
+    } ifelse
+  } forall % an array of dicts
+end
+} def
+
+% an array of maps
+% WARNING : PostScript coerces string-keys into literal-keys.
+% For example, (January) gets coerced into /January!
+% Later, I 'uncoerce' the literal back into a string
+/yearly-calendar-data [ 
+ <<(January) 
+  [() (1) (2) (3) (4) (5) (6) 
+  (7) (8) (9) (10) (11) (12) (13) 
+  (14)(15) (16) (17) (18) (19) (20) 
+  (21)(22) (23) (24) (25) (26) (27) 
+  (28) (29) (30) (31) () () () () 
+  () () () () () () ()]
+ >>
+ <<(February) 
+  [() (1) (2) (3) (4) (5) (6) 
+  (7) (8) (9) (10) (11) (12) (13) 
+  (14)(15) (16) (17) (18) (19) (20) 
+  (21)(22) (23) (24) (25) (26) (27) 
+  (28) () () () () () () () 
+  () () () () () () ()]
+ >>
+ <<(March) 
+  [() (1) (2) (3) (4) (5) (6) 
+  (7) (8) (9) (10) (11) (12) (13) 
+  (14)(15) (16) (17) (18) (19) (20) 
+  (21)(22) (23) (24) (25) (26) (27) 
+  (28) (29) (30) (31) () () () () 
+  () () () () () () ()]
+ >>
+ <<(April) 
+  [() (1) (2) (3) (4) (5) (6) 
+  (7) (8) (9) (10) (11) (12) (13) 
+  (14)(15) (16) (17) (18) (19) (20) 
+  (21)(22) (23) (24) (25) (26) (27) 
+  (28) (29) (30) (31) () () () () 
+  () () () () () () ()]
+ >>
+ <<(May) 
+  [() (1) (2) (3) (4) (5) (6) 
+  (7) (8) (9) (10) (11) (12) (13) 
+  (14)(15) (16) (17) (18) (19) (20) 
+  (21)(22) (23) (24) (25) (26) (27) 
+  (28) (29) (30) (31) () () () () 
+  () () () () () () ()]
+ >>
+ <<(June) 
+  [() (1) (2) (3) (4) (5) (6) 
+  (7) (8) (9) (10) (11) (12) (13) 
+  (14)(15) (16) (17) (18) (19) (20) 
+  (21)(22) (23) (24) (25) (26) (27) 
+  (28) (29) (30) (31) () () () () 
+  () () () () () () ()]
+ >>
+ <<(July) 
+  [() (1) (2) (3) (4) (5) (6) 
+  (7) (8) (9) (10) (11) (12) (13) 
+  (14)(15) (16) (17) (18) (19) (20) 
+  (21)(22) (23) (24) (25) (26) (27) 
+  (28) (29) (30) (31) () () () () 
+  () () () () () () ()]
+ >>
+ <<(August) 
+  [() (1) (2) (3) (4) (5) (6) 
+  (7) (8) (9) (10) (11) (12) (13) 
+  (14)(15) (16) (17) (18) (19) (20) 
+  (21)(22) (23) (24) (25) (26) (27) 
+  (28) (29) (30) (31) () () () () 
+  () () () () () () () ]
+ >>
+ <<(September) 
+  [() (1) (2) (3) (4) (5) (6) 
+  (7) (8) (9) (10) (11) (12) (13) 
+  (14)(15) (16) (17) (18) (19) (20) 
+  (21)(22) (23) (24) (25) (26) (27) 
+  (28) (29) (30) (31) () () () () 
+  () () () () () () () ]
+ >>
+ <<(October) 
+  [() (1) (2) (3) (4) (5) (6) 
+  (7) (8) (9) (10) (11) (12) (13) 
+  (14)(15) (16) (17) (18) (19) (20) 
+  (21)(22) (23) (24) (25) (26) (27) 
+  (28) (29) (30) (31) () () () () 
+  () () () () () () () ]
+ >>
+ <<(November) 
+  [() (1) (2) (3) (4) (5) (6) 
+  (7) (8) (9) (10) (11) (12) (13) 
+  (14)(15) (16) (17) (18) (19) (20) 
+  (21)(22) (23) (24) (25) (26) (27) 
+  (28) (29) (30) (31) () () () () 
+  () () () () () () ()]
+ >>
+ <<(December) 
+  [() (1) (2) (3) (4) (5) (6) 
+  (7) (8) (9) (10) (11) (12) (13) 
+  (14)(15) (16) (17) (18) (19) (20) 
+  (21)(22) (23) (24) (25) (26) (27) 
+  (28) (29) (30) (31) () () () () 
+  () () () () () () () ]
+ >>
+] def
+
+
+% first translate the origin to the bottom-left of the 'January' calendar
+3 inch 5 inch translate
+yearly-calendar-data draw-calendar-year
+
+
+pgsave restore
+showpage
+%%PageTrailer
+
+%%Trailer    
+%%EOF

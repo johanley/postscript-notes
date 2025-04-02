@@ -1,0 +1,177 @@
+%!PS
+
+% https://en.m.wikipedia.org/wiki/File:Flag_of_Canada_(leaf).svg
+% SVG commands:
+% https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/d#elliptical_arc_curve
+
+% Second source:
+% https://fo.wikisource.org/wiki/Mynd:Flag_of_Canada_(construction_sheet_-_leaf_geometry).svg
+
+% <svg xmlns="http://www.w3.org/2000/svg" width="630" height="655" viewBox="-1953 -2031 3906 4061">
+
+<</PageSize [612  612]>> setpagedevice  
+
+% Return the coefficients in the line equation, given two points on the line.
+% The general equation for a line is Ax + By + C = 0.
+% This proc returns the array [A B C] on the stack
+% x y   x' y' -> [A B C]
+% https://www.omnicalculator.com/math/line-equation-from-two-points
+/line-eqn {
+5 dict begin
+  /y2 exch def 
+  /x2 exch def
+  /y1 exch def
+  /x1 exch def
+  [y2 y1 sub % A 
+   x1 x2 sub % B
+   y1  x2 x1 sub  mul   y2 y1 sub x1 mul   sub] % C
+end
+} def
+
+% Find the intersection point of two lines, and return it on the stack.
+% each line is specified by a pair of points on the line
+% x1 y1 x1' y1'   x2 y2 x2' y2' -> xi yi
+% WARNING: don't call this if the lines are parallel!
+/intersection-point {
+10 dict begin
+  line-eqn
+  /L2 exch def
+  line-eqn
+  /L1 exch def
+  /A 0 def  % array indices
+  /B 1 def
+  /C 2 def  
+  % idx-1 idx-2
+  % This is just a function used repeatedly below.
+  % https://www.cuemath.com/geometry/intersection-of-two-lines/
+  /combo {
+    /idx-2 exch def
+    /idx-1 exch def
+    L1 idx-1 get  L2 idx-2 get   mul         L1 idx-2 get  L2 idx-1 get   mul      sub
+  } def
+  /denom A B combo def
+  B C combo   denom div % x
+  C A combo   denom div % y
+end   
+} def
+
+% Input two straight lines (using two points on each line).
+% Return a path along the lines, and joining them with a rounded corner, a circular arc
+% of the given radius.
+% x1 y1 x1' y1'   x2 y2 x2' y2'   r
+/line-arc-line {
+10 dict begin
+  /r exch def
+  4 array astore /L2 exch def 
+  4 array astore /L1 exch def
+  /x  0 def  % array indices
+  /y  1 def
+  /xp 2 def
+  /yp 3 def
+  /intersection 
+    L1 aload pop 
+    L2 aload pop 
+    intersection-point   
+    2 array  astore 
+  def
+  %L1 x get L1 y get moveto              % currentpoint at the start at the start of l1
+  intersection x get  intersection y get % go towards the intersection point
+  L2 xp get L2 yp get                    % end with a hook pointing TOWARDS the end of L2
+  r
+  arct
+  % now finish, by extending past the hook, with a line to the end of L2
+  L2 xp get  L2 yp get  lineto
+  % current point at the end of L2, ready for the next chunk of the design
+end
+} def
+
+% returns the outline of the maple leaf on the canadian flag
+% starts at the bottom, moves up along the left side to the top, and then down the right side
+% WARNING: the impl is hard-coded to absolute values.
+% WARNING: you will need to 
+%   translate to the position intended for the center of the maple leaf, re-scale, 
+%   and simultaneously FLIP the sign of the y-coordinate (the source data was 'upside down')
+% EXAMPLE: 
+%   612 0.5 mul 612 0.5 mul translate
+%   0.1 -0.1 scale
+% Data source: https://en.m.wikipedia.org/wiki/File:Flag_of_Canada_(leaf).svg
+% SVG commands: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/d#elliptical_arc_curve
+/maple-leaf-path {
+  newpath
+  -110 2030 moveto  % THE PATH STARTS HERE, at the bottom, and goes up the left side, clockwise
+  %-90 2030 moveto    I CHANGED THIS BY 20 UNITS IN X, TO GET A BETTER RESULT
+  -90 2030  -65 1167  -156 1069  -1015 1220   95 line-arc-line  
+  % THE ORIGINAL SVG SOURCE DATA has been retained here for comparison, and in case of error:
+  %45 -863 rlineto
+  %      a 95 95 0 0 0 -111 -98
+  %      l -859 151 116 -320 
+  %-859 151 rlineto
+
+  -1015 1220  -899 900   -919 827  -1860 65 65 line-arc-line 
+  %116 -320 rlineto
+  %      a 65 65 0 0 0 -20 -73 
+  %      l -941 -762 212 -99 
+  %-941 -762 rlineto
+
+  -1860 65  -1648 -34   -1614  -113  -1800  -685    65 line-arc-line 
+  %212 -99 rlineto
+  %      a 65 65 0 0 0 34 -79 
+  %      l -186 -572 542 115
+  %-186 -572 rlineto
+
+  -1800 -685  -1258 -570  -1185  -608  -1080  -855    65 line-arc-line 
+  %542 115 rlineto 
+  %      a 65 65 0 0 0 73 -38
+  %      l 105 -247 423 454
+  %105 -247 rlineto
+
+  -1080 -855  -657 -401   -546 -458  -750 -1510    65 line-arc-line  
+  %423 454 rlineto
+  %      a 65 65 0 0 0 111 -57
+  %      l -204 -1052 327 189
+  %-204 -1052 rlineto
+
+  -750 -1510   -423 -1321   -332 -1348   0 -2000    65 line-arc-line  
+  %327 189 rlineto
+  %      a 65 65 0 0 0 91 -27 
+  %      l 332 -652 332 652
+  %332 -652 rlineto
+  
+  % LEFT SIDE COMPLETED TO THE TOP (0, -2000)
+  
+  0 -2000  332 -1348   423 -1321  750 -1510   65 line-arc-line  
+  %     a 65 65 0 0 0 91 27
+  %     l 327 -189   -204 1052
+
+  750 -1510   546 -458    657 -401   1080 -855    65 line-arc-line  
+  %    a 65 65 0 0 0 111 57
+  %    l 423-454 105 247
+  
+  1080 -855   1185 -608   1258 -570   1800 -685    65 line-arc-line  
+  %    a 65 65 0 0 0 73 38
+  %    l 542-115-186 572
+  
+  1800 -685   1614 -113   1648 -34   1860 65   65 line-arc-line  
+  %    a 65 65 0 0 0 34 79
+  %    l 212 99-941 762
+  
+  1860 65   859 827   839 900   955 1220    65 line-arc-line  
+  %    a 65 65 0 0 0-20 73
+  %    l 116 320 -859 -151
+
+  955 1220   96 1069  5 1167  50 2030     95 line-arc-line  
+  %955 1220   96 1069  -15 1167  30 2030     95 line-arc-line   I CHANGE BY 20 x-UNITS TO GET A BETTER RESULT
+  %    a 95 95 0 0 0 -111 98
+  %    l 45 863
+  closepath
+} def 
+
+% translate to the center of the page
+612 0.5 mul 612 0.5 mul translate
+% rescale/flip y's, because the source data are 'upside down' with respect to PostScript's convention
+0.1 -0.1 scale
+
+10 setlinewidth
+maple-leaf-path gsave stroke grestore 0.5 setgray fill
+
+showpage

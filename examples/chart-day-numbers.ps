@@ -1,0 +1,323 @@
+%!PS-Adobe-3.0
+
+% Chart by day-number, where day-number is from 1..365.
+
+% pass two numbers; a value and a percent
+% example '70 15 pct' is 15% of 70
+/pct {
+ 0.01 mul mul
+} def
+
+% execute a proc within a gsave-grestore pair
+/draw {
+  gsave 
+    newpath % ensures the currentpath/point is empty
+    exec  % execute the passed proc
+  grestore
+} def 
+
+% str -> dx dy
+% return the dimensions of a the bounding-box of a string
+/text-dim {
+  gsave
+    % the bounding box of the text
+    false charpath flattenpath pathbbox % x0 y0 x1 y1
+  grestore
+  3 -1 roll sub % x0 x1 dy
+  3 1 roll sub % dy -dx
+  -1 mul % dy dx
+  exch % dx dy
+} def
+
+% text 
+% center text horizontally AND vertically at the currentpoint
+/show-ctr-xy {
+  dup text-dim % text dx dy
+  -2 div % text dx -dy/2
+  exch % text -dy/2 dx
+  -2 div exch % text -dx/2 -dy/2
+  rmoveto % text
+  show
+} def
+
+% text 
+% right-align text horizontally at the currentpoint, and center it vertically
+/show-right-align-ctr-y {
+  dup text-dim % text dx dy
+  -0.5 mul % text dx -dy/2
+  exch neg % text -dy/2 -dx
+  exch % text -dx -dy/2
+  rmoveto % text
+  show
+} def
+
+% (a) (b) -> (ab)  
+% concatenate two strings
+% surprisingly, there's no string concatenation operator in PostScript
+% https://en.wikibooks.org/wiki/PostScript_FAQ/Programming_PostScript#How_to_concatenate_strings?
+/concat-str { 
+  exch dup length    
+  2 index length add string    
+  dup dup 4 2 roll copy length
+  4 -1 roll putinterval
+} def  
+
+% str str -> value
+% example input : (x) (max)
+% curt extraction of a value ('V') from the 'data' dict
+% instead of :
+%  data(x)get (max)get
+% you can use :
+%  (x)(max)V
+% 'data' is assumed to be in the current namespace; it is a 'dict of dicts'
+/V {
+  exch  % (max) (x)
+  data  % (max) (x) data
+  exch  % (max)  data (x)
+  get   % (max)  <<..>>
+  exch  % <<..>> (max)
+  get
+} def
+
+% dict dx dy
+% the x-values are day-numbers, usually starting with Jan 1 = 1.
+% assumes the currentpoint is the bottom left of the chart (the intersection of the x and y axes)
+% the caller sets the base linewidth, font
+/chart-by-day-number {
+20 dict begin
+  /dy exch def
+  /dx exch def
+  /data exch def
+  /line-wd currentlinewidth def
+  /x-wd   (x)(max)V    (x)(min)V  sub   def
+  /val-to-x { (x)(min)V sub    x-wd div   dx mul  } def   % (val-min)/(max-min) * dx
+  /x-ticks {
+    newpath
+    (x)(ticks)V {
+      val-to-x 0 moveto    
+      0   dy 2 pct neg   rlineto 
+    } forall
+  } def
+  
+  /y-ht   (y)(max)V  (y)(min)V  sub   def
+  /val-to-y { (y)(min)V sub    y-ht div   dy mul  } def
+  /y-ticks {
+    newpath
+    (y)(ticks)V {
+      0 exch val-to-y moveto    
+      dx 2 pct neg   0 rlineto 
+    } forall
+  } def
+  
+  /polyline {
+    newpath
+    data(time-series)get 0 get aload pop
+    val-to-y exch 
+    val-to-x exch  moveto  % first xy 
+    1  1    data(time-series)get  length   1   sub   {
+      data(time-series)get  exch get aload pop
+      val-to-y exch 
+      val-to-x exch lineto  % all subsequent xy's
+    } for
+  } def
+  
+  /grid-y {
+    /num-divs 40 def
+    /step-y dy num-divs div def
+    1   1  num-divs 1 sub {
+      newpath
+      dup 
+      5 mod 0 eq {line-wd setlinewidth [] 0 setdash}{line-wd 50 pct setlinewidth [1 2] 0 setdash} ifelse
+      0   exch step-y mul   moveto
+      dx 0 rlineto
+      stroke
+    } for
+    [] 0 setdash
+  } def
+
+  % like the ticks, the x-grid is slightly irregular, because months have different lengths  
+  % in this project, Feb 29 data is amalgamated with Mar 1 data.
+  /grid-x {
+    (x)(ticks)V {
+      val-to-x 0 moveto 
+      0 dy rlineto
+    } forall
+  } def
+  
+  /x-tick-labels {
+    (x)(tick-labels)V {
+      exch val-to-x  dy 5 pct neg  moveto 
+      sbuff cvs  show-ctr-xy % PostScript coerces string-keys to name-keys
+    } forall
+  } def
+  
+  /y-tick-labels {
+    (y)(ticks)V {  % re-using the tick values directly
+      dup   
+      val-to-y  dx 5 pct neg  exch    moveto 
+      sbuff cvs (C) concat-str show-right-align-ctr-y
+    } forall
+  } def
+
+  {line-wd 50 pct setlinewidth standard-gray setgray 
+   grid-y % the lines are stroked individually, at different widths
+   grid-x stroke} draw
+  {x-ticks stroke} draw
+  {x-tick-labels} draw
+  {y-ticks stroke} draw
+  {y-tick-labels} draw
+  {polyline stroke} draw
+  0 0 dx dy rectstroke
+  
+end
+} def
+
+
+
+% dict dx dy
+% the x-values are day-numbers, usually starting with Jan 1 = 1.
+% assumes the currentpoint is the bottom left of the chart (the intersection of the x and y axes)
+% the caller sets the base linewidth, font
+/chart-eighty-percent-range {
+20 dict begin
+  /dy exch def
+  /dx exch def
+  /data exch def
+  /line-wd currentlinewidth def
+  /x-wd   (x)(max)V    (x)(min)V  sub   def
+  /val-to-x { (x)(min)V sub    x-wd div   dx mul  } def   % (val-min)/(max-min) * dx
+  /x-ticks {
+    newpath
+    (x)(ticks)V {
+      val-to-x 0 moveto    
+      0   dy 2 pct neg   rlineto 
+    } forall
+  } def
+  
+  /y-ht   (y)(max)V   (y)(min)V  sub   def
+  /val-to-y { (y)(min)V sub    y-ht div   dy mul  } def
+  /y-ticks {
+    newpath
+    (y)(ticks)V {
+      0 exch val-to-y moveto    
+      dx 2 pct neg   0 rlineto 
+    } forall
+  } def
+  
+  /polyline {
+    /timeseries exch def % an array of arrays
+    newpath
+    timeseries 0 get aload pop
+    val-to-y exch 
+    val-to-x exch  moveto  % first xy 
+    1  1    timeseries length 1 sub   {
+      timeseries exch get aload pop
+      val-to-y exch 
+      val-to-x exch lineto  % all subsequent xy's
+    } for
+  } def
+  
+  /polylines {
+    % an array of arrays of arrays
+    data(time-series)get {
+      {polyline stroke} draw
+    } forall
+  } def
+  
+  /grid-y {
+    /num-divs 20 def
+    /step-y dy num-divs div def
+    1   1  num-divs 1 sub {
+      newpath
+      dup dup  % eat the index thrice
+      5 mod 0 eq {line-wd setlinewidth [] 0 setdash}{line-wd 50 pct setlinewidth [1 2] 0 setdash} ifelse
+      10 eq {line-wd 200 pct setlinewidth}if
+      0   exch step-y mul   moveto
+      dx 0 rlineto
+      stroke
+    } for
+    [] 0 setdash
+  } def
+
+  % like the ticks, the x-grid is slightly irregular, because months have different lengths  
+  % in this project, Feb 29 data is amalgamated with Mar 1 data.
+  /grid-x {
+    (x)(ticks)V {
+      val-to-x 0 moveto 
+      0 dy rlineto
+    } forall
+  } def
+  
+  /x-tick-labels {
+    (x)(tick-labels)V {
+      exch val-to-x  dy 5 pct neg  moveto 
+      sbuff cvs  show-ctr-xy % PostScript coerces string-keys to name-keys
+    } forall
+  } def
+  
+  /y-tick-labels {
+    (y)(tick-labels)V {  
+      exch val-to-y  dx 5 pct neg  exch moveto 
+      sbuff cvs show-right-align-ctr-y
+    } forall
+  } def
+
+  {line-wd 50 pct setlinewidth 
+   standard-gray setgray 
+   grid-y % the lines are stroked individually, at different widths
+   grid-x stroke} draw
+  {x-ticks stroke} draw
+  {x-tick-labels} draw
+  {y-ticks stroke} draw
+  {y-tick-labels} draw
+  polylines
+  0 0 dx dy rectstroke
+  
+end
+} def
+
+
+
+
+<</PageSize [612  792]>> setpagedevice  
+/Helvetica 12 selectfont
+/standard-gray 0.6 def
+/sbuff 50 string def
+true setstrokeadjust  % ALWAYS DO THIS
+%0.5 0.2 0.1 setrgbcolor
+1 setlinecap % rounded
+
+1 setlinewidth
+
+gsave
+612 0.1 mul 792 0.55 mul translate
+0 0 moveto
+<< 
+  (x) <<(min) 1 (max) 731 (ticks) [1 32 60 91 121 152 182 213 244 274 305 335 366        397 425 456 486 517 547 578 609 639 670 700 731  ]  
+     (tick-labels) <<15(J) 46(F) 74(M) 105(A) 135(M) 166(J) 196(J) 227(A) 258(S) 288(O) 319(N) 349(D)          380(J) 411(F) 439(M) 470(A) 500(M) 531(J) 561(J) 592(A) 623(S) 653(O) 684(N) 714(D)    >> 
+     >> 
+  (y) <<(min) -10 (max) 30 (ticks) [-10 -5 0 5 10 15 20 25 30] >> 
+  (time-series) [ [1 -2] [32 -1] [60 0] [91 1] [121 2] [152 3] [182 4] [213 5] [244 6] [274 3] [305 0] [335 -1] [366 -2] [397 -1] [425 0] [486 1] [517 2] [547 3] [578 4] [609 3] [639 2] [670 1] [700 0] [731 -1]  ]
+>> 
+612 0.80 mul 
+792 0.40 mul chart-by-day-number
+grestore
+
+
+
+612 0.1 mul 792 0.05 mul translate
+0 0 moveto
+<< 
+  (x) <<(min) 1 (max) 731 (ticks) [1 32 60 91 121 152 182 213 244 274 305 335 366        397 425 456 486 517 547 578 609 639 670 700 731  ]  
+     (tick-labels) <<15(J) 46(F) 74(M) 105(A) 135(M) 166(J) 196(J) 227(A) 258(S) 288(O) 319(N) 349(D)          380(J) 411(F) 439(M) 470(A) 500(M) 531(J) 561(J) 592(A) 623(S) 653(O) 684(N) 714(D)    >> 
+     >> 
+  (y) <<(min) -10 (max) 10 (ticks) [-10 -5 0 5 10] (tick-labels) <<-10(-10C) -5(-5C) 0(0C) 5(+5C) 10(+10C)>>   >> 
+  (time-series) [
+    [ [1 -2] [32 -1] [60 -1] [91 -2] [121 -3] [152 -4] [182 -5] [213 -6] [244 -6] [274 -5] [305 -4] [335 -4] [366 -5] [397 -5] [425 -5] [486 -5] [517 -5] [547 -5] [578 -5] [609 -4] [639 -4] [670 -4] [700 -4] [731 -3]  ]
+    [ [1 5] [32 5] [60 5] [91 4] [121 5] [152 4] [182 4] [213 4.5] [244 5.2] [274 6.1] [305 6] [335 7.2] [366 7.1] [397 7] [425 6] [486 6] [517 5] [547 4] [578 6] [609 6] [639 7] [670 7.1] [700 5.7] [731 6.2]  ]
+  ]
+>> 
+612 0.80 mul 
+792 0.40 mul chart-eighty-percent-range
+
+showpage

@@ -1,0 +1,189 @@
+%!PS-Adobe-3.0
+%%Title: (Rectangular Grid)
+%%Version: 1.0
+%%Creator: (John O'Hanley)
+%%CreationDate: (2024-11-25)
+%%LanguageLevel: 3.0
+%%DocumentMedia: Plain 612 792 60 white ()
+%%DocumentNeededResources: font URWBookman-Light
+%%BoundingBox: 10 10 602 782
+%%Orientation: Portrait 
+%%Pages: 2
+%%EndComments 
+
+% -- END OF THE HEADER --
+
+% DSC: 
+%  - Document Structure Convention (DSC) comments start with '%%' and are case-sensitive.
+%  - No extra lines are allowed in the header (above).
+%  - Include a space after any colon ':' character in the header.
+
+% Lines in PostScript should not be more than 255 characters.
+
+%%BeginDefaults 
+%%EndDefaults
+
+%%BeginProlog
+  % Only procedure definitions go here.
+  % Include even if empty.
+
+% Some people like to use a grid to help them layout items on the page.
+  
+% dict
+% Example dictionary:
+% <<
+%  (left) 10 
+%  (right) 602 
+%  (bottom) 10
+%  (top) 782
+%  (grid-spacing) 10 
+%  (grid-color) 0.8 
+%  (corner-len) 40
+% >>
+% For best results, the grid dimensions should be a multiple of the grid-spacing
+% Otherwise, the corner-marks will only match exactly the bottom left corner of the grid.
+/make-a-grid { 
+20 dict begin
+  % move all key-value pairs in the dict into the current namespace
+  % this lets you reference the data quickly
+  { def } forall
+  /vertical-lines {
+    3 dict begin
+      top bottom sub /height exch def
+      right left sub grid-spacing idiv /num-vertical-lines exch def
+      0 0 moveto
+      0 1 num-vertical-lines { 
+       gsave
+         grid-color setgray
+         /idx exch def 
+         idx 10 mod 0 eq {2 setlinewidth} {1 setlinewidth} ifelse
+         left   idx grid-spacing mul  add % x coord
+         bottom                           % y coord
+         newpath
+           moveto 
+           0 height rlineto
+         stroke
+       grestore
+     } for 
+   end
+  } def
+  /horizontal-lines {
+    3 dict begin
+      right left sub /width exch def
+      top bottom sub grid-spacing idiv /num-horizontal-lines exch def
+      0 0 moveto
+      0 1 num-horizontal-lines { 
+       gsave
+         grid-color setgray
+         /idx exch def 
+         idx 10 mod 0 eq {1 setlinewidth} {0.5 setlinewidth} ifelse
+         left                                % x coord
+         bottom   idx grid-spacing mul   add % y coord
+         newpath
+           moveto 
+           width 0 rlineto
+         stroke
+       grestore
+     } for 
+   end
+  } def
+  % x y rotation-multiplier (0..3)
+  /mark-corner {
+    3 dict begin
+      90 mul /degrees-counter-clock exch def
+      /y exch def
+      /x exch def
+      gsave
+        x y translate
+        degrees-counter-clock rotate 
+        newpath
+          0 0 moveto
+          corner-len 0 rlineto
+          0 0 moveto
+          0 corner-len rlineto
+        stroke 
+      grestore
+    end
+  } def
+  /special-marks-for-the-corners {
+    left bottom 0 mark-corner
+    right bottom 1 mark-corner
+    right top 2 mark-corner
+    left top 3 mark-corner
+  } def
+  
+  % finally, draw the grid
+  vertical-lines
+  horizontal-lines
+  special-marks-for-the-corners
+end
+} def
+  
+%%EndProlog 
+
+% --END OF THE PROLOG --
+
+
+%%BeginSetup               
+  % modify items in the graphics state that won't be changed by initgraphics/showpage/erasepage
+  % often: statusdict and setpagedevice
+  % example: set the scale in the user coord system, current font, paper size/weight/color,...
+
+  % letter (8.5*11) * 72
+  % the tolerance is 5 units in each dimension
+  % the order of the width/height actually doesn't matter
+  <</PageSize [612 792]>> setpagedevice  
+%%EndSetup 
+
+%%Page: (1) 1
+%%BeginPageSetup 
+  % page independence: save the state of the VM; restore it the end of the page
+  /pgsave save def     
+  % other: margins, orientation, ...  
+  %/Helvetica 15 selectfont
+%%EndPageSetup
+
+% a grid that takes up most, but not quite all, of the whole page
+<<
+ (left) 10 
+ (right) 602 
+ (bottom) 10
+ (top) 782
+ (grid-spacing) 10 
+ (grid-color) 0.8 
+ (corner-len) 40
+>>
+make-a-grid
+
+pgsave restore
+showpage
+%%PageTrailer
+
+
+%%Page: (2) 2
+%%BeginPageSetup 
+  % page independence: save the state of the VM; restore it the end of the page
+  /pgsave save def     
+  % other: margins, orientation, ...  
+  %/Helvetica 15 selectfont
+%%EndPageSetup
+
+% a grid that doesn't take up the whole page
+% in addition, the grid dimensions are an even multiple of the grid-spacing, so the
+% corner-marks match exactly with the grid lines.
+<<
+ (left) 100 
+ (right) 500 
+ (bottom) 100
+ (top) 500
+ (grid-spacing) 10 
+ (grid-color) 0.8 
+ (corner-len) 40
+>>
+make-a-grid
+
+pgsave restore
+showpage
+%%PageTrailer
+%%Trailer    
+%%EOF

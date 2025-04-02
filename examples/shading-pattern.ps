@@ -1,0 +1,49 @@
+%!PS-Adobe-3.0
+
+% KenS 
+% https://stackoverflow.com/questions/40112220/type-3-function-procedure-in-post-script
+
+gsave
+0.480 setlinewidth
+1 setlinecap
+1 setlinejoin
+0 setgray
+
+% yields the color value (greyscale here)
+/stop_function
+<<
+    /FunctionType 2  % y = C0 + (C1 - C0)*x^N  polynomial functions
+    /Domain[0 1]     %  typical for interpolation functions
+    /C0 [0.2]
+    /C1 [0.8]
+    /N 1             % linear in this case; starts at 0 and goes up to 1
+>> def
+<<
+    /PatternType 2   % shading
+    /Shading
+    <<
+      /ShadingType 2  %   axial
+      /ColorSpace [/DeviceGray]  % can't be a pattern
+      /Background [0.5]
+      %/BBox
+      
+      /Coords [0 0 500 500]   % the start-end of the linear axis
+      /Domain [0 1] % the default
+      /Function stop_function
+      /Extend [false false]    % the default - don't extend beyond the start-end of the axis
+    >> 
+>>
+matrix makepattern setpattern
+10 10 moveto
+10 500 lineto
+300 500 lineto
+300 10 lineto
+closepath
+gsave
+fill
+grestore
+0 setgray
+stroke
+grestore
+
+showpage

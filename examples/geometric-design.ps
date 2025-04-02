@@ -1,0 +1,84 @@
+%!PS-Adobe-3.0
+%%Title: (Geometric Design)
+%%Version: 1.0
+%%Creator: (John O'Hanley)
+%%CreationDate: (2024-12-09)
+%%LanguageLevel: 3.0
+%%DocumentMedia: Plain 612 792 60 white ()
+%%DocumentNeededResources: font Times-Roman
+%%BoundingBox: 10 10 602 782
+%%Orientation: Portrait 
+%%Pages: 1
+%%EndComments 
+
+% -- END OF THE HEADER --
+
+% DSC: 
+%  - Document Structure Convention (DSC) comments start with '%%' and are case-sensitive.
+%  - No extra lines are allowed in the header (above).
+%  - Include a space after any colon ':' character in the header.
+
+% Lines in PostScript should not be more than 255 characters.
+
+%%BeginDefaults 
+%%EndDefaults
+
+%%BeginProlog
+  % Only procedure definitions go here.
+  % Include even if empty.
+%%EndProlog 
+
+% --END OF THE PROLOG --
+
+
+%%BeginSetup               
+  % modify items in the graphics state that won't be changed by initgraphics/showpage/erasepage
+  % often: statusdict and setpagedevice
+  % example: set the scale in the user coord system, current font, paper size/weight/color,...
+
+  % letter (8.5*11) * 72
+  % the tolerance is 5 units in each dimension
+  % the order of the width/height actually doesn't matter
+  <</PageSize [612 792]>> setpagedevice  
+%%EndSetup 
+
+%%Page: (1) 1
+%%BeginPageSetup 
+  % page independence: save the state of the VM; restore it the end of the page
+  /pgsave save def     
+  % other: margins, orientation, ...  
+  %/Helvetica 15 selectfont
+  /Times-Roman 15 selectfont
+%%EndPageSetup
+
+300 300 translate
+0.2 setlinewidth
+
+% I found this code on a video; I neglected to retain the URL.
+0 1 360 {
+   /i exch def   % an angle
+   
+   i sin abs % cyan 
+   i cos abs % magenta
+   0.0 0.0 setcmykcolor
+   
+   /dist i cos 100 mul def
+   gsave
+     dist dist translate
+     i rotate
+     -150 -150 translate
+     newpath
+       100 100 moveto
+       200 200 lineto
+       200 100 lineto
+       100 200 lineto
+     closepath
+     stroke
+   grestore
+} for
+  
+pgsave restore
+showpage
+%%PageTrailer
+%%Trailer    
+%%EOF

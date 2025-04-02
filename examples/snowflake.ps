@@ -1,0 +1,94 @@
+%!PS-Adobe-3.0
+%%Title: (Snowflake)
+%%Version: 1.0
+%%Creator: (John O'Hanley)
+%%CreationDate: (2024-12-23)
+%%LanguageLevel: 3.0
+%%DocumentMedia: Plain 612 792 60 white ()
+%%DocumentNeededResources: font Times-Roman
+%%BoundingBox: 10 10 602 782
+%%Orientation: Portrait 
+%%Pages: 1
+%%EndComments 
+
+% -- END OF THE HEADER --
+
+% DSC: 
+%  - Document Structure Convention (DSC) comments start with '%%' and are case-sensitive.
+%  - No extra lines are allowed in the header (above).
+%  - Include a space after any colon ':' character in the header.
+
+% Lines in PostScript should not be more than 255 characters.
+
+%%BeginDefaults 
+%%EndDefaults
+
+%%BeginProlog
+  % Only procedure definitions go here.
+  % Include even if empty.
+%%EndProlog 
+
+% --END OF THE PROLOG --
+
+
+%%BeginSetup               
+  % modify items in the graphics state that won't be changed by initgraphics/showpage/erasepage
+  % often: statusdict and setpagedevice
+  % example: set the scale in the user coord system, current font, paper size/weight/color,...
+
+  % letter (8.5*11) * 72
+  % the tolerance is 5 units in each dimension
+  % the order of the width/height actually doesn't matter
+  <</PageSize [612 792]>> setpagedevice  
+%%EndSetup 
+
+%%Page: (First Round) 1
+%%BeginPageSetup 
+  % page independence: save the state of the VM; restore it the end of the page
+  /pgsave save def     
+  % other: margins, orientation, ...  
+  %/Helvetica 15 selectfont
+  /Times-Roman 15 selectfont
+%%EndPageSetup
+
+
+% https://stackoverflow.com/questions/12381887/understanding-recursive-koch-snowflake-function-in-postscript
+
+/kochR
+ {
+   2 copy ge {dup 0 rlineto}
+     {
+       3 div
+       2 copy kochR
+       60 rotate
+       2 copy kochR
+       -120 rotate
+       2 copy kochR
+       60 rotate
+       2  copy kochR
+      } ifelse
+     pop pop
+  } def
+
+0 0 moveto
+27 81 kochR
+
+0 27 moveto
+9 81 kochR
+
+0 54 moveto
+3 81 kochR
+
+0 81 moveto
+1 81 kochR
+
+
+stroke
+
+
+pgsave restore
+showpage
+%%PageTrailer
+
+%%Trailer    
+%%EOF

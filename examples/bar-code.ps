@@ -1,0 +1,37 @@
+%!PS-Adobe-3.0
+
+% Use a library to render a bar-code.
+% The library can generate many different kinds of bar-code, including QR codes.
+%     https://github.com/bwipp/postscriptbarcode/
+%
+% The library is downloaded and unzipped. 
+% In order to use the library, you need to point Ghostscript to the library's directory
+% using the -sGenericResourceDir switch on its command line.
+
+% This works, but I get a Ghostscript warning! I don't know its cause:
+%
+%  *** Warning: GenericResourceDir doesn't point to a valid resource directory.
+%               the -sGenericResourceDir=... option can be used to set this.
+
+% 10 x 10 inches
+/pg-wd 720 def
+/pg-ht 720 def
+<</PageSize [pg-wd  pg-ht]>> setpagedevice  
+
+/Times-Roman 15 selectfont
+
+% Using a switch -sGenericResourceDir to point to the library:
+%  gswin64c.exe -dNOSAFER -sDEVICE=pdfwrite -sGenericResourceDir=C:\temp4\postscriptbarcode-resource-2025-03-14\Resource\ -o C:\johanley\ProjectsPhoton\postscript-play\bar-code.pdf  C:\johanley\ProjectsPhoton\postscript-play\bar-code.ps
+
+% the library needs a currentpoint to exist; the 'moveto' establishes that currentpoint
+300 300 moveto 
+
+% call the library to mark an ISBN code
+(978-1-86074-271 54495) (includetext) /isbn /uk.co.terryburton.bwipp findresource exec
+
+% Controlling the size of the generated bar code:
+% https://github.com/bwipp/postscriptbarcode/wiki/Resizing-Symbols
+
+% options: https://github.com/bwipp/postscriptbarcode/wiki/ISBN
+
+showpage

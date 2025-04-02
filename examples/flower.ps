@@ -1,0 +1,91 @@
+%!PS-Adobe-3.0
+%%Title: (Flower)
+%%Version: 1.0
+%%Creator: (John O'Hanley)
+%%CreationDate: (2024-12-22)
+%%LanguageLevel: 3.0
+%%DocumentMedia: Plain 612 792 60 white ()
+%%DocumentNeededResources: font Times-Roman
+%%BoundingBox: 10 10 602 782
+%%Orientation: Portrait 
+%%Pages: 1
+%%EndComments 
+
+% -- END OF THE HEADER --
+
+% DSC: 
+%  - Document Structure Convention (DSC) comments start with '%%' and are case-sensitive.
+%  - No extra lines are allowed in the header (above).
+%  - Include a space after any colon ':' character in the header.
+
+% Lines in PostScript should not be more than 255 characters.
+
+%%BeginDefaults 
+%%EndDefaults
+
+%%BeginProlog
+  % Only procedure definitions go here.
+  % Include even if empty.
+%%EndProlog 
+
+% --END OF THE PROLOG --
+
+
+%%BeginSetup               
+  % modify items in the graphics state that won't be changed by initgraphics/showpage/erasepage
+  % often: statusdict and setpagedevice
+  % example: set the scale in the user coord system, current font, paper size/weight/color,...
+
+  % letter (8.5*11) * 72
+  % the tolerance is 5 units in each dimension
+  % the order of the width/height actually doesn't matter
+  <</PageSize [612 792]>> setpagedevice  
+%%EndSetup 
+
+%%Page: (First Round) 1
+%%BeginPageSetup 
+  % page independence: save the state of the VM; restore it the end of the page
+  /pgsave save def     
+  % other: margins, orientation, ...  
+  %/Helvetica 15 selectfont
+  /Times-Roman 15 selectfont
+%%EndPageSetup
+
+% in order to use inches instead the default points
+/inch {72 mul} def
+
+/draw-flower {
+3 dict begin
+  /flower-petal {
+    newpath
+      0 0 moveto      % center
+      1 0 translate   % mark a straight line 
+      15 rotate       % rotate the axis (no mark)
+      0 15 sin translate  % go 'up' a bit, to the center of the arc
+      0 0 15 sin -90 90 arc  % mark the arc
+    closepath         % back to the center
+  } def
+  gsave 
+    0.02 setlinewidth
+    0.85 setgray
+    1 1 12 {
+      gsave
+       flower-petal gsave fill grestore  % the gray insides
+       0 setgray stroke  % the dark outline
+      grestore
+      30 rotate
+    } for
+  grestore
+end
+} def
+
+4.25 inch 4.25 inch translate
+1 inch 1 inch scale
+draw-flower
+
+pgsave restore
+showpage
+%%PageTrailer
+
+%%Trailer    
+%%EOF

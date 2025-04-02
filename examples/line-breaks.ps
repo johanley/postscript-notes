@@ -1,0 +1,119 @@
+%!PS-Adobe-3.0
+%%Title: (Line Breaks)
+%%Version: 1.0
+%%Creator: (John O'Hanley)
+%%CreationDate: (2024-12-06)
+%%LanguageLevel: 3.0
+%%DocumentMedia: Plain 612 792 60 white ()
+%%DocumentNeededResources: font Times-Roman
+%%BoundingBox: 10 10 602 782
+%%Orientation: Portrait 
+%%Pages: 1
+%%EndComments 
+
+% -- END OF THE HEADER --
+
+% DSC: 
+%  - Document Structure Convention (DSC) comments start with '%%' and are case-sensitive.
+%  - No extra lines are allowed in the header (above).
+%  - Include a space after any colon ':' character in the header.
+
+% Lines in PostScript should not be more than 255 characters.
+
+%%BeginDefaults 
+%%EndDefaults
+
+%%BeginProlog
+  % Only procedure definitions go here.
+  % Include even if empty.
+%%EndProlog 
+
+% --END OF THE PROLOG --
+
+
+%%BeginSetup               
+  % modify items in the graphics state that won't be changed by initgraphics/showpage/erasepage
+  % often: statusdict and setpagedevice
+  % example: set the scale in the user coord system, current font, paper size/weight/color,...
+
+  % letter (8.5*11) * 72
+  % the tolerance is 5 units in each dimension
+  % the order of the width/height actually doesn't matter
+  <</PageSize [612 792]>> setpagedevice  
+%%EndSetup 
+
+%%Page: (First Round) 1
+%%BeginPageSetup 
+  % page independence: save the state of the VM; restore it the end of the page
+  /pgsave save def     
+  % other: margins, orientation, ...  
+  %/Helvetica 15 selectfont
+  /Times-Roman 15 selectfont
+%%EndPageSetup
+
+
+% From the 'Tutorial and Cookbook'
+% https://archive.org/details/PSBlueBook/page/181/mode/2up?view=theater
+% textstring linewidth {..end-of-line-proc..}  
+% This proc chops up text into lines, and leaves each line on the stack.
+% The passed proc takes the current line as its one arg; it defines what's done after each line is 'finished': show and moveto.
+/BreakIntoLines { 
+20 dict begin
+  /wordbreak ( ) def  % space char identifies breaks between words
+  /proc exch def 
+  /linewidth exch def
+  /textstring exch def
+  /breakwidth wordbreak stringwidth pop def
+  /curwidth 0 def   % width of the current line
+  /lastwordbreak 0 def % index of the most recent word break found in the textstring
+  /startchar 0 def     % index of the first char for the current line
+  /restoftext textstring def  % temp variable that holds the remaining result of the search operator (see below)
+  % look up the PS 'search' operator. It pushes multiple results onto the operand stack.
+  { % loop: search for the first wordbreak in restoftext
+    restoftext wordbreak search     % this puts several things on the stack, the last being a success/fail boolean, which is here tested by ifelse
+      { % wordbreak found by the search
+        /nextword exch def pop 
+        /restoftext exch def 
+        /wordwidth nextword stringwidth pop def  % pop discards the dy part of the pair dx, dy
+        curwidth wordwidth add linewidth gt {    
+          % finish the current line, pass the line to the given proc, by extracting it from the given string (getinterval)
+          textstring startchar lastwordbreak startchar sub getinterval proc
+          % bookkeeping for the next line, which starts with what we just found
+          /startchar lastwordbreak def
+          /curwidth wordwidth breakwidth add def 
+        }
+        { % keep going: the current line is less than the given limit
+         /curwidth curwidth wordwidth add breakwidth add def
+        } 
+        ifelse
+        /lastwordbreak lastwordbreak nextword length add 1 add def
+      }
+      { % no match found for the wordbreak
+        % leave the restoftext on the stack, and stop looping
+        pop exit}  
+      ifelse % testing for a match found for the wordbreak
+  } loop
+  % tidying up: the last bit of remaining text  
+  /lastchar textstring length def 
+  textstring startchar lastchar startchar sub getinterval proc
+end
+} def
+
+
+/yline 500 def
+
+(...with a sudden start he worked on, climbing higher into the sky, and cutting himself off more and more from all intercourse with the sublunary world.)
+300
+{72 yline moveto show /yline yline 18 sub def}
+BreakIntoLines
+
+200 200 moveto 
+(Hello) show
+
+
+pgsave restore
+showpage
+%%PageTrailer
+
+%%Trailer    
+%%EOF

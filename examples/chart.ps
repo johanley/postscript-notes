@@ -1,0 +1,134 @@
+%!PS-Adobe-3.0
+
+% pass two numbers; a value and a percent
+% example '70 15 pct' is 15% of 70
+/pct {
+ 0.01 mul mul
+} def
+
+% execute a procedure inside a gsave-grestore pair
+/draw {
+  gsave 
+    newpath % ensures the currentpath/point is empty
+    exec  % execute the passed proc
+  grestore
+} def 
+
+% str str -> value
+% example input : (x) (max)
+% curt extraction of a value ('V') from the 'data' dict
+% instead of :
+%  data(x)get (max)get
+% you can use :
+%  (x)(max)V
+% 'data' is assumed to be in the current namespace; it is a 'dict of dicts'
+/V {
+  exch  % (max) (x)
+  data  % (max) (x) data
+  exch  % (max)  data (x)
+  get   % (max)  <<..>>
+  exch  % <<..>> (max)
+  get
+} def
+
+<</PageSize [612  612]>> setpagedevice  
+/Courier 20 selectfont
+
+612 0.1 mul 612 0.1 mul translate
+0 0 moveto
+/standard-gray 0.6 def
+
+% dict dx dy
+% assumes the currentpoint is the bottom left of the chart (the intersection of the x and y axes)
+% caller sets the base linewidth, font
+/basic-chart {
+20 dict begin
+  /dy exch def  % representative scale for the chart as a whole
+  /dx exch def
+  /data exch def % the dict that specifies the chart's content
+  /x-wd   (x)(max)V    (x)(min)V  sub   def 
+  % translate values to x-coords
+  % (val-min)/(max-min) * dx
+  /val-to-x { (x)(min)V sub    x-wd div   dx mul  } def   
+  /x-ticks {
+    newpath
+    (x)(ticks)V {
+      val-to-x 0 moveto    
+      0   dy 2 pct neg   rlineto 
+    } forall
+  } def
+  
+  /y-ht   (y)(max)V   (y)(min)V  sub   def
+  % translate values to y-coords
+  % (val-min)/(max-min) * dy
+  /val-to-y { (y)(min)V sub    y-ht div   dy mul  } def
+  /y-ticks {
+    newpath
+    (y)(ticks)V {
+      0 exch val-to-y moveto    
+      dx 2 pct neg   0 rlineto 
+    } forall
+  } def
+
+  % a graph of the actual data  
+  /polyline {
+    newpath
+    % 'moveto' the first data point
+    data(points)get 0 get aload pop 
+    val-to-y exch 
+    val-to-x exch  moveto  % first xy 
+    % 'lineto' all remaining data points
+    1  1    data(points)get  length   1   sub   {
+      data(points)get  exch get aload pop
+      val-to-y exch 
+      val-to-x exch lineto  % all subsequent xy's
+    } for
+  } def
+  
+  /grid-y {
+    /num-divs 20 def
+    /step-y dy num-divs div def
+    newpath
+    1   1  num-divs 1 sub {
+      0   exch step-y mul   moveto
+      dx 0 rlineto
+    } for
+  } def
+  
+  /grid-x {
+    /num-divs 9 def
+    /step-x dx num-divs div def
+    newpath
+    1   1  num-divs 1 sub {
+      step-x mul  0  moveto
+      0 dy rlineto
+    } for
+  } def
+
+  % Now draw the chart.
+  % Note the overall design of the code: first define the pieces, then make the 
+  % chart by drawing all of the pieces in sequence:
+  
+  % big rectangle
+  {0.5 setlinewidth standard-gray setgray 
+   grid-y stroke 
+   grid-x stroke} draw
+  {x-ticks stroke} draw
+  {y-ticks stroke} draw
+  {polyline stroke} draw
+  0 0 dx dy rectstroke
+end
+} def
+
+
+% Finally, pass a data-dict to the proc that makes the chart.
+<< 
+ (x) <<(min) 1 (max) 10 (ticks) [1 2 3 4 5 6 7 8 9 10] >> 
+ (y) <<(min) -10 (max) 10 (ticks) [-10 -5 0 5 10] >> 
+ (points) [ [1 -9] [2 -5] [9 8] ]
+>> 
+612 0.75 mul 
+612 0.5 mul 
+basic-chart
+
+showpage

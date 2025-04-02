@@ -1,0 +1,96 @@
+%!PS-Adobe-3.0
+
+
+% size-r 
+% debugging - show the location of the currentpoint (in red)
+% the currentpoint must exist
+% pass a representative size for the mark to be made
+/show-currentpoint {
+gsave
+ /r exch def
+ currentpoint   
+ /y exch def
+ /x exch def
+
+ r 0.1 mul setlinewidth
+ 0.5 0 0 setrgbcolor
+ newpath            % we want the currentpoint, but not the currentpath           
+ x y moveto
+ r 0 rmoveto
+ x y r 0 360 arc 
+ stroke
+ 
+ x y moveto         % back to start
+ r neg 0   rmoveto 
+ r 2 mul 0 rlineto  % horizontal
+ r neg 0   rmoveto  % back to start
+ 0 r neg   rmoveto
+ 0 r 2 mul rlineto   % vertical
+ stroke
+grestore
+} def
+
+<</PageSize [612 612]>> setpagedevice  
+/Times-Roman 15 selectfont
+/standard-gray 0.5 def 
+/inch {72 mul} def
+
+
+
+
+
+% needs origin at center of the poppy
+% based on code in the Blue Book
+/poppy-center {
+3 dict begin
+  /flower-petal {
+    newpath
+      0 0 moveto      % center
+      1 0 translate   % mark a straight line 
+      15 rotate       % rotate the axis (no mark)
+      0 15 sin translate  % go 'up' a bit, to the center of the arc
+      0 0 15 sin -90 90 arc  % mark the arc
+    closepath         % back to the center
+  } def
+  0.2 setlinewidth
+  12 {
+    gsave  
+      flower-petal gsave fill grestore  
+      stroke  
+    grestore
+    30 rotate
+  } repeat
+end
+} def
+
+% translate to the center of the poppy
+% r - pass the scale factor
+/poppy { 
+10 dict begin
+  dup scale 
+gsave
+  /a 100 def
+  /b 250 def
+  a neg a moveto % the starting point for the curves below
+  b neg b    b b   a a   curveto 
+  b b   b b neg   a a neg   curveto 
+  b b neg   b neg b neg    a neg a neg   curveto 
+  b neg b neg   b neg b  a neg a   curveto 
+  gsave stroke  grestore standard-gray setgray fill
+grestore 
+  0 0 moveto  
+  30 30 scale
+  poppy-center
+  newpath % to leave no traces
+end
+} def
+
+% translate the center of the poppy
+4.25 inch 4.25 inch translate
+% pass in a scale factor
+0.75 poppy
+
+
+showpage
+   
+%%EOF

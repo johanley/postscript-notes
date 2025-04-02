@@ -1,0 +1,510 @@
+%!PS-Adobe-3.0
+
+% explore ways of making a pattern, and draw swatches for each example.
+% penrose.ps:
+% https://personal.math.ubc.ca/~cass/courses/m308-02b/projects/schweber/penrose.html#:~:text=Postscript%20Penrose%20tiling%20generator&text=It%20uses%20a%20set%20of,sides%20specify%20the%20matching%20rules.
+% https://www.ntg.nl/maps/18/23.pdf
+
+% pass two numbers; a value and a percent
+% example '70 15 pct' is 15% of 70
+/pct {
+ 0.01 mul mul
+} bind def
+
+/where {0 0 moveto (x)show } def
+
+% pass a value N (can be a decimal)
+% range of the returned value is 0..N
+/random {
+  rand  
+  2147483648 1 sub   div mul
+} def
+
+
+% label y
+% (y as pct of the page height)
+/start-row {
+2 dict begin
+  /y exch def
+  /label exch def
+  pg-wd 2 pct   pg-ht y pct moveto label show
+end
+} def
+
+
+/show-swatch {
+  0 0 dx dy rectfill
+  0 setgray
+  0.5 setlinewidth
+  0 0 dx dy rectstroke
+} def
+  
+% pass {} x  y  (with x y as percentages of the page dimensions, for a translate)
+/draw {
+2 dict begin
+  /y exch def
+  /x exch def
+  gsave 
+    pg-wd x pct   pg-ht y pct translate
+    newpath % ensures the currentpath/point is empty
+    exec  % execute the passed proc
+  grestore
+end
+} bind def 
+
+
+
+% 10 x 10 inches
+/pg-wd 720 def
+/pg-ht 720 def
+<</PageSize [pg-wd  pg-ht]>> setpagedevice  
+/Times-Roman 15 selectfont
+/dx pg-wd 5 pct def
+/dy pg-ht 5 pct def
+
+/simple-gray-box {
+ 0.8 setgray
+ show-swatch
+} def
+
+% proc int (for scale of cell)
+% returns a Pattern dict
+% pass a proc that draws the pattern, and a number that defines the width/height of the tiling cell
+% randomness can't be used in the proc that draws; it must draw the same thing every time.
+/tile-with-cell {
+% using begin-end here blows up!
+  /r exch def
+  /draw-cell exch def
+  << 
+   /PatternType 1  % Tiling pattern
+   /PaintType 1    % colored
+   /TilingType 1   % constant-spacing
+   /BBox [0 0 r r]  % size of the pattern cell's bounding box
+   /XStep r         % spacing between cells
+   /YStep r 
+   /PaintProc {
+     begin   % push the pattern dict onto the dict stack
+        draw-cell
+     end     % remove the pattern dict from the dict stack
+   }
+  >>
+} def
+
+
+/boxes-at-a-slant {
+5 dict begin 
+  {gsave 0.5 setgray 0 0 0.5 2.0 rectfill grestore } 3 tile-with-cell
+  /theta 30 def
+  [theta cos   theta sin   theta sin neg   theta cos   0 0] % matrix: rotation applied to the pattern CTM
+  makepattern  % instantiate the pattern, put it on the stack; takes a snapshot of the current graphics state, to be modified later internally
+  setpattern
+  show-swatch
+  % the pattern is in effect as the long as the colorspace remains the same
+end
+} def
+
+% pass a line length
+/lines-at-a-slant {
+5 dict begin
+  /line-len exch def
+  {gsave 
+    0.5 setgray 
+    0 0 moveto 
+    0 line-len lineto stroke 
+   grestore 
+  } 3 tile-with-cell
+  /theta 30 def
+  [theta cos   theta sin   theta sin neg   theta cos   0 0] % matrix: rotation applied to the pattern CTM
+  makepattern  % instantiate the pattern, put it on the stack; takes a snapshot of the current graphics state, to be modified later internally
+  setpattern
+  show-swatch
+end
+} def
+
+/diagonal-squares {
+5 dict begin
+  /step 0.5 def
+  /d 0.4 def
+  {gsave 
+   step step d d rectfill
+   %0.5 setgray 
+   step 4 mul  step 4 mul d d rectfill  
+   grestore 
+  } 3 tile-with-cell
+  matrix % the identity matrix; no change
+  makepattern  % instantiate the pattern, put it on the stack; takes a snapshot of the current graphics state, to be modified later internally
+  setpattern
+  show-swatch
+end
+} def
+
+/diagonal-squares-alternating-colors {
+5 dict begin
+  /step 0.5 def
+  /d 0.4 def
+  {gsave 
+   step step d d rectfill
+   0.5 setgray 
+   step 4 mul  step 4 mul d d rectfill  
+   grestore 
+  } 3 tile-with-cell
+  matrix % the identity matrix; no change
+  makepattern  % instantiate the pattern, put it on the stack; takes a snapshot of the current graphics state, to be modified later internally
+  setpattern
+  show-swatch
+end
+} def
+
+% this was an accident!
+/plaid-like {
+5 dict begin
+  {gsave 
+   0 0 1 1 rectfill
+   0.5 setgray 
+   1 0 1 1 rectfill  
+   grestore 
+  } 2 tile-with-cell
+  matrix % the identity matrix
+  makepattern  
+  setpattern
+  show-swatch
+end
+} def
+
+/simple-stripes {
+5 dict begin
+  {gsave 
+   0.2 setgray 
+   0 0 10 5 rectfill  
+   0.8 setgray
+   0 5 10 5 rectfill  
+   grestore 
+  } 10 tile-with-cell
+  matrix % the identity matrix
+  makepattern  
+  setpattern
+  show-swatch
+end
+} def
+
+/fortress {
+5 dict begin
+   /lw 0.5 def
+  {gsave 
+   lw setlinewidth
+   0 lw moveto
+   5 0 rlineto
+   0 5 rlineto 
+   5 lw 0.5 mul sub 0 rlineto 
+   0 -5 lw 0.5 mul sub rlineto stroke
+   grestore 
+  } 10 tile-with-cell
+  matrix % the identity matrix
+  makepattern  
+  setpattern
+  show-swatch
+end
+} def
+
+
+/waves1 {
+5 dict begin
+   /lw 0.5 def
+  {gsave 
+   1 setlinecap
+   lw setlinewidth
+   0 9 moveto
+   1 8 0 0 10 9 curveto
+   stroke
+   grestore 
+  } 10 tile-with-cell
+  matrix % the identity matrix
+  makepattern  
+  setpattern
+  show-swatch
+end
+} def
+
+/waves2 {
+5 dict begin
+   /lw 0.5 def
+  {gsave 
+   1 setlinecap
+   lw setlinewidth
+   0 9 moveto
+   5 6 5 6 10 9 curveto
+   stroke
+   grestore 
+  } 10 tile-with-cell
+  matrix % the identity matrix
+  makepattern  
+  setpattern
+  show-swatch
+end
+} def
+
+
+/stars {
+  {gsave 
+   5 5 translate
+   0 2 moveto
+   4 {144 rotate 0 2 lineto} repeat
+   closepath fill
+   grestore 
+  } 10 tile-with-cell
+  matrix % the identity matrix
+  makepattern  
+  setpattern
+  show-swatch
+} def
+
+/stars-7-points {
+  {gsave 
+   0.1 setlinewidth
+   5 5 translate
+   0 3 moveto
+   6 {102.857 rotate 0 3 lineto} repeat
+   closepath fill
+   grestore 
+  } 20 tile-with-cell
+  matrix % the identity matrix
+  makepattern  
+  setpattern
+  show-swatch
+} def
+
+% THIS HAS AN INCORRET APPEARANCE; ASYMMETRIC.
+/stars-7-points-better {
+  % 7 exterior points
+  % 6 'interior' points between the exterior points
+  {gsave
+   10 dict begin  
+     /r7 5 def
+     /r6 2 def
+     /a7 360 7 div def   % angles
+     /a6 360 12 div def
+     0.1 setlinewidth
+     5 5 translate  % the center of the cell
+     0 0 moveto 
+     7 {     
+       0 r7 lineto    % top point, then move counter-clockwise
+       r6 a6 sin mul neg   
+       r6 a6 cos mul      lineto  % 'interior' point
+       r7 a7 sin mul neg   
+       r7 a7 cos mul      lineto % 'exterior' point
+       a7 rotate
+     } repeat
+     closepath fill
+   end 
+   grestore 
+  } 20 tile-with-cell
+  matrix % the identity matrix
+  makepattern  
+  setpattern
+  show-swatch
+} def
+
+% n r
+% num points, scale
+/stars-n-points {
+5 dict begin
+  /num-stars exch def
+  /star-size exch def
+  {gsave
+     10 10 
+     translate
+     num-stars star-size star-path stroke
+   grestore 
+  } 20 tile-with-cell
+  matrix % the identity matrix
+  makepattern  
+  setpattern
+  show-swatch
+end
+} def
+
+% n r
+% num points , size
+/star-path {
+15 dict begin
+  /n exch def 
+  /r exch def 
+  /alfa 360 n div def 
+  /cosa alfa cos def 
+  /cos2a cosa dup mul 2 mul 1 sub def 
+  /sina alfa sin def 
+  /sin2a cosa sina mul 2 mul def 
+  /x1 sina r mul neg def %abscis 1st vertex %inward corner
+  % 's' denotes the first 'inner-vertex'
+  /xs cosa 1 sub cos2a 1 sub div sin2a mul r mul neg def 
+  /ys cosa r mul def %also ordinate 1st vertex % 
+  0 r moveto  % the top of the star
+  n {
+    xs ys lineto % inner vertex
+    x1 ys lineto % outer vertex
+    alfa rotate
+  } repeat
+  closepath
+  %stroke 
+end
+} def
+
+
+% pattern tilings must be repeatable
+% I don't think you can use randomness in a standard Pattern tiling
+/random-boxes {
+5 dict begin
+  0.5 setgray
+  /tiny 0.5 def
+  300 {
+    1 random dx mul 
+    1 random dy mul 
+    moveto 
+    
+    0 tiny rlineto
+    tiny 0 rlineto
+    0 tiny neg rlineto
+    closepath fill
+  } repeat
+  0.5 setlinewidth
+  0 0 dx dy rectstroke
+end
+} def
+
+/draft {
+  {gsave 
+    /Times-Roman 3 selectfont
+    0.5 setgray
+    5 5 translate
+    45 rotate
+    0 0 moveto (Draft) show
+   grestore 
+  } 15 tile-with-cell
+  matrix % the identity matrix
+  makepattern  
+  setpattern
+  show-swatch
+} def
+
+/question-mark {
+  {gsave 
+    /Times-Roman 5 selectfont
+    5 5 translate
+    0 0 moveto (?) show
+   grestore 
+  } 10 tile-with-cell
+  matrix % the identity matrix
+  makepattern  
+  setpattern
+  show-swatch
+} def
+
+
+% without using a pattern
+/diagonal-squares-with-jiggle {
+5 dict begin
+ /r 0.25 def
+ /jig 1.8 def
+ 1 4 36 {
+   /col exch def
+   1 4 36 {
+    /row exch def
+    gsave 
+      jig random jig random translate 
+      col row r r rectfill
+    grestore
+    gsave 
+      jig random jig random  translate
+      col 2 add   row 2 add   r r  rectfill
+    grestore
+   }for
+ } for
+ 0.5 setlinewidth
+ 0 0 dx dy rectstroke
+end
+} def
+
+/weave {
+  {gsave 
+   0.75 setlinewidth
+   1 setlinecap % round
+   1 1 moveto
+   3 3 rlineto
+   9 6 moveto
+   3 neg 3 rlineto
+   stroke
+   grestore 
+  } 10 tile-with-cell
+  matrix % the identity matrix
+  makepattern  
+  setpattern
+  show-swatch
+} def
+
+/asterisk {
+  {gsave 
+   0.50 setlinewidth
+   1 setlinecap % round
+   5 5 translate
+   4 {
+    -2 0 moveto 4 0 rlineto stroke
+    45 rotate
+   } repeat
+   grestore 
+  } 10 tile-with-cell
+  matrix % the identity matrix
+  makepattern  
+  setpattern
+  show-swatch
+} def
+
+
+
+/row 90 def
+(1) row start-row
+{simple-gray-box} 5 row draw
+{boxes-at-a-slant} 15 row draw 
+{2.5 lines-at-a-slant} 25 row draw 
+{5 lines-at-a-slant} 35 row draw 
+
+/row 80 def
+(2) row start-row
+{diagonal-squares} 5 row draw
+{diagonal-squares-alternating-colors} 15 row draw
+{plaid-like} 25 row draw
+{simple-stripes} 35 row draw
+ 
+/row 70 def
+(3) row start-row
+{fortress} 5 row draw
+{stars} 15 row draw
+321321 srand
+{random-boxes} 25 row draw
+{draft} 35 row draw
+{waves1} 45 row draw
+{waves2} 55 row draw
+
+/row 60 def
+(4) row start-row
+{question-mark} 5 row draw
+{diagonal-squares-with-jiggle} 15 row draw
+{weave} 25 row draw
+{asterisk} 35 row draw
+
+/row 50 def
+(5) row start-row
+{stars-7-points} 5 row draw
+{stars-7-points-better} 15 row draw
+
+/row 40 def
+(6) row start-row
+{5 5 stars-n-points} 5 row draw
+{6 5 stars-n-points} 15 row draw
+{7 5 stars-n-points} 25 row draw
+ 
+% gradient could be added
+ 
+showpage
+%%PageTrailer
+%%Trailer    
+%%EOF

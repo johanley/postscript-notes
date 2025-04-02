@@ -1,0 +1,335 @@
+%!PS-Adobe-3.0
+
+% Experiment: make a table of data.
+
+/pg-wd 400 def
+/pg-ht 500 def
+<</PageSize [pg-wd  pg-ht]>> setpagedevice  
+/Times-Roman 20 selectfont
+
+% FIRST ARE GENERAL-UTILITY PROC'S THAT APPEAR IN MANY PROLOGS.
+
+% array
+% return the last item in an array
+/last-entry {
+  dup
+  length 1 sub 
+  get
+} def
+
+% str -> real
+/text-height {
+  text-dim % dx dy
+  exch pop % dy 
+} def
+
+
+% pass two numbers; a value and a percent
+% example '70 15 pct' is 15% of 70
+/pct {
+ 0.01 mul mul
+} def
+
+% (a) (b) -> (ab)  
+% concatenate two strings
+% https://en.wikibooks.org/wiki/PostScript_FAQ/Programming_PostScript#How_to_concatenate_strings?
+/concat-str { 
+  exch dup length    
+  2 index length add string    
+  dup dup 4 2 roll copy length
+  4 -1 roll putinterval
+} bind def  
+
+/sbuff 50 string def
+
+% text 
+% right-align text horizontally at the currentpoint
+/show-right-align {
+  dup text-dim pop % text dx
+  -1 mul % text -dx
+  0 rmoveto % text
+  show
+} bind def
+
+
+% text 
+% center text horizontally AND vertically at the currentpoint
+/show-ctr-xy {
+  dup text-dim % text dx dy
+  -2 div % text dx -dy/2
+  exch % text -dy/2 dx
+  -2 div exch % text -dx/2 -dy/2
+  rmoveto % text
+  show
+} bind def
+
+
+% return the width/height (dx, dy) of the given text
+% this is useful for centering in various ways
+% https://stackoverflow.com/questions/3618194/how-to-determine-string-height-in-postscript luser droog
+/text-dim {
+  gsave
+    % the bounding box of the text
+    0 0 moveto % because charpath needs a currentpoint
+    false charpath flattenpath pathbbox % x0 y0 x1 y1
+  grestore
+  3 -1 roll sub % x0 x1 dy
+  3 1 roll sub % dy -dx
+  -1 mul % dy dx
+  exch % dx dy
+} def
+
+% txt wd
+% show text with the given fixed width 
+% DEFECTIVE: I think the side-bearings need to be equalized too, somehow. 
+% https://graphicdesign.stackexchange.com/questions/10644/how-can-i-make-a-font-monospaced
+% https://i.sstatic.net/a9mld.png
+% It's best to use a real monospaced font, if possible.
+/show-monosp {
+  5 dict begin
+    /wd exch def
+    /text exch def
+    /fixed-width text length array def
+    0 1 text length 1 sub {
+      fixed-width exch wd put
+    } for
+    text fixed-width xshow
+  end
+} def
+
+
+
+% --------------------------------------------------
+
+% A SIMPLE ILLUSTRATION, TO BE PLACED IN A TABLE CELL, 
+% AS AN EXAMPLE SHOWING THAT YOU AREN'T LIMITED TO TEXT IN A TABLE CELL.
+
+% draw a simple flower at the origin
+% example:
+%  4.25 inch 4.25 inch translate
+%  1 inch 1 inch scale
+%  flower
+/flower {
+1 dict begin
+  /flower-petal {
+    newpath
+      0 0 moveto      % center
+      1 0 translate   % mark a straight line 
+      15 rotate       % rotate the axis (no mark)
+      0 15 sin translate  % go 'up' a bit, to the center of the arc
+      0 0 15 sin -90 90 arc  % mark the arc
+    closepath         % back to the center
+  } def
+  0.02 setlinewidth
+  0.85 setgray
+  12 {
+    gsave
+     flower-petal gsave fill grestore  % the gray insides
+     0 setgray stroke  % the dark outline
+    grestore
+    30 rotate
+  } repeat
+end
+} bind def
+
+ 
+
+% -----------------------------------------------------------------
+% HERE IS THE BASIC TABLE PROC
+% -----------------------------------------------------------------
+% table-dict
+% return xs ys on the stack, for the coords of all grid lines, in case 
+% the caller wants to render them in some custom manner.
+/basic-table {
+30 dict begin 
+  % put all of the names into the top dictionary
+  {def}forall
+  col-widths length  cells 0 get length  ne  {(NO FUN: mismatch in the number of columns.)==}if
+  
+  % calculate the location of grid lines, xs and ys
+  /locate-grid-lines {
+    /xs col-widths length 1 add array def
+    xs 0 left put 
+    1  1  xs length 1 sub {
+      /i exch def
+      xs i    
+        xs i 1 sub get         % previous
+        col-widths i 1 sub get % add col-width
+      add  
+      put
+    } for
+    /ys cells length 1 add array def 
+    ys 0 top put 
+    1   1   ys length 1 sub {
+      /i exch def
+      ys  i  
+      top   row-ht i mul   sub
+      put
+    } for
+    /bottom ys last-entry def
+    /right xs last-entry def
+    currentdict /i undef
+  } def
+  
+  /draw-the-grid {
+    newpath
+     % vertical lines, top to bottom, then left to right
+    0   1   xs length 1 sub {
+     xs exch get   top   moveto
+     0   bottom top sub   rlineto  % line down
+    } for
+    % horizontal lines, left to right, then top to bottom
+    0   1   ys length 1 sub {
+     ys exch get  left exch   moveto
+     right left sub  0  rlineto  % line to the right
+    } for
+    stroke
+  } def
+
+  % i j -> x y w h  
+  % translate 0-based cell indices (i,j) into the numbers describing the cell's box;
+  % xy coords for the bottom left of the cell, and its width and height
+  /cell-indices-to-xy {
+    2 dict begin
+      /j exch def
+      /i exch def
+      % let's compute these critters directly on the operand stack
+      % x = left + sum(col-widths 0..j-1) IF j is > 0
+      left  
+      j 0 gt {
+        0   1  j 1 sub {
+          col-widths exch get add 
+        } for
+      } if
+      % y = top - (i+1) * row-ht
+      top  i 1 add  row-ht  mul   sub 
+      col-widths j get   % width
+      row-ht             % height
+    end
+  } def
+  
+  % pct pct 
+  % move to an arbitrary spot in the cell.
+  % uses percent-width, percent-height of the cell
+  % WARNING: this is a low-level 'back-up', in case of need.
+  % you'll see a different 'padding' when the column-width is different!
+  /goto {
+    % px py
+    ht exch pct % px y
+    exch % y px
+    wd exch pct % y x 
+    exch 
+    moveto
+  } def
+  
+  % Convenience methods for marking cells:
+  % txt 
+  % left-align text
+  /L { pad pad moveto   show} def 
+  
+  % txt 
+  % right-align text
+  /R { wd pad sub   pad moveto   show-right-align} def 
+  
+  % txt 
+  % centered text
+  /C {50 50 goto show-ctr-xy} def 
+  
+  % using a monospaced font for columns of numbers is usually best
+  /N {/Courier 20 selectfont} def
+  
+  % Italic font
+  /I {/Times-Italic 20 selectfont} def
+  
+  % gray-value 0..1
+  % shade the whole cell
+  /shaded {
+    gsave 
+      setgray 
+      0 0 wd ht rectfill
+      0 0 wd ht rectstroke
+    grestore
+  } def 
+  
+  /mark-cells {
+    0  1   cells length 1 sub {
+      % over rows
+      /i exch def
+      0  1   cells 0 get length 1 sub {
+        /j exch def
+        % over columns
+        i j cell-indices-to-xy
+        4 copy  % because we want to consume x y w h twice
+        gsave 
+          rectclip  % clip to the cell's rect
+          4 2 roll % w h x y
+          translate % translate to the bottom left of the cell
+          /ht exch def
+          /wd exch def
+          mark-the-cell % uses: i j ht wd
+        grestore
+      } for
+    } for
+  } def
+  
+  % the cell consists of one thing: a proc that marks the cell!
+  % this is the 'maximally flexible' design: it's not based on data+policies, but on CODE.
+  % the cell knows the origin is the bottom left of the cell.
+  /mark-the-cell {
+    % just call the proc attached to the cell! nice!
+    cells i get j get exec
+  } def
+
+  % finally, mark the table using the proc's defined above  
+  locate-grid-lines
+  mark-cells
+  % in some cases, you won't want to draw this grid at all
+  show-all-grid-lines? {
+    draw-the-grid 
+  } if
+  % the caller may want to draw the grid in a custom manner, so 
+  % we always return the locations of all possible grid lines
+  xs
+  ys 
+  % for debugging, and inspecting the names:
+  %currentdict {pop ==} forall
+end
+} def
+
+
+
+% --------------------------------------------------------------------
+
+% FINALLY, WE CAN CALL THE BASIC-TABLE PROC.
+
+% MOST COLUMNS OF NUMBERS SHOULD USE A MONOSPACED FONT.
+% TRYING TO CONVERT AN ARBITRARY FONT TO MONOSPACED FONT WILL USUALLY 
+% PUT YOU TEN LEAGUES DEEP IN CALAMITY.
+
+0.5 setlinewidth
+<<  
+ % the origin of the table, as the top left corner
+ % you can translate first to the top-left, and then pass 0 0 here if you wish
+ /left pg-wd 5 pct
+ /top pg-ht 90 pct
+ % row-height for ALL rows, as a multiple of the height of a small 'x' in the current font
+ /row-ht (x) text-height 3 mul
+ /col-widths [pg-wd 22.5 pct   pg-wd 20 pct   pg-wd 25 pct  pg-wd 25 pct]
+ % keeps content 'away from' the sides of the cell
+ /pad (x) text-height  80 pct
+ /show-all-grid-lines? true
+ % the content of all cells in the table is defined as a PROC! very flexible!
+ % the system translates the origin to the bottom-left of each cell, and clips each cell
+ % you can define short names for text alignment procs (L,R,C), numeric-font (N), and italic-font (I):
+ /cells [ 
+   [{(Mercury)L}   {N(3.14)R}             {(Flaubert)L}  {(French)L}] 
+   [{I(Venus)L}    {N 0.8 shaded (2.79)R} {(Center)C}    {wd 50 pct  ht 50 pct translate  8 8 scale flower}] 
+   % (the scale affecting the 'flower' is just hard-coded here; don't do that, I beseech you!)
+ ]
+>>
+basic-table
+
+pop pop % in this case, we discard the grid-line coords 
+
+
+showpage

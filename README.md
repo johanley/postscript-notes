@@ -24,7 +24,7 @@ I have used both methods.
 Personally, I prefer the indirect method using PostScript. 
 It gives me feelings of increased power and control.
 It also lets me build mock-ups faster.
-On the other hand, if your document needs features that exist in PDF but not in PostScript (attachments, forms, etc.), then you'll likely prefer the direct method.
+On the other hand, if your document needs features that exist in PDF but not in PostScript (attachments, forms, and so on), then you'll likely prefer the direct method.
 
 <!--
 Interesting aside: [this gentleman](https://youtu.be/5BIP_N9qQm4?t=2301) asserts that 
