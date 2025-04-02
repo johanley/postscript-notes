@@ -19,10 +19,33 @@
  <li>centered on graphics (including text)
  <li>PS is the precursor to PDF
  <li>PS and PDF: significant overlap, with differences
+</ul>
+ 
+ 
+<h1>Basic Use</h1>
+<ul>
  <li>generate PS as an intermediate output, then convert to PDF
  <li>code -&gt; PS-&gt; PDF
  <li>use case: report generation
  <li>about 385 built-in operators
+</ul>
+
+<h1>Convert PS to PDF</h1>
+<ul>
+ <li><a href='https://www.ghostscript.com/'>Ghostscript</a> 
+ <li>Adobe's Distiller (part of Acrobat)
+ <li>this operation is trivial (don't worry about it)
+</ul>
+
+<h1>Strange Parts</h1>
+<ul>
+ <li>postfix notation
+ <li>operand stack
+ <li>tokenizes an incoming stream of code
+ <li>no program counter, as in most languages
+ <li>LISPy, with code-as-data
+ <li>dynamic namespace
+ <li>typed, but no type for text or characters
 </ul>
 
 <h1>Unpleasant Parts</h1>
@@ -33,18 +56,25 @@
  <li>Eclipse <a href="https://marketplace.eclipse.org/content/postscript-development-tools#details">plugin</a> (unsigned code)
 </ul>
 
-<h1>Strange Parts</h1>
+<h1>Pleasant Parts</h1>
 <ul>
- <li>postfix notation
- <li>operand stack
- <li>tokenizes an incoming stream of code; no program counter
- <li>LISPy, with code-as-data
- <li>dynamic namespace
+ <li>excellent documentation (Red Book, the Language Reference)
+ <li>fast development
+ <li>scalable vector everything
+ <li>feelings of power, precise control
+ <li>building charts, tables is fairly easy and natural
+ <li>the tools convert PS to PDF very quickly
 </ul>
+
+
 
 <h1>Quick Examples</h1>
 
+<h2>Show a <em>short</em> text snippet</h2>
 <pre>
+Helvetica 12 selectfont
+100 100  moveto
+(Hello) show
 </pre>
 
 </body>
