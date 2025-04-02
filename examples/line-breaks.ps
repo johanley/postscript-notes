@@ -42,7 +42,7 @@
   <</PageSize [612 792]>> setpagedevice  
 %%EndSetup 
 
-%%Page: (First Round) 1
+%%Page: (1) 1
 %%BeginPageSetup 
   % page independence: save the state of the VM; restore it the end of the page
   /pgsave save def     
@@ -52,23 +52,30 @@
 %%EndPageSetup
 
 
-% From the 'Tutorial and Cookbook'
-% https://archive.org/details/PSBlueBook/page/181/mode/2up?view=theater
+% A very basic line-break algorithm.
+%
+% This implementation is from the 'Tutorial and Cookbook':
+%   https://archive.org/details/PSBlueBook/page/181/mode/2up?view=theater
+% 
 % textstring linewidth {..end-of-line-proc..}  
 % This proc chops up text into lines, and leaves each line on the stack.
+% Lines are ragged on the right.
 % The passed proc takes the current line as its one arg; it defines what's done after each line is 'finished': show and moveto.
-/BreakIntoLines { 
+/break-into-lines { 
 20 dict begin
-  /wordbreak ( ) def  % space char identifies breaks between words
   /proc exch def 
   /linewidth exch def
   /textstring exch def
+  
+  /wordbreak ( ) def  % space char identifies breaks between words
   /breakwidth wordbreak stringwidth pop def
+  
   /curwidth 0 def   % width of the current line
   /lastwordbreak 0 def % index of the most recent word break found in the textstring
   /startchar 0 def     % index of the first char for the current line
   /restoftext textstring def  % temp variable that holds the remaining result of the search operator (see below)
-  % look up the PS 'search' operator. It pushes multiple results onto the operand stack.
+  
+  % look up the behaviour of the PS 'search' operator. It pushes multiple results onto the operand stack.
   { % loop: search for the first wordbreak in restoftext
     restoftext wordbreak search     % this puts several things on the stack, the last being a success/fail boolean, which is here tested by ifelse
       { % wordbreak found by the search
@@ -100,20 +107,17 @@ end
 } def
 
 
-/yline 500 def
+% I don't think I like this piece of data and how it's treated.
+% I wonder if there's a better way.
+/yline 700 def
 
 (...with a sudden start he worked on, climbing higher into the sky, and cutting himself off more and more from all intercourse with the sublunary world.)
-300
-{72 yline moveto show /yline yline 18 sub def}
-BreakIntoLines
-
-200 200 moveto 
-(Hello) show
-
+300  % line width
+{72 yline moveto show /yline yline 18 sub def}  % end-of-line proc
+break-into-lines
 
 pgsave restore
 showpage
 %%PageTrailer
-
 %%Trailer    
 %%EOF
