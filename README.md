@@ -17,7 +17,7 @@ which is then converted into a PDF file for the final output.**
 
 
 To produce a PDF file programmatically, there seem to be two basic choices :
-* the *direct* method : use a PDF library to generate a PDF file directly (this is probably more common)
+* the *direct* method : use a PDF library (such as [iText](https://itextpdf.com/)) to generate a PDF file directly (this is probably more common)
 * the *indirect* method : generate PostScript code, and then convert it into a PDF file (using a tool such as [Ghostscript](https://www.ghostscript.com/) or Adobe Acrobat)
 
 I have used both methods. 
@@ -114,6 +114,7 @@ Also of interest:
 * James Gosling, the creator of Java, also [worked on the NeWS windowing system](https://donhopkins.medium.com/alan-kay-on-should-web-browsers-have-stuck-to-being-document-viewers-and-a-discussion-of-news-5cb92c7b3445), which was based on PostScript.
 * [L-Systems in PostScript](https://levelup.gitconnected.com/programming-l-systems-in-postscript-3959abdfba90) by Michel Charpentier.
 * [A comparison with Interpress](https://www.tech-insider.org/unix/research/1985/0301.html)
+* James Gosling (creator of Java) [talking about his NeWS window system](https://www.youtube.com/watch?v=4zG0uecYSMA), based on PostScript
 
 ## Tools
 * [Ghostscript](https://www.ghostscript.com/) for creating, viewing, and converting PS files, and related tasks. **Very commonly used when developing with PS.**
