@@ -11,68 +11,84 @@
 
 <body>
 
-<h1>PostScript Basics</h1>
+<h2>PostScript Basics</h2>
 
 <ul>
- <li>Adobe's first product (1985-1999)
- <li>three versions/levels
+ <li>Adobe's first product
+ <li>three versions/levels (1985-1999)
+ <li>page description language
  <li>centered on graphics (including text)
  <li>about 385 built-in operators
  <li>PS is the precursor to PDF
  <li>PS and PDF: significant overlap, with differences
 </ul>
+
+(<em>Fun fact: in the 1980s, the most powerful computer in a typical office was the printer.</em>)
  
+<h2>PostScript Got It Right</h2>
+<ul>
+  <li>many tools are similar to PostScript 
+  <li>Javascript's <a href='https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D'>canvas</a> is an example
+  <li><a href='https://docs.oracle.com/javase/8/docs/api/java/awt/Graphics2D.html'>Graphics2D</a> in Java is another
+</ul> 
  
-<h1>Basic Use</h1>
+<h2>Basic Use</h2>
 <ul>
  <li>generate PS as an intermediate output, then convert to PDF
- <li>code -&gt; PS-&gt; PDF
+ <li>code (Java, Python, etc.) -&gt; PS -&gt; PDF
  <li>use case: report generation
 </ul>
 
-<h1>Convert PS to PDF</h1>
+<h2>Convert PS to PDF</h2>
 <ul>
  <li><a href='https://www.ghostscript.com/'>Ghostscript</a> 
  <li>Adobe's Distiller (part of Acrobat)
  <li>this operation is trivial (don't worry about it)
+ <li>it's also very fast
 </ul>
 
-<h1>Strange Parts</h1>
+<h2>Interesting Parts</h2>
 <ul>
  <li>postfix notation
  <li>operand stack (pass args, return data)
+ <li>very curt
  <li>tokenizes an incoming stream of code
- <li>no program counter, as in most languages
- <li>LISPy, with code-as-data
+ <li>no program counter! (pointer to the line being executed)
+ <li><a href='https://en.wikipedia.org/wiki/Lisp_(programming_language)'>LISP</a>-like, with code-as-data
  <li>dynamic namespace
- <li>typed, but no type for text or characters
+ <li>implicit types
+ <li>no type for text or characters
+ <li>no keywords! 
+ <li>you can override built-in operators (not recommended)
 </ul>
 
-<h1>Unpleasant Parts</h1>
+<h2>Unpleasant Parts</h2>
 <ul>
  <li>harder to read than average
  <li>you need to track state in your head
  <li>minimal tooling
- <li>very few third-party libraries
+ <li>very few third-party libraries 
  <li>seemingly out of fashion 
- <li>Eclipse <a href="https://marketplace.eclipse.org/content/postscript-development-tools#details">plugin</a> (unsigned code)
 </ul>
 
-<h1>Pleasant Parts</h1>
+<h2>Pleasant Parts</h2>
 <ul>
- <li>excellent documentation (Red Book, the Language Reference)
+ <li>excellent documentation (the <a href='https://www.adobe.com/jp/print/postscript/pdfs/PLRM.pdf'>Red Book</a>)
  <li>fast development
  <li>scalable vector everything
  <li>feelings of power, precise control
  <li>building charts, tables is fairly easy and natural
  <li>tools convert PS to PDF very quickly
+ <li>Eclipse <a href="https://marketplace.eclipse.org/content/postscript-development-tools#details">plugin</a>? (unsigned code)
 </ul>
 
 
 
-<h1>Make a Simple PDF</h1>
+<h2>How to make a simple PDF</h2>
 
-1. Text file with this content (8859-1 encoding):
+The idea is to make a PDF by first generating an intermediate PS file.
+
+<P>1. Text file with this content (8859-1 encoding):
 <pre>
 %!PS-Adobe-3.0
 
@@ -95,10 +111,64 @@ showpage
 
 <P>3. View the output: <a href="https://github.com/johanley/postscript-notes/tree/master/examples/hello.pdf">hello.pdf</a>
  
-<P>Examples (as above) are almost always hard-coded to specific page dimensions. 
-<b>This a coding horror</b>, because PS is designed for scale-independence.  
+<P>
+This toy example is a <a href='https://stevemcconnell.com/books/'>coding horror</a>, because it's hard-coded to a specific page size. 
 The tasteful way is to define the page format in one place, and to <b>use percentages everywhere in your code</b>.
- 
+(PostScript's <em>scale</em> operator doesn't help if the aspect ratio changes.)
+
+<P>This let's your output be <em>responsive</em> to changes in the width/height.
+
+<P>A more tasteful version:
+<pre>
+%!PS-Adobe-3.0
+
+% set the format explicitly
+% 72 = 1 inch, so this means 3" x 4"
+/page-width 3.0 72 mul def % 216
+/page-height 4.0 72 mul def % 288 
+&lt;&lt;/PageSize [page-width  page-height]&gt;&gt; setpagedevice  
+
+% define a simple 'proc' (procedure) for percentages
+% pass two numbers; a value and a percent
+% example 'page-width 15 pct' is 15% of the page-width
+/pct {
+ % page-width 15
+ 0.01  % page-width 15 0.01
+ mul   % page-width 0.15
+ mul   % 32.4
+} def
+
+/Helvetica 16 selectfont
+
+page-width 25 pct 
+page-height 70 pct  moveto
+
+(Hello again...) show
+
+showpage
+</pre>
+<P>Output: <a href="https://github.com/johanley/postscript-notes/tree/master/examples/hello-again.pdf">hello-again.pdf</a>
+
+<h2>Dynamic Namespace: Dictionary Stack</h2>
+<ul>
+ <li>a dictionary (map) is a table of key-value pairs
+ <li>keys are unique
+ <li>you <em>look up</em> a value using a given key
+ <li>keys can be anything, but are usually strings or names
+ <li>(PostScript coerces string-keys into name-keys)
+</ul> 
+
+PostScript use a <em>stack of dictionaries</em>:
+<ul>
+ <li><em>systemdict</em> on the bottom has the built-in operators
+ <li>next is <em>globaldict</em> is for experts only - ignore it
+ <li><em>userdict</em> is there for your code
+ <li><em>systemdict</em>, <em>globaldict</em> and <em>userdict</em> can't be removed  
+ <li>you can (and often do) build your own dictionaries on top of these 
+ <li><em>begin</em> and <em>end</em> create and destroy dicts (push and pop)
+ <li>the ones you build are usually transient (per-proc), removed when no longer needed
+ <li>key lookup is top-down, down through the stack
+</ul> 
 
 </body>
 </html>

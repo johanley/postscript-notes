@@ -94,7 +94,7 @@ tt {
 
 h2{
   font: bold 20px Verdana, Arial, Helvetica, sans-serif;
-  border-bottom: 1px solid;
+  /*border-bottom: 1px solid;*/
 }
 
 h3{
