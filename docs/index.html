@@ -219,18 +219,19 @@ Looping operators:
 
 /wd 3.0 72 mul def % 216
 /ht 4.0 72 mul def % 288 
-<</PageSize [wd ht]>> setpagedevice  
+&lt;&lt;/PageSize [wd ht]&gt;&gt; setpagedevice  
 /pct { 0.01  mul  mul  } def
-/sbuff 20 string def % string buffer for cvs
 /Helvetica 8 selectfont
 
+<em>% obj -> show it
+% 'show' only works with strings</em>
 /show-it {
   <em>% COMMON IDIOM: a temporary dict</em>
-  1 dict begin    % temp dict!
+  1 dict begin    <em>% temp dict!</em>
     /sbuff 20 string def  <em>% string buffer for cvs</em>
     sbuff cvs      <em>% convert arg into a string</em>
-    show           <em>% pop the temp dict off the dict-stack</em>
-  end
+    show           
+  end              <em>% pop the temp dict off the dict-stack</em>
 } def
 
 <em>% dict x y -> print the data-dict key-value pairs
@@ -255,14 +256,14 @@ Looping operators:
   } forall     <em>% iterate over all key-value pairs</em>
 } def
 
-% array x y -> print the array items
+<em>% array x y -> print the array items
 % example input:
-%  [(Mercury) (Venus) (Earth) (Mars)] 100 200
+%  [(Mercury) (Venus) (Earth) (Mars)] 100 200</em>
 /oh-glorious-planets {
-  moveto % eats the x y on the stack
-  { % puts each array-item on the stack in sequence
+  moveto    <em>% eats the x y on the stack</em>
+  { <em>% puts each array-item on the stack in sequence</em>
     show-it
-    ( ) show % spacing
+    ( ) show     <em>% spacing</em>
   } forall
 } def
 
@@ -284,6 +285,82 @@ oh-glorious-planets
 showpage</pre>
 
 <P>Output: <a href="https://github.com/johanley/postscript-notes/tree/master/examples/loops.pdf">loops.pdf</a>
+
+<h2>Show The Currentpoint</h2>
+
+Sometimes you want to see exactly <em>where you are</em> on a page.
+This would be for debugging only.
+<pre>
+%!PS-Adobe-3.0
+
+/wd 3.0 72 mul def % 216
+/ht 4.0 72 mul def % 288 
+&lt;&lt;/PageSize [wd ht]&gt;&gt; setpagedevice  
+/pct { 0.01  mul  mul  } def
+/Helvetica 8 selectfont
+
+<em>% r 
+% pass a representative size for the marks made by this proc
+% debugging - show the location of the currentpoint 
+% shows a circle plus axes
+% the +X-axis is in black, the +Y-axis in red
+% the currentpoint must exist</em>
+/show-currentpoint {
+  3 dict begin
+  gsave
+    /r exch def
+    currentpoint   
+    /y exch def
+    /x exch def
+    r 0.1 mul setlinewidth
+     
+    <em>% circle and x-axis in black</em>
+    <em>% cmyk colors for print; rgb for web</em>
+    0 0 0 1 setcmykcolor
+    <em>% we want the currentpoint, not the currentpath</em>
+    newpath    
+    x y moveto
+    x y r 0 360 arc 
+
+    <em>% x-axis</em> 
+    x y moveto        
+    r neg 0   rmoveto   <em>% 'r' for relative!</em>
+    r 3 mul 0 rlineto   <em>% horizontal</em>
+    stroke
+     
+    <em>% y-axis in red</em>
+    0 1 1 0 setcmykcolor
+    x y moveto  
+    0 r neg  rmoveto 
+    0 r 3 mul rlineto   <em>% vertical</em>
+    stroke
+  grestore
+  end
+} def
+
+
+wd 40 pct  ht 80 pct moveto
+wd 10 pct  show-currentpoint
+
+<em>% save-restore because of the rotate and scale</em>
+gsave
+  wd 40 pct  ht 50 pct moveto
+  45 rotate
+  2 2 scale
+  wd 10 pct show-currentpoint
+grestore
+
+wd 40 pct  ht 25 pct moveto
+wd 2 pct show-currentpoint
+
+wd 10 pct  ht 10 pct moveto
+(An affordance to show the currentpoint.) show
+
+showpage
+</pre>
+
+<P>Output: <a href="https://github.com/johanley/postscript-notes/tree/master/examples/show-currentpoint.pdf">show-currentpoint.pdf</a>
+
 
 </body>
 </html>
