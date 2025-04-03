@@ -1,0 +1,26 @@
+%!PS-Adobe-3.0
+
+% set the format explicitly
+% 72 = 1 inch, so this means 3" x 4"
+/page-width 3.0 72 mul def % 216
+/page-height 4.0 72 mul def % 288 
+<</PageSize [page-width  page-height]>> setpagedevice  
+
+% define a simple 'proc' (procedure) for percentages
+% pass two numbers; a value and a percent
+% example 'page-width 15 pct' is 15% of the page-width
+/pct {
+ % page-width 15
+ 0.01  % page-width 15 0.01
+ mul   % page-width 0.15
+ mul   % 32.4
+} def
+
+/Helvetica 16 selectfont
+
+page-width 25 pct 
+page-height 70 pct  moveto
+
+(Hello again...) show
+
+showpage
