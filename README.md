@@ -111,7 +111,6 @@ Also of interest:
 * [Thinking in PostScript](https://hint.userweb.mwn.de/compiler/ThinkingInPostScript.pdf) by Glenn Reid (1990). 
 * [Taking Advantage of PostScript](https://www3.nd.edu/~jsherman/portfolio/PSforD/PSforD.pdf) by John Sherman, University of Notre Dame. 
 * [Learning PostScript by Doing](https://staff.science.uva.nl/a.j.p.heck/Courses/Mastercourse2005/tutorial.pdf) by André Heck, University of Amsterdam (2005).
-* James Gosling, the creator of Java, also [worked on the NeWS windowing system](https://donhopkins.medium.com/alan-kay-on-should-web-browsers-have-stuck-to-being-document-viewers-and-a-discussion-of-news-5cb92c7b3445), which was based on PostScript.
 * [L-Systems in PostScript](https://levelup.gitconnected.com/programming-l-systems-in-postscript-3959abdfba90) by Michel Charpentier.
 * [A comparison with Interpress](https://www.tech-insider.org/unix/research/1985/0301.html)
 * James Gosling (creator of Java) [talking about his NeWS window system](https://www.youtube.com/watch?v=4zG0uecYSMA), based on PostScript

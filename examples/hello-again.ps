@@ -10,7 +10,8 @@
 % pass two numbers; a value and a percent
 % example 'page-width 15 pct' is 15% of the page-width
 /pct {
- % page-width 15
+ % the current operand stack (for example):
+ % page-width 15  
  0.01  % page-width 15 0.01
  mul   % page-width 0.15
  mul   % 32.4
