@@ -70,10 +70,9 @@
 
 
 
-<h1>Quick Examples</h1>
+<h1>Make a Simple PDF</h1>
 
-<h2>Show a <em>short</em> text snippet</h2>
-A text file with this content:
+1. Text file with this content:
 <pre>
 %!PS-Adobe-3.0
 
@@ -84,7 +83,7 @@ A text file with this content:
 showpage
 </pre>
 
-Run Ghostscript to read in PS and output PDF:
+2. Run Ghostscript (or Adobe's Distiller) to read in PS and output PDF:
 <pre>
  C:\ghostscript\gs10.04.0\bin>
    gswin64c.exe 
@@ -94,9 +93,9 @@ Run Ghostscript to read in PS and output PDF:
    C:\temp\hello.ps
 </pre>
 
-<P>View the output <a href="https://github.com/johanley/postscript-notes/tree/master/examples/hello.pdf">hello.pdf</a>
+<P>3. View the output: <a href="https://github.com/johanley/postscript-notes/tree/master/examples/hello.pdf">hello.pdf</a>
  
-Examples (as above) are almost always hard-coded to specific page dimensions. 
+<P>Examples (as above) are almost always hard-coded to specific page dimensions. 
 <b>This a coding horror</b>, because PS is designed for scale-independence.  
 The tasteful way is to define the page format in one place, and to <b>use percentages everywhere else in your code</b>.
  
