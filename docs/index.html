@@ -17,6 +17,7 @@
  <li>Adobe's first product (1985-1999)
  <li>three versions/levels
  <li>centered on graphics (including text)
+ <li>about 385 built-in operators
  <li>PS is the precursor to PDF
  <li>PS and PDF: significant overlap, with differences
 </ul>
@@ -27,7 +28,6 @@
  <li>generate PS as an intermediate output, then convert to PDF
  <li>code -&gt; PS-&gt; PDF
  <li>use case: report generation
- <li>about 385 built-in operators
 </ul>
 
 <h1>Convert PS to PDF</h1>
@@ -50,6 +50,8 @@
 
 <h1>Unpleasant Parts</h1>
 <ul>
+ <li>harder to read than average
+ <li>you need to track state in your head
  <li>minimal tooling
  <li>very few third-party libraries
  <li>seemingly out of fashion 
@@ -63,7 +65,7 @@
  <li>scalable vector everything
  <li>feelings of power, precise control
  <li>building charts, tables is fairly easy and natural
- <li>the tools convert PS to PDF very quickly
+ <li>tools convert PS to PDF very quickly
 </ul>
 
 
@@ -72,10 +74,22 @@
 
 <h2>Show a <em>short</em> text snippet</h2>
 <pre>
-Helvetica 12 selectfont
-100 100  moveto
+%!PS-Adobe-3.0
+
+/Helvetica 48 selectfont
+300 500  moveto
 (Hello) show
+
+showpage
 </pre>
+
+<P>Output: <a href="https://github.com/johanley/postscript-notes/tree/master/examples/hello.pdf">hello.pdf</a>
+
+<P>WARNING: examples (as above) are almost always hard-coded to specific page dimensions. 
+<b>This a coding horror</b>, because PS is designed for scale-independence.  
+The tasteful way is to define the page format in one place, 
+and to use <em>percentages</em> everywhere else in your code.
+ 
 
 </body>
 </html>
