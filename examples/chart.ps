@@ -109,17 +109,16 @@
   % Note the overall design of the code: first define the pieces, then make the 
   % chart by drawing all of the pieces in sequence:
   
-  % big rectangle
   {0.5 setlinewidth standard-gray setgray 
    grid-y stroke 
    grid-x stroke} draw
   {x-ticks stroke} draw
   {y-ticks stroke} draw
   {polyline stroke} draw
+  % a rectangular border
   0 0 dx dy rectstroke
 end
 } def
-
 
 % Finally, pass a data-dict to the proc that makes the chart.
 << 

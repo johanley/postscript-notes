@@ -40,7 +40,7 @@
 <h1>Strange Parts</h1>
 <ul>
  <li>postfix notation
- <li>operand stack
+ <li>operand stack (pass args, return data)
  <li>tokenizes an incoming stream of code
  <li>no program counter, as in most languages
  <li>LISPy, with code-as-data
@@ -73,6 +73,7 @@
 <h1>Quick Examples</h1>
 
 <h2>Show a <em>short</em> text snippet</h2>
+A text file with this content:
 <pre>
 %!PS-Adobe-3.0
 
@@ -83,9 +84,18 @@
 showpage
 </pre>
 
-<P>Output: <a href="https://github.com/johanley/postscript-notes/tree/master/examples/hello.pdf">hello.pdf</a>
+Run Ghostscript to read in PS and output PDF:
+<pre>
+ C:\ghostscript\gs10.04.0\bin>
+   gswin64c.exe 
+   -dNOSAFER 
+   -sDEVICE=pdfwrite  
+   -o C:\temp\hello.pdf  
+   C:\temp\hello.ps
+</pre>
 
-<h3>Comment</h3>
+<P>View the output <a href="https://github.com/johanley/postscript-notes/tree/master/examples/hello.pdf">hello.pdf</a>
+ 
 Examples (as above) are almost always hard-coded to specific page dimensions. 
 <b>This a coding horror</b>, because PS is designed for scale-independence.  
 The tasteful way is to define the page format in one place, and to <b>use percentages everywhere else in your code</b>.
