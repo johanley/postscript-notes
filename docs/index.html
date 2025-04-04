@@ -53,15 +53,15 @@ https://johanley.github.io/postscript-notes/index.html
 
 <h2>Interesting Parts</h2>
 <ul>
- <li>postfix notation
+ <li>postfix notation (data first, operation last)
  <li>operand stack (pass args, return data)
- <li>very curt, little syntax
+ <li>very curt, minimalist syntax
  <li>tokenizes an incoming stream of code
  <li>no program counter! (pointer to the line being executed)
  <li><a href='https://en.wikipedia.org/wiki/Lisp_(programming_language)'>LISP</a>-like, with code-as-data
  <li>dynamic namespace
  <li>implicit types
- <li>no type for text or characters
+ <li>no type for text or characters!
  <li>no keywords! 
  <li>you can override built-in operators (not recommended)
 </ul>
@@ -252,12 +252,9 @@ Looping operators:
     % swap the two top items on the stack</em>
     exch          <em>%  8030 /height  </em>
     
-    <em>% cvs converts objects to strings</em>
-    show-it   <em>% 8030</em> 
-    
+    show-it    <em>% 8030</em> 
     (:) show   <em>% 8030</em> 
     show-it
-    
     ( ) show   <em>% spacing</em>
   } forall     <em>% iterate over all key-value pairs</em>
 } def
