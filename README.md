@@ -4,6 +4,8 @@ Notes on using the [PostScript programming language](https://en.wikipedia.org/wi
 This is not a complete tutorial. 
 These notes are meant to assist you in reading the Red Book (see below), and emphasize important ideas that you should pay attention to.
 
+<P>A short overview is <a href='https://johanley.github.io/postscript-notes/index.html'>here</a>.
+
 *"In general, at that time in the industry, printer protocols were encoded as static-data structures - or mark-up languages - that 
 defined a page... At Adobe we had a radical new idea: we would make programs written in PostScript the representation of a page."*
 [John Warnock](https://www.jstor.org/stable/23558230)
