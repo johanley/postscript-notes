@@ -237,8 +237,8 @@ Looping operators:
 <pre>
 %!PS-Adobe-3.0
 
-/wd 3.0 72 mul def % 216
-/ht 4.0 72 mul def % 288 
+/wd 3.0 72 mul def 
+/ht 4.0 72 mul def  
 &lt;&lt;/PageSize [wd ht]&gt;&gt; setpagedevice  
 /pct { 0.01  mul  mul  } def
 /Helvetica 8 selectfont
@@ -313,8 +313,8 @@ Sometimes you want to see exactly <em>where you are</em> on a page.
 <pre>
 %!PS-Adobe-3.0
 
-/wd 3.0 72 mul def % 216
-/ht 4.0 72 mul def % 288 
+/wd 3.0 72 mul def 
+/ht 4.0 72 mul def  
 &lt;&lt;/PageSize [wd ht]&gt;&gt; setpagedevice  
 /pct { 0.01  mul  mul  } def
 /Helvetica 8 selectfont
@@ -487,13 +487,13 @@ In order to show French accents (for example):
  alternate <em>encoding vector</em>
 </ul>
 
-<P>Output: <a href="https://github.com/johanley/postscript-notes/tree/master/examples/encoding.pdf">encoding.pdf</a>
+<P>Output: <a href="https://github.com/johanley/postscript-notes/tree/master/examples/encode.pdf">encode.pdf</a>
 
 <pre>
 %!PS-Adobe-3.0
 
-/wd 6.0 72 mul def % 216
-/ht 8.0 72 mul def % 288 
+/wd 6.0 72 mul def 
+/ht 8.0 72 mul def  
 &lt;&lt;/PageSize [wd ht]&gt;&gt; setpagedevice  
 /pct { 0.01  mul  mul  } def
 
@@ -524,16 +524,15 @@ In order to show French accents (for example):
 } def
 
 <em>% str xp yp
-% 'p' means percent here
-% reduces code repetition</em>
+% 'p' means percent here</em>
 /show-it {
-2 dict begin 
-  /yp exch def
-  /xp exch def
-  wd xp pct
-  ht yp pct moveto
-  show
-end 
+  2 dict begin 
+    /yp exch def
+    /xp exch def
+    wd xp pct
+    ht yp pct moveto
+    show
+  end 
 } def
 
 <em>% re-encode Times-Roman</em>
@@ -547,14 +546,58 @@ end
 <em>%/Times-Roman 12 selectfont</em>
 
 /left 3 def
-(1. File encoding 8859-1 (Latin-1).) left 90 show-it
+(1. File encoding 8859-1 (Latin-1).)   left 90 show-it
 (2. Thou shalt "re-encode" all fonts!) left 85 show-it
-(Accented chars: à ç é è À Ç) left 80 show-it
-(- Ça va bien, Madame Brontë?) left 75 show-it
+(Accented chars: à ç é è À Ç)          left 80 show-it
+(- Ça va bien, Madame Brontë?)         left 75 show-it
 
 showpage
 </pre> 
 
 
+
+<h2>Lifecycle of a Glyph</h2>
+
+What happens when <em>(Hello) show</em> is executed? 
+Probably not what you think.
+
+<P>Take the <em>H</em> character for instance. 
+The system doesn't pass <em>H</em> to the <em>show</em> operator. 
+It passes <b>a number determined by the encoding of the text</b>.
+
+<pre>
+'H' 
+ -> character code 156 
+  -> font's encoding vector [/.notdef ..  /A /B .. /ydieresis]
+   -> position 156 has the glyph /H 
+    -> font's drawing instructions for /H
+</pre>      
+
+<P>Here's the lifecycle of a character being shown:
+<ul>
+ <li>the <em>show</em> operator is invoked
+ <li>for each character, it's passed a number, a <em>character code</em>
+ <li>the current font is queried
+ <li>the current font is a data dictionary
+ <li>every font has an <em>/Encoding</em> entry in its dictionary
+ <li>its value is an array called the <em>encoding vector</em> (256 entries) 
+ <li>each entry is a <em>name of a glyph</em>, such as <em>/H</em> or <em>/Eacute</em> 
+ <li><b>the <em>character code</em> is used as an <em>index</em> into this array</b>
+ <li>the corresponding glyph name is returned
+ <li>that name is used to look up the drawing instructions for the glyph
+</ul> 
+
+
+<P>The glyph is drawn using the <em>currentpoint</em> as the origin of coordinates.
+When finished, the <em>currentpoint</em> is updated by the font to a new position.
+The delta between the starting and final position is defined by the font.
+In general, that delta has two parts, <em>dx</em> and <em>dy</em>.
+Those deltas are available from the <em>stringwidth</em> operator.
+
+<p>Confusing:
+<ul>
+ <li><em>stringwidth</em> returns two numbers, not one
+ <li><em>stringwidth</em> doesn't return the dimensions of the mark
+</ul>
 </body>
 </html>
