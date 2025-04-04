@@ -1,18 +1,10 @@
 %!PS-Adobe-3.0
 
-/wd 3.0 72 mul def % 216
-/ht 4.0 72 mul def % 288 
+/wd 3.0 72 mul def 
+/ht 4.0 72 mul def 
 <</PageSize [wd ht]>> setpagedevice  
 /pct { 0.01  mul  mul  } def
 /Helvetica 8 selectfont
-
-% obj -> show it
-/show-it {
-  1 dict begin 
-    /sbuff 20 string def 
-    sbuff cvs show
-  end 
-} def
 
 % a repeat-loop, do something N times
 /blah-blah-blah {
@@ -33,7 +25,7 @@
     } {
       (yada)
     } ifelse 
-    show-it
+    show
     wd 2 pct  0  rmoveto
   } for
 } def

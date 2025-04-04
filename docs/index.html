@@ -316,14 +316,6 @@ Some variations on loops:
 /pct { 0.01  mul  mul  } def
 /Helvetica 8 selectfont
 
-<em>% obj -> show it</em>
-/show-it {
-  1 dict begin 
-    /sbuff 20 string def 
-    sbuff cvs show
-  end 
-} def
-
 <em>% a repeat-loop, do something N times</em>
 /blah-blah-blah {
   3 {
@@ -343,7 +335,7 @@ Some variations on loops:
     } {
       (yada)
     } ifelse 
-    show-it
+    show
     wd 2 pct  0  rmoveto
   } for
 } def
