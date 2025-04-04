@@ -301,6 +301,59 @@ oh-glorious-planets
 
 showpage</pre>
 
+Some variations on loops:
+
+<P>Output: <a href="https://github.com/johanley/postscript-notes/tree/master/examples/loops-again.pdf">loops-again.pdf</a>
+
+<pre>
+%!PS-Adobe-3.0
+
+/wd 3.0 72 mul def % 216
+/ht 4.0 72 mul def % 288 
+&lt;&lt;/PageSize [wd ht]&gt;&gt; setpagedevice  
+/pct { 0.01  mul  mul  } def
+/Helvetica 8 selectfont
+
+<em>% obj -> show it</em>
+/show-it {
+  1 dict begin 
+    /sbuff 20 string def 
+    sbuff cvs show
+  end 
+} def
+
+<em>% a repeat-loop, do something N times</em>
+/blah-blah-blah {
+  3 {
+    (Blah) show
+    wd 2 pct  0  rmoveto
+  } repeat
+} def 
+
+<em>% a for-loop
+% iteration index: initial, step, final (inclusive)</em>
+/yada-yada-yada {
+   1 1 5 {
+    <em>% the iteration index is placed on the stack
+    % during each iteration</em>
+    2 mod 0 eq {
+      (YADA)
+    } {
+      (yada)
+    } ifelse 
+    show-it
+    wd 2 pct  0  rmoveto
+  } for
+} def
+
+wd 5 pct   ht 90 pct  moveto
+blah-blah-blah
+
+wd 5 pct   ht 80 pct  moveto
+yada-yada-yada
+
+showpage
+</pre>
 
 <h2>Show The Currentpoint; Representative Size</h2>
 
