@@ -1,0 +1,57 @@
+%!PS-Adobe-3.0
+
+/wd 4.0 72 mul def % 216
+/ht 6.0 72 mul def % 288 
+<</PageSize [wd ht]>> setpagedevice  
+/pct { 0.01  mul  mul  } def
+
+% new-font-name old-font-name
+%
+% 'Re-encode' a font.
+%
+% Create a new font from an existing one, which uses the 
+% ISOLatin1Encoding instead of the standard encoding.
+% The encoding of this PostScript file is itself 8859-1 = ISOLatin1.
+% https://stackoverflow.com/questions/270672/unicode-in-postscript
+/latinize {
+  findfont
+  dup length dict 
+  begin
+    % copy everything in the font's dict except for the FID (a unique id for a font)
+    { 1 index /FID ne {def}{pop pop} ifelse } forall
+    /Encoding ISOLatin1Encoding def % override the encoding entry in this dict
+    currentdict  % push this font-dict onto the operand stack
+  end
+  definefont  % internally sets a FID (font-id) for the new font
+  pop % remove the new font object from the operand stack
+} def
+
+% str xp yp
+% 'p' means percent here
+% reduces code repetition
+/show-it {
+2 dict begin 
+  /yp exch def
+  /xp exch def
+  wd xp pct
+  ht yp pct moveto
+  show
+end 
+} def
+
+% re-encode Times-Roman
+/my-lovely-font /Times-Roman latinize
+
+% now /my-lovely-font can be used like any other font
+/my-lovely-font 12 selectfont
+
+% this fails, because Helvetica hasn't been re-encoded
+%/Helvetica 8 selectfont
+
+/left 3 def
+(1. File encoding 8859-1 (Latin-1).) left 90 show-it
+(2. Thou shalt "re-encode" all fonts!) left 85 show-it
+(Accented chars: à ç é è À Ç) left 80 show-it
+(- Ça va bien, Madame Brontë?) left 75 show-it
+
+showpage
