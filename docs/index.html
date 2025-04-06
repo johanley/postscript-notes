@@ -5,7 +5,7 @@
  <meta name="keywords" content="PostScript, Adobe, PDF">
  <meta name="description" content="PostScript Basics.">
  <meta name="viewport" content="width=device-width"> 
- <link rel="stylesheet" type="text/css" href="stylesheet.css?v=2" media="all"> 
+ <link rel="stylesheet" type="text/css" href="stylesheet.css?v=3" media="all"> 
  <title>PostScript Basics</title>
 </head>
 
@@ -13,35 +13,39 @@
 
 https://johanley.github.io/postscript-notes/index.html
 
-<P><a href='https://github.com/johanley/postscript-notes'>Github repo with more details</a>.
+<P>Github repo with more details <a href='https://github.com/johanley/postscript-notes'>is here</a>.
 
 <h2>Why Learn PostScript?</h2>
 
 <ul>
  <li>to generate PDFs programmatically
- <li>to avoid libraries such as iText (if you dislike them)
+ <li>to avoid libraries such as <a href='https://api.itextpdf.com/iText/java/9.1.0/overview-tree.html'>iText"</a> (if you dislike them)
  <li>for insight into how fonts work
  <li>for insight into core graphic operations
 </ul>
 
 PDF and PostScript are at the center of the print universe.
 
-
 <h2>PostScript Basics</h2>
 
 <ul>
  <li>Adobe's first product
- <li>three versions/levels (1985-1999)
+ <li>three versions/levels (1984, 1991, 1997)
  <li>page description language
  <li>full blown programming language
- <li>centered on graphics 
+ <li><b>simple language to learn</b> 
+ <li>centered on graphics
  <li>text = graphics (drawings, not bitmaps)
  <li>about 385 built-in operators
  <li>PS is the precursor to PDF
  <li>PS and PDF: significant overlap, with differences
+ <li>PS is programming, PDF is static data
 </ul>
 
 (<em>Fun fact: in the 1980s, the most powerful computer in a typical office was the printer.</em>)
+
+<p><em>"The PostScript language is relatively simple. It derives its power from the ability to combine 
+[its] features in unlimited ways without arbitrary restrictions."</em> (Red Book)
  
 <h2>PostScript Got It Right</h2>
 <ul>
@@ -72,15 +76,23 @@ PDF and PostScript are at the center of the print universe.
  <li>postfix notation (data first, operation last)
  <li>operand stack (pass args, return data)
  <li>very curt, minimalist syntax
+ <li>interpreted, not compiled
  <li>tokenizes an incoming stream of code
  <li>no program counter! (pointer to the line being executed)
  <li><a href='https://en.wikipedia.org/wiki/Lisp_(programming_language)'>LISP</a>-like, with code-as-data
- <li>dynamic namespace
- <li>implicit types
+ <li>types are inferred by the system, not explicit
  <li>no type for text or characters!
  <li>no keywords! 
  <li>you can override built-in operators (not recommended)
+ <li>dynamic namespace (dictionary stack)
 </ul>
+
+<p><em>"However, there is not a distinction between data and programs; any PostScript object may be treated as data 
+or be executed as part of a program."</em> (Red Book)
+
+<p><em>"There is no notion of 'reading in' a program before executing it. Instead, the PostScript interpreter 
+consumes a program by reading and executing one syntactic entity at a time."</em> (Red Book)
+
 
 <h2>Unpleasant Parts</h2>
 <ul>
@@ -633,6 +645,9 @@ It passes <b>a number determined by the encoding of the text</b>.
  <li>the corresponding glyph name is returned
  <li>that name is used to look up the drawing instructions for the glyph
 </ul> 
+
+(<em>Fun fact: if the character code you pass isn't supported by a font, it maps to .notdef, which  
+usually maps to a weird placeholder glyph.</em>)
 
 
 <P>The glyph is drawn using the <em>currentpoint</em> as the origin of coordinates.
