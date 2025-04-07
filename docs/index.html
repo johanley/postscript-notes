@@ -21,10 +21,11 @@ https://johanley.github.io/postscript-notes/index.html
  <li>to generate PDFs programmatically
  <li>to avoid libraries such as <a href='https://api.itextpdf.com/iText/java/9.1.0/overview-tree.html'>iText</a> (if you dislike them)
  <li>for insight into how fonts work
- <li>for insight into core graphic operations
+ <li>for insight into core 2D graphic operations
 </ul>
 
-PDF and PostScript are at the center of the print universe.
+<P>PDF and PostScript are at the center of the print universe.
+
 
 <h2>PostScript Basics</h2>
 
@@ -42,16 +43,19 @@ PDF and PostScript are at the center of the print universe.
  <li>PS is programming, PDF is static data
 </ul>
 
-(<em>Fun fact: in the 1980s, the most powerful computer in a typical office was the printer.</em>)
+<P>(<em>Fun fact: in the 1980s, the most powerful computer in a typical office was the printer.</em>)
 
 <p><em>"The PostScript language is relatively simple. It derives its power from the ability to combine 
 [its] features in unlimited ways without arbitrary restrictions."</em> (Red Book)
+
+
  
-<h2>PostScript Got It Right</h2>
+<h2>PostScript Got It Right?</h2>
+Many simple 2D graphics tools are very similar to PostScript: 
 <ul>
-  <li>many tools are similar to PostScript 
-  <li>Javascript's <a href='https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D'>canvas</a> is an example
-  <li><a href='https://docs.oracle.com/javase/8/docs/api/java/awt/Graphics2D.html'>Graphics2D</a> in Java is another
+  <li>Javascript's <a href='https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D'>canvas</a> 
+  <li><a href='https://docs.oracle.com/javase/8/docs/api/java/awt/Graphics2D.html'>Graphics2D</a> in Java
+  <li><a href='https://developer.apple.com/documentation/coregraphics?language=objc'>Quartz 2D</a> on macOS
 </ul> 
  
 <h2>Basic Use</h2>
