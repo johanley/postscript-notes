@@ -45,13 +45,13 @@
 % now /my-lovely-font can be used like any other font
 /my-lovely-font 12 selectfont
 
-% this fails, because Helvetica hasn't been re-encoded
-%/Helvetica 8 selectfont
-
 /left 3 def
-(1. File encoding 8859-1 (Latin-1).) left 90 show-it
-(2. Thou shalt "re-encode" all fonts!) left 85 show-it
+(File encoding 8859-1 (Latin-1).) left 90 show-it
 (Accented chars: à ç é è À Ç) left 80 show-it
 (- Ça va bien, Madame Brontë?) left 75 show-it
+
+% this fails, because Helvetica hasn't been re-encoded
+/Helvetica 12 selectfont
+(- Ça va bien, Madame Brontë?) left 70 show-it
 
 showpage

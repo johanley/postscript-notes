@@ -171,7 +171,7 @@ showpage
 <P>3. View the output: <a href="https://github.com/johanley/postscript-notes/tree/master/examples/hello.pdf">hello.pdf</a>
  
 <P>
-This toy example is a <a href='https://stevemcconnell.com/books/'>coding horror</a>, because it's hard-coded to a specific page size. 
+Hard-coding the <em>moveto</em> to absolute coordinates is usually a <a href='https://stevemcconnell.com/books/'>coding horror</a>. 
 The tasteful way is to define the page format in one place, and to <b>use percentages everywhere in your code</b>.
 (PostScript's <em>scale</em> operator doesn't help if the aspect ratio changes.)
 
@@ -604,19 +604,17 @@ In order to show French accents (for example):
 <em>% now /my-lovely-font can be used like any other font</em>
 /my-lovely-font 12 selectfont
 
-<em>% if you use this, then accents won't show 
-% correctly because /Times-Roman hasn't been re-encoded</em>
-<em>%/Times-Roman 12 selectfont</em>
-
 /left 3 def
-(1. File encoding 8859-1 (Latin-1).)   left 90 show-it
-(2. Thou shalt "re-encode" all fonts!) left 85 show-it
-(Accented chars: à ç é è À Ç)          left 80 show-it
-(- Ça va bien, Madame Brontë?)         left 75 show-it
+(File encoding 8859-1 (Latin-1).)   left 90 show-it
+(Accented chars: à ç é è À Ç)       left 80 show-it
+(- Ça va bien, Madame Brontë?)      left 75 show-it
+
+<em>% this fails, because the font hasn't been re-encoded</em>
+/Helvetica 12 selectfont
+(- Ça va bien, Madame Brontë?) left 70 show-it
 
 showpage
 </pre> 
-
 
 
 <h2>Lifecycle of a Glyph</h2>
