@@ -1,0 +1,32 @@
+%!PS-Adobe-3.0
+
+/pg-wd 400 def
+/pg-ht 500 def
+<</PageSize [pg-wd  pg-ht]>> setpagedevice  
+/Times-Roman 20 selectfont
+/pct {0.01 mul mul}  def
+/sbuff 20 string def
+
+% str -> dx dy
+% return the width/height (dx, dy) of the given text
+% this is useful for centering in various ways
+/text-dim {
+  gsave
+    0 0 moveto
+    % the bounding box of the text
+    false charpath flattenpath pathbbox % x0 y0 x1 y1
+  grestore
+  % the 'roll' operator treats the stack like a merry-go-round
+  3 -1 roll sub % x0 x1 dy
+  3 1 roll sub % dy -dx
+  -1 mul % dy dx
+  exch % dx dy
+} def
+
+/the-width (Blah) text-dim pop def
+
+pg-wd 5 pct  pg-ht 90 pct  moveto 
+(Width of 'Blah': ) show
+the-width sbuff cvs show
+
+showpage

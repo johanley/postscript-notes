@@ -13,7 +13,10 @@
 
 https://johanley.github.io/postscript-notes/index.html
 
-<P>Github repo with more details <a href='https://github.com/johanley/postscript-notes'>is here</a>.
+<ul>
+ <li>numerous code examples are <a href='https://github.com/johanley/postscript-notes/tree/master/examples'>here</a>
+ <li>github repo with more details <a href='https://github.com/johanley/postscript-notes'>is here</a>
+</ul>
 
 <h2>Why Learn PostScript?</h2>
 
@@ -663,5 +666,48 @@ Those deltas are available from the <em>stringwidth</em> operator.
  <li><em>stringwidth</em> returns two numbers, not one
  <li><em>stringwidth</em> doesn't return the dimensions of the mark
 </ul>
+
+
+<h2>Text Height and Width</h2>
+
+To align text, you need the dimensions of the <b>bounding-box</b> of the marks made by the text.
+
+<P>Output: <a href="https://github.com/johanley/postscript-notes/tree/master/examples/text-dim.pdf">text-dim.pdf</a>
+
+<pre>
+%!PS-Adobe-3.0
+
+/pg-wd 400 def
+/pg-ht 500 def
+&lt;&lt;/PageSize [pg-wd  pg-ht]&gt;&gt; setpagedevice  
+/Times-Roman 20 selectfont
+/pct {0.01 mul mul}  def
+/sbuff 20 string def
+
+<em>% str -> dx dy
+% return the width/height (dx, dy) of the given text
+% this is useful for centering in various ways</em>
+/text-dim {
+  gsave
+    0 0 moveto
+    <em>% the bounding box of the text</em>
+    false charpath flattenpath pathbbox   <em>% x0 y0 x1 y1</em>
+  grestore
+  <em>% the 'roll' operator treats the stack like a merry-go-round</em>
+  3 -1 roll sub  <em>% x0 x1 dy</em>
+  3 1 roll sub   <em>% dy -dx</em>
+  -1 mul         <em>% dy dx</em>
+  exch           <em>% dx dy</em>
+} def
+
+/the-width (Blah) text-dim pop def
+
+pg-wd 5 pct  pg-ht 90 pct  moveto 
+(Width of 'Blah': ) show
+the-width sbuff cvs show
+
+showpage
+</pre>
+
 </body>
 </html>
