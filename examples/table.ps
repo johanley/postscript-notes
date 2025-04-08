@@ -17,30 +17,11 @@
   get
 } def
 
-% str -> real
-/text-height {
-  text-dim % dx dy
-  exch pop % dy 
-} def
-
-
 % pass two numbers; a value and a percent
 % example '70 15 pct' is 15% of 70
 /pct {
  0.01 mul mul
 } def
-
-% (a) (b) -> (ab)  
-% concatenate two strings
-% https://en.wikibooks.org/wiki/PostScript_FAQ/Programming_PostScript#How_to_concatenate_strings?
-/concat-str { 
-  exch dup length    
-  2 index length add string    
-  dup dup 4 2 roll copy length
-  4 -1 roll putinterval
-} bind def  
-
-/sbuff 50 string def
 
 % text 
 % right-align text horizontally at the currentpoint
@@ -50,7 +31,6 @@
   0 rmoveto % text
   show
 } bind def
-
 
 % text 
 % center text horizontally AND vertically at the currentpoint
@@ -63,7 +43,7 @@
   show
 } bind def
 
-
+% str -> dx dy
 % return the width/height (dx, dy) of the given text
 % this is useful for centering in various ways
 % https://stackoverflow.com/questions/3618194/how-to-determine-string-height-in-postscript luser droog
@@ -79,24 +59,11 @@
   exch % dx dy
 } def
 
-% txt wd
-% show text with the given fixed width 
-% DEFECTIVE: I think the side-bearings need to be equalized too, somehow. 
-% https://graphicdesign.stackexchange.com/questions/10644/how-can-i-make-a-font-monospaced
-% https://i.sstatic.net/a9mld.png
-% It's best to use a real monospaced font, if possible.
-/show-monosp {
-  5 dict begin
-    /wd exch def
-    /text exch def
-    /fixed-width text length array def
-    0 1 text length 1 sub {
-      fixed-width exch wd put
-    } for
-    text fixed-width xshow
-  end
+% str -> real
+/text-height {
+  text-dim % dx dy
+  exch pop % dy 
 } def
-
 
 
 % --------------------------------------------------
@@ -105,6 +72,8 @@
 % AS AN EXAMPLE SHOWING THAT YOU AREN'T LIMITED TO TEXT IN A TABLE CELL.
 
 % draw a simple flower at the origin
+% the caller will want to translate to the center 
+% of the drawing, and experiment with scale
 % example:
 %  4.25 inch 4.25 inch translate
 %  1 inch 1 inch scale
@@ -137,7 +106,7 @@ end
 % -----------------------------------------------------------------
 % HERE IS THE BASIC TABLE PROC
 % -----------------------------------------------------------------
-% table-dict
+% table-dict -> xs ys
 % return xs ys on the stack, for the coords of all grid lines, in case 
 % the caller wants to render them in some custom manner.
 /basic-table {
@@ -175,13 +144,13 @@ end
     newpath
      % vertical lines, top to bottom, then left to right
     0   1   xs length 1 sub {
-     xs exch get   top   moveto
-     0   bottom top sub   rlineto  % line down
+      xs exch get   top   moveto
+      0   bottom top sub   rlineto  % line down
     } for
     % horizontal lines, left to right, then top to bottom
     0   1   ys length 1 sub {
-     ys exch get  left exch   moveto
-     right left sub  0  rlineto  % line to the right
+      ys exch get  left exch   moveto
+      right left sub  0  rlineto  % line to the right
     } for
     stroke
   } def
@@ -235,6 +204,7 @@ end
   % centered text
   /C {50 50 goto show-ctr-xy} def 
   
+  % Numeric font
   % using a monospaced font for columns of numbers is usually best
   /N {/Courier 20 selectfont} def
   
@@ -297,10 +267,9 @@ end
 } def
 
 
-
 % --------------------------------------------------------------------
 
-% FINALLY, WE CAN CALL THE BASIC-TABLE PROC.
+% CALL THE BASIC-TABLE PROC.
 
 % MOST COLUMNS OF NUMBERS SHOULD USE A MONOSPACED FONT.
 % TRYING TO CONVERT AN ARBITRARY FONT TO MONOSPACED FONT WILL USUALLY 
