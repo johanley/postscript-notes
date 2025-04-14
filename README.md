@@ -117,6 +117,7 @@ Also of interest:
 * [L-Systems in PostScript](https://levelup.gitconnected.com/programming-l-systems-in-postscript-3959abdfba90) by Michel Charpentier.
 * [A comparison with Interpress](https://www.tech-insider.org/unix/research/1985/0301.html)
 * James Gosling (creator of Java) [talking about his NeWS window system](https://www.youtube.com/watch?v=4zG0uecYSMA), based on PostScript
+* A site about [concatenative programming languages](https://concatenative.org/wiki/view/Concatenative%20language) - interesting reading! 
 
 ## Tools
 * [Ghostscript](https://www.ghostscript.com/) for creating, viewing, and converting PS files, and related tasks. **Very commonly used when developing with PS.**
