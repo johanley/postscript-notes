@@ -853,6 +853,12 @@ Adobe has the idea of *color spaces*.
 You almost always use the CMYK color space for print outputs, and RGB for an output being viewed on a screen. 
 
 
+## Idiom: Move all items in a dict to the namespace
+A dict is passed on the operand stack.
+To move the contents of the dict into the namespace:
+```
+{def} forall
+``` 
 
 ## Idiom: Define a Representative Scale
 A proc is usually related to some region of the page.
