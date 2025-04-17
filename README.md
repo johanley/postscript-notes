@@ -972,7 +972,7 @@ To avoid this, one might compute the placement of the text using the height of a
 ## Idiom: Wrap Pages With a `begin-end` Pair
 This acts as a backstop. 
 If you forget to use a `begin-end` pair in a proc which `def`s data, then that data will remain after the proc ends.
-If the data gets `def`ed in `userdict`, then that data will be there forever unless you delete it. 
+If the data is defined in `userdict`, then that data will be there forever unless you delete it. 
 Since pages are meant to be independent of each other, this is usually undesireable.   
 
 ## Simple Mistakes
@@ -981,6 +981,7 @@ Since pages are meant to be independent of each other, this is usually undesirea
 * forgetting to `def` an object
 * forgetting to `selectfont` before a `show`: no error occurs, but no mark is made on the page
 * failing to consume all of the items on the operand stack - this can show up as an `invalidrestore` error, showing the unconsumed items on the stack.
+* letting `userdict` grow and grow with data that's no longer needed
 
 ## Globaldict 
 `globaldict` should likely be avoided in most cases. 
