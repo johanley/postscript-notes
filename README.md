@@ -958,8 +958,9 @@ If you clip first, then half of the stroke will likely be cut off.
 
 ## Ensure the Stack is Empty
 After a page has been rendered, check to ensure the operand stack is indeed empty.
-You can do this using by temporarily putting a `pstack` at the end of the page.  
-Note that **the operand stack is not affected by `save-restore` operations**.
+You can do this using by temporarily putting a `pstack` at the end of the page.
+  
+(Note that the operand stack is not affected by `save-restore` operations.)
 
 ## X-Height
 The vertical alignment of text can be subtle.
@@ -973,7 +974,9 @@ To avoid this, one might compute the placement of the text using the height of a
 This acts as a backstop. 
 If you forget to use a `begin-end` pair in a proc which `def`s data, then that data will remain after the proc ends.
 If the data is defined in `userdict`, then that data will be there forever unless you delete it. 
-Since pages are meant to be independent of each other, this is usually undesireable.   
+Since pages are meant to be independent of each other, this is usually undesireable.
+   
+(Note that the dictionary stack is not affected by `save-restore` operations.)
 
 ## Simple Mistakes
 * misspelling a name
