@@ -853,7 +853,7 @@ Adobe has the idea of *color spaces*.
 You almost always use the CMYK color space for print outputs, and RGB for an output being viewed on a screen. 
 
 
-## Idiom: Move all items in a dict to the namespace
+## Idiom: Move all Dict Items to the Namespace
 A dict is passed on the operand stack.
 To move the contents of the dict into the namespace:
 ```
@@ -968,6 +968,12 @@ the result can be displeasing when the text has large ascenders or descenders.
 
 To avoid this, one might compute the placement of the text using the height of a small letter *x*, and dividing by two.
 
+
+## Idiom: Wrap Pages With a `begin-end` Pair
+This acts as a backstop. 
+If you forget to use a `begin-end` pair in a proc which `def`s data, then that data will remain after the proc ends.
+If the data gets `def`ed in `userdict`, then that data will be there forever unless you delete it. 
+Since pages are meant to be independent of each other, this is usually undesireable.   
 
 ## Simple Mistakes
 * misspelling a name
