@@ -978,6 +978,13 @@ Since pages are meant to be independent of each other, this is usually undesirea
    
 (Note that the dictionary stack is not affected by `save-restore` operations.)
 
+
+## Idiom: Use Quirky Dictionary Sizes
+Using a strange size for temporary dictionaries can be helpful when debugging.
+The information dumped by Ghostscript includes basic facts about the dictionary stack, including the size of each dict.
+If only one proc has a temporary dict of that specific size, then you've at least narrowed down the problem to that proc.
+ 
+
 ## Simple Mistakes
 * misspelling a name
 * using prefix instead of postfix
