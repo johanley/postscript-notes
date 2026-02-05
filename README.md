@@ -308,7 +308,7 @@ Benefits of `bind`:
 * it avoids possible changes to the definition of operators in the namespace, between the definiton of a proc and its execution.  
 * it usually results in faster execution. 
 * *"It is worthwhile to apply `bind` to any procedure that will be executed more than a few times."* 
-(This advice was written in the 1980s and 1990s, and it still applies today.) 
+(This advice was written in the 1980s and 1990s, but it still applies today, in spite of advances in hardware.) 
 
 The same sort of behaviour can be implemented for names that *aren't* operators, by replacing the name `blah` with `//blah`.
 Again, this doesn't immediately *execute* the name, it immediately *replaces* it with its value according to the current namespace (the dictionary stack).
