@@ -1,0 +1,172 @@
+%!PS-Adobe-3.0
+%%Title: Debugging Procs
+%%Version: 1.0
+%%Creator: John O'Hanley
+%%CreationDate: 2026-02-13
+%%LanguageLevel: 3.0
+%%DocumentMedia: Plain 612.0 792.0 60 white ()
+%%DocumentNeededResources: font Helvetica
+%%BoundingBox: 0 0 612 792
+%%Orientation: Portrait 
+%%Pages: 1
+%%EndComments 
+
+%%BeginDefaults 
+%%EndDefaults
+
+%%BeginProlog
+
+% SIMPLE DEBUGGING PROCS OF GENERAL UTILITY.
+
+% str
+% if you have no debugger, this can help find the exact location of a problem, by 
+% planting various calls to this proc around the code with the problem.
+/here {
+ ==
+} bind def
+
+% size-r 
+% debugging - show the location of the currentpoint 
+% the +X-axis is in red, the +Y-axis in green
+% the currentpoint must exist
+% pass a representative size for the marks made by this proc
+/show-currentpoint {
+3 dict begin 
+  gsave
+   /r exch def
+   currentpoint   
+   /y exch def
+   /x exch def
+   r 0.1 mul setlinewidth
+   
+   % circle in red
+   0.5 0 0 setrgbcolor
+   newpath    % we want the currentpoint, but not the currentpath           
+   x y moveto
+   x y r 0 360 arc 
+   stroke
+
+   % x-axis in red
+   x y moveto        
+   r neg 0   rmoveto 
+   r 3 mul 0 rlineto % horizontal
+   stroke
+   
+   % y-axis in green
+   0 0.5 0 setrgbcolor
+   x y moveto  
+   0 r neg  rmoveto 
+   0 r 3 mul rlineto % vertical
+   stroke
+  grestore
+end
+} bind def
+
+% str 
+% the str is a debugging remark sent to stdout
+% show everything on the operand stack (but leave the stack intact)
+/dump-stack {
+  ==
+  (-- operand stack {) ==
+  pstack 
+  (-- }) ==
+} bind def
+
+% dict
+% shows the keys and values of the given dict on stdout
+/list-dict {
+ { == ==  } forall
+} bind def
+
+% str 
+% the str is a debugging remark sent to stdout
+% show the contents of the currentdict (keys and values)
+/dump-current-dict {
+  ==
+  (-- currentdict {) ==
+  currentdict list-dict
+  (-- }) ==
+} bind def
+
+% str
+% the str is a debugging remark sent to stdout
+% show the key-names of the currentdict
+/dump-keys {
+  ==
+  (-- currentdict keys {) ==
+  currentdict {pop ==} forall
+  (-- }) ==
+} bind def
+
+% str
+% show a useful message on standard-out, and dump the contents of the operand stack to stdout.
+% the passed error message should use ALL CAPS. 
+/error-message {
+  dump-stack
+} bind def
+
+% at the end of every page, the stack should be empty
+% leaving things on the stack unintentionally is a programming error
+/stack-should-be-empty { 
+  count 0 gt {
+   % this indicates a problem: you've left something on the stack at the end of the program
+   (---- TO ERR IS HUMAN; THY STACK IS NOT EMPTY. THY 'RESTORE' OPERATION MAY FAIL...: )  dump-stack
+  } if
+} bind def
+
+
+% some task in your program...
+/do-wonderful-things {
+ (in:do-wonderful-things) here
+ % ... do things here
+ 300 300 moveto (Test 3) show
+ (out:do-wonderful-things) here
+} def
+
+%%EndProlog 
+
+%%BeginSetup               
+  /page-width  8.5 72 mul def
+  /page-height 11 72 mul def % absolute values
+  <</PageSize [page-width  page-height]>> setpagedevice  
+  << /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
+  true setstrokeadjust  % minimizes off-by-one-pixel line issues
+%%EndSetup 
+
+%%Page: 1 1
+%%BeginPageSetup 
+ /pgsave save def     
+%%EndPageSetup
+
+  (Starting: page 1 of 1.) here
+  
+  /Helvetica 12 selectfont
+  
+  do-wonderful-things
+  
+  300 500 moveto 
+  5 show-currentpoint
+  (Test 1) show
+  
+  300 400 
+  (what's on the stack here?) dump-stack
+  moveto 
+  (Test 2) show
+  
+  3 dict begin 
+    /name (Bob) def
+    /shoe-size 8 def
+    (Keys in currentdict:) dump-keys
+    (Keys and values in currentdict:) dump-current-dict
+  end
+
+  15  % leave something on the operand stack intentionally
+  stack-should-be-empty  
+  
+  (Ending: page 1 of 1.) here
+
+pgsave restore
+showpage
+%%PageTrailer
+%%Trailer    
+%%EOF 
