@@ -16,24 +16,6 @@
 
 %%BeginProlog
 
-% str 
-% the str is a debugging remark sent to stdout
-% show the contents of the currentdict (keys and values)
-/dump-current-dict {
-  ==
-  (-- currentdict {) ==
-  currentdict 
-  { == ==  } forall
-  (-- }) ==
-} bind def
-
-/dump-stack {
-  ==
-  (-- operand stack {) ==
-  pstack 
-  (-- }) ==
-} bind def
-
 
 % SIMPLE PROC'S THAT FEEL MUCH LIKE BUILT-IN OPERATORS.
 
