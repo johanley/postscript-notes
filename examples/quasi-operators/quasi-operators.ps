@@ -16,6 +16,24 @@
 
 %%BeginProlog
 
+% str 
+% the str is a debugging remark sent to stdout
+% show the contents of the currentdict (keys and values)
+/dump-current-dict {
+  ==
+  (-- currentdict {) ==
+  currentdict 
+  { == ==  } forall
+  (-- }) ==
+} bind def
+
+/dump-stack {
+  ==
+  (-- operand stack {) ==
+  pstack 
+  (-- }) ==
+} bind def
+
 
 % SIMPLE PROC'S THAT FEEL MUCH LIKE BUILT-IN OPERATORS.
 
@@ -40,6 +58,7 @@
 % def's /name_i with any_i, with any_N being the next N items on the stack
 %
 % an "inverted" version of 'def', with the args reversed.
+% adds items to the current-dict
 % this replaces the very common :
 %   /a exch def
 % with the slightly more curt :
@@ -47,7 +66,7 @@
 % 
 % If you need to def multiple items, then passing an array of names provides more savings:
 %   [/a /b /c] defi
-% 
+% Inspired by code seen here: https://github.com/denismm/dmmlib
 /defi {
   count 0 eq {
     (DUDE, the operand stack is empty. Can't def anything.) ==
@@ -56,11 +75,13 @@
   type /arraytype eq
   {
     % any1 any2 [/name1 /name2]
-    /names exch def % any1 any2
+    % this silly random name avoids collisions with the currentdict (can't use a temp dict here)
+    /names-axnlywdthdenoonpartst exch def % any1 any2
     % iterate backwards over the names-array, in order to match with the 'any_i' items
-    names length 1 sub  -1   0 {
-      names exch get exch def
+    names-axnlywdthdenoonpartst length 1 sub  -1   0 {
+      names-axnlywdthdenoonpartst exch get exch def
     } for
+    /names-axnlywdthdenoonpartst discard
   }
   {
     % any /name 
@@ -68,6 +89,24 @@
   }
   ifelse
 } bind def
+
+% [/name] {...} 
+% use a temp dictionary for the duration of the given proc.
+% populate the temp dict using the given name-array, by consuming values already on the operand stack (below the name-array).
+% this encapsulates a common pattern for the body of many procs:
+%  10 dict begin 
+%     def'ing 1..N items from the operand stack.  
+%  end
+% the given name-array needs to have at least 1 item.
+% inside the proc, the caller can add more items to the temp dict created internally by this proc (in Language Level 2 or greater).
+/def-tmp {
+  exch dup length dict begin 
+    exch        % [/name] {...}
+    /proc defi  % [/name] 
+    defi
+    proc % this exec's the proc
+  end
+} def
 
 %%EndSetup 
 
@@ -95,9 +134,9 @@
   is-blah-in-currentdict % no
 
   % str num
-  /just-do-something-already { 
+  /def-one-thing-at-a-time { 
     2 dict begin
-      % def one at a time
+      % def one item at a time
       /num defi 
       /text defi
       text ==
@@ -105,10 +144,10 @@
     end
   } def
  
-  (Buongiorno, amici!) 15 just-do-something-already
+  (Buongiorno, amici!) 15 def-one-thing-at-a-time
   
   % str num
-  /and-now-for-something-completely-different { 
+  /def-many-things-at-once { 
     2 dict begin
       % def all at once
       % the name-order matches the operand-order documented in the above comment
@@ -118,7 +157,19 @@
     end
   } def
   
-  (Richard) 45 and-now-for-something-completely-different
+  (Richard) 45 def-many-things-at-once
+
+  % str num
+  /def-many-things-at-once-more-compact {
+    [/country /year] {
+      (The country and year:) ==
+      country ==
+      year ==
+      % one can def other items here, if needed
+    } def-tmp
+  } def
+
+  (Italy) 2016 def-many-things-at-once-more-compact
 
 pgsave restore
 showpage
