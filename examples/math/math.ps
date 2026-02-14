@@ -1,0 +1,170 @@
+%!PS-Adobe-3.0
+%%Title: Math Procedures
+%%Version: 1.0
+%%Creator: John O'Hanley
+%%CreationDate: 2026-02-13
+%%LanguageLevel: 3.0
+%%DocumentMedia: Plain 612.0 792.0 60 white ()
+%%DocumentNeededResources: font Helvetica
+%%BoundingBox: 0 0 612 792
+%%Orientation: Portrait 
+%%Pages: 1
+%%EndComments 
+
+%%BeginDefaults 
+%%EndDefaults
+
+%%BeginProlog
+
+% SIMPLE MATHEMATICAL CALCULATIONS OF GENERAL UTILITY.
+
+
+% pass two numbers; a value and a percent
+% example '70 15 pct' is 15% of 70
+% note that 15% is represented here as '15', not as '0.15'
+%
+% THIS SIMPLE LITTLE PROC IS VERY WIDELY USED.
+% IT'S USED TO USE RELATIVE SIZES, NOT ABSOLUTE SIZES.
+/pct {
+ 0.01 mul mul
+} bind def
+
+% min max pct
+% 10 20 50 pct-between returns 15 (halfway between 10 and 20)
+/pct-between {
+  3 dict begin 
+    /pct-between exch def 
+    /max exch def 
+    /min exch def
+    max min sub pct-between pct 
+    min add    
+  end
+} bind def
+
+% [] of numbers
+% return the max value for the given array of numbers.
+/max {
+  1 dict begin
+    /result -1000000 def
+    {
+     dup
+     result gt 
+       {/result exch def}
+       {pop}
+     ifelse
+    } forall
+    result
+  end
+} bind def
+
+% [] of numbers
+% return the min value for the given array of numbers.
+/min {
+  1 dict begin
+    /result 1000000 def
+    {
+     dup
+     result lt 
+       {/result exch def}
+       {pop}
+     ifelse
+    } forall
+    result
+  end
+} bind def
+
+% val min max full-range
+% returns (val - min)/(max - min) * full-range
+% linearly map a value onto the range [0..full-range]
+/rescale {
+ 4 dict begin
+  /full-range exch def
+  /max exch def
+  /min exch def
+  /val exch def
+  val min sub
+  max min sub div
+  full-range mul
+ end
+} def
+
+% a b 
+% return the arithmetic mean of two numbers
+/midpoint {
+  add 2 div
+} def
+
+% [[xy]] - an array of points
+% return the bounding box [llx lly urx ury] of a path built from the given array of points
+% from the bounding box, the caller can read off the min-max of either x or y (for the given array of points).
+% (the path is temporary, and doesn't persist after calling this proc.)
+/points-bbox {
+  1 dict begin
+    % make a path, and compute its bbox in the current CTM
+    newpath % just in case 
+    /pts exch def
+    pts 0 get 0 get   pts 0 get 1 get  moveto  % the first point
+    pts  1   pts length 1 sub   getinterval {  
+      % [xy]
+      aload pop  % x y
+      lineto
+    } forall % the remaining points
+    pathbbox % llx lly urx ury
+    4 array astore % [llx lly urx ury]
+    newpath % remove the currentpath used to do the calc
+  end
+} bind def
+
+% [[xy]] - an array of points
+% return the center x y of the bounding-box of the given points.
+/center-of-bbox {
+  1 dict begin
+    points-bbox % [llx lly urx ury]
+    /box exch def 
+    box 0 get  box 2 get  midpoint % x
+    box 1 get  box 3 get  midpoint % x y 
+  end
+} bind def
+
+%%EndProlog 
+
+%%BeginSetup               
+  /page-width  8.5 72 mul def
+  /page-height 11 72 mul def % absolute values
+  <</PageSize [page-width  page-height]>> setpagedevice  
+  << /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
+  true setstrokeadjust  % minimizes off-by-one-pixel line issues
+%%EndSetup 
+
+%%Page: 1 1
+%%BeginPageSetup 
+ /pgsave save def     
+%%EndPageSetup
+
+  /Helvetica 12 selectfont
+  
+  page-width 0 pct
+  page-height 0 pct moveto
+  (Bottom left) show
+  
+  page-width 50 pct
+  page-height 50 pct moveto
+  (Middle of the page) show
+  
+  page-width  50 pct
+  page-height 95 pct moveto
+  (Top-middle of the page) show
+  
+  [96 95 91 89 17 -22 5 1000] min ==  % -22
+  [96 95 91 89 17 -22 5 1000] max ==  % 1000
+
+  % Example: a chart shows weight in the range 100..400 pounds.
+  % The range 100..400 corresponds to 325 units in the CTM.
+  % Someone weighs 250 pounds, and you need to calculate the position of that data-point on the chart:
+  250 100 400   325 rescale ==  % 162.5
+
+pgsave restore
+showpage
+%%PageTrailer
+%%Trailer    
+%%EOF 
