@@ -1,0 +1,14 @@
+GPL Ghostscript 10.04.0 (2024-09-18)
+Copyright (C) 2024 Artifex Software, Inc.  All rights reserved.
+This software is supplied under the GNU AGPLv3 and comes with NO WARRANTY:
+see the file COPYING for details.
+Loading NimbusSans-Regular font from %rom%Resource/Font/NimbusSans-Regular... 4074648 2697344 1827576 537588 2 done.
+(/blah is in currentdict)
+(/blah is NOT in currentdict)
+(/blah is NOT in currentdict)
+15
+(Buongiorno, amici!)
+(Richard)
+45
+
+C:\ghostscript\gs10.04.0\bin>
