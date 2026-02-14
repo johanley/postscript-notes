@@ -1,0 +1,23 @@
+GPL Ghostscript 10.04.0 (2024-09-18)
+Copyright (C) 2024 Artifex Software, Inc.  All rights reserved.
+This software is supplied under the GNU AGPLv3 and comes with NO WARRANTY:
+see the file COPYING for details.
+Loading NimbusSans-Regular font from %rom%Resource/Font/NimbusSans-Regular... 4074648 2696622 1942232 624361 1 done.
+/Helvetica
+1
+0.001
+Loading NimbusSans-Italic font from %rom%Resource/Font/NimbusSans-Italic... 4215264 2899990 1942232 630465 1 done.
+/Helvetica-Oblique
+1
+0.001
+Loading NimbusSans-Bold font from %rom%Resource/Font/NimbusSans-Bold... 4416480 3100922 1942232 636130 1 done.
+/Helvetica-Bold
+1
+0.001
+Loading NimbusMonoPS-Regular font from %rom%Resource/Font/NimbusMonoPS-Regular... 4658096 3340980 1962432 645244 1 done.
+/Courier
+1
+0.001
+Loading StandardSymbolsPS font from %rom%Resource/Font/StandardSymbolsPS... 4765400 3444384 2023032 703779 2 done.
+
+C:\ghostscript\gs10.04.0\bin>

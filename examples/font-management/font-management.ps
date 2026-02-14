@@ -1,0 +1,178 @@
+%!PS-Adobe-3.0
+%%Title: Font Management (Helvetica)
+%%Version: 1.0
+%%Creator: John O'Hanley
+%%CreationDate: 2026-02-13
+%%LanguageLevel: 3.0
+%%DocumentMedia: Plain 612.0 792.0 60 white ()
+%%DocumentNeededResources: font Helvetica Helvetica-Oblique Helvetica-Bold Consolas
+%%BoundingBox: 0 0 612 792
+%%Orientation: Portrait 
+%%Pages: 1
+%%EndComments 
+
+%%BeginDefaults 
+%%EndDefaults
+
+%%BeginProlog
+
+
+% INITIALIZE THE FONTS YOU WANT TO USE, AND QUICKLY SWITCH BETWEEN THEM.
+%
+% (THIS EXAMPLE USES HELVETICA, A BUILT-IN FONT FOR POSTSCRIPT AND PDF.)
+
+% pass two numbers; a value and a percent
+% example '70 15 pct' is 15% of 70
+% note that 15% is represented here as '15', not as '0.15'
+/pct {
+ 0.01 mul mul
+} bind def
+
+% new-name old-name 
+% create a new font from an existing one, which uses the ISOLatin1Encoding instead of the standard encoding.
+% NOTE: THE ENCODING OF THIS POSTSCRIPT FILE IS ITSELF 8859-1 = ISOLatin1.
+% calling this allows (almost all) accented characters in West European languages to be treated as any other character.
+% https://stackoverflow.com/questions/270672/unicode-in-postscript
+/latinize {
+  findfont
+  dup length dict 
+  begin
+    % copy everything in the source font's dict except for the FID (a unique id for a font)
+    { 1 index /FID ne {def}{pop pop} ifelse } forall
+    /Encoding ISOLatin1Encoding def % override the encoding entry in this dict
+    currentdict  % push this font-dict onto the operand stack
+  end
+  definefont  % internally sets a FID (font-id) for the new font
+  %pop % remove the new font object from the operand stack
+  1 dict begin
+    % log the font information
+    /the-new-font exch def
+    (Latinized font. /FontName:) the-new-font /FontName get ==
+    ( /FontType:) the-new-font /FontType get ==
+    ( /FontMatrix scale-x:) the-new-font /FontMatrix get 0 get ==
+  end
+} bind def
+
+% the returned value may be a rounded value, slightly different from the expected value
+% WARNING: this has only been tested with Type 1 and Type 42 fonts.
+/current-font-size {
+  % the font-size is part of the font-matrix
+  % this depends on the fontmatrix, which in turn depends on the fonttype
+  currentfont /FontMatrix get 0 get
+  currentfont /FontType get 1 eq {
+    % Adobe Type 1 fonts have a FontMatrix [0.001 0 0 0.001 0 0], not [1 0 0 1 0 0]
+    1000 mul
+  } if
+  % DO ANY OTHER FONT TYPES HAVE A FONT MATRIX DIFFERENT FROM [1 0 0 1 0 0]?
+} def
+
+% str size
+% set the font using an 'expected/configured' font name, and the font size
+/use-another-font {
+2 dict begin 
+  /font-size exch def
+  /font-name exch def
+  % the 'my-fonts' dict is defined below
+  my-fonts font-name known not {
+    (DUDE, you're using an unknown font name.) ==
+    font-name ==
+  } if
+  my-fonts font-name get 
+  font-size
+  selectfont
+end 
+} bind def
+
+% str pct
+% the font name, and the percentage of the DEFAULT font-size
+% set the current font
+/use-font {
+  default-font-size exch pct
+  use-another-font
+} bind def
+
+% str pct
+% the font name, and the percentage of the CURRENT font-size
+% set the current font
+/r-use-font {
+  current-font-size exch pct
+  use-another-font
+} bind def
+
+%%EndProlog 
+
+%%BeginSetup               
+  /page-width  8.5 72 mul def
+  /page-height 11 72 mul def % absolute values
+  <</PageSize [page-width  page-height]>> setpagedevice  
+  << /NeverEmbed [ ] >> setdistillerparams
+  true setstrokeadjust  % minimizes off-by-one-pixel line issues
+  
+  % Define new fonts that are 'latinized' versions of an existing font.
+  % Helvetica is an Adobe Type 1 font, with FontMatrix [0.001 0 0 0.001 0 0]
+  /MyRegular /Helvetica latinize
+  /MyItalic /Helvetica-Oblique latinize
+  /MyBold /Helvetica-Bold latinize
+  /MyNumeric /Courier   latinize  % this is also a built-in font
+
+  % this dict allows easy lookup of my desired fonts  
+  /my-fonts <<
+    (regular) /MyRegular
+    (italic)  /MyItalic
+    (bold)    /MyBold
+    (numeric) /MyNumeric
+    (symbol)  /Symbol  % not 'latinized'
+  >> def
+
+  % changing this value will do a proportiate change to all of your fonts.
+  % HOWEVER, you'll likely have layout/postion adjustments to make if you do that.
+  /default-font-size page-height 1.5 pct def  
+
+%%EndSetup 
+
+%%Page: 1 1
+%%BeginPageSetup 
+ /pgsave save def     
+%%EndPageSetup
+
+  % the 'use-font' proc uses a size as a percent of /default-font-size
+  (regular) 100 use-font 
+  100 700 moveto (Regular 100) show
+  
+  % the 'r-use-font' proc uses a size as a percent of the current font size
+  % reduce the font to 80% of its current font size, three times in a row
+  (regular) 80 r-use-font 
+  200 700 moveto (80% current size) show  % 0.8
+  (regular) 80 r-use-font 
+  300 700 moveto (80% current size) show  % 0.8^2 = 0.64
+  (regular) 80 r-use-font 
+  400 700 moveto (80% current size) show  % 0.8^3 = 0.512
+
+  (regular) 60 use-font 
+  100 650 moveto (Regular 60) show
+
+  (italic) 100 use-font 
+  100 600 moveto (Italic 100) show
+
+  (bold) 100 use-font 
+  100 550 moveto (Bold 100) show
+
+  (numeric) 100 use-font 
+  100 500 moveto (Numeric 100) show
+
+  (symbol) 150 use-font 
+  100 450 moveto (Symbol 100) show  % this outputs Greek-letter analogs - Sigma for S, and so on
+  200 450 moveto (\141 \142 \147) show  % this uses octal literals for alpha, beta, gamma; see the PostScript Language Reference.
+
+  100 400 moveto 
+  (\362 \266f \345) show  % the integral sign is too small
+
+  100 350 moveto 
+  (\341f \174 y\361) show 
+
+
+pgsave restore
+showpage
+%%PageTrailer
+%%Trailer    
+%%EOF 
