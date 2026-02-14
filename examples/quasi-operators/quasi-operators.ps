@@ -1,0 +1,127 @@
+%!PS-Adobe-3.0
+%%Title: Quasi-Operators
+%%Version: 1.0
+%%Creator: John O'Hanley
+%%CreationDate: 2026-02-14
+%%LanguageLevel: 3.0
+%%DocumentMedia: Plain 612.0 792.0 60 white ()
+%%DocumentNeededResources: font Helvetica Helvetica-Oblique Helvetica-Bold Courier
+%%BoundingBox: 0 0 612 792
+%%Orientation: Portrait 
+%%Pages: 1
+%%EndComments 
+
+%%BeginDefaults 
+%%EndDefaults
+
+%%BeginProlog
+
+
+% SIMPLE PROC'S THAT FEEL MUCH LIKE BUILT-IN OPERATORS.
+
+% key 
+% return true iff the key is in the currentdict
+/is-known {
+ currentdict exch known
+} bind def
+
+% key
+% 'un-def' the given key from the currentdict
+% if you only have 1-2 new items def'd in a proc, then instead of using a begin-end temporary dict,
+% you might choose to just use the currentdict, and remove (discard) the items at the end of the proc.
+/discard {
+ currentdict exch undef  
+} bind def
+
+% any /name
+% def's /name with any, with any being the next item on the stack
+%
+% any1 any2 [/name1 /name2]
+% def's /name_i with any_i, with any_N being the next N items on the stack
+%
+% an "inverted" version of 'def', with the args reversed.
+% this replaces the very common :
+%   /a exch def
+% with the slightly more curt :
+%   /a defi
+% 
+% If you need to def multiple items, then passing an array of names provides more savings:
+%   [/a /b /c] defi
+% 
+/defi {
+  count 0 eq {
+    (DUDE, the operand stack is empty. Can't def anything.) ==
+  } if
+  dup
+  type /arraytype eq
+  {
+    % any1 any2 [/name1 /name2]
+    /names exch def % any1 any2
+    % iterate backwards over the names-array, in order to match with the 'any_i' items
+    names length 1 sub  -1   0 {
+      names exch get exch def
+    } for
+  }
+  {
+    % any /name 
+    exch def
+  }
+  ifelse
+} bind def
+
+%%EndSetup 
+
+%%Page: 1 1
+%%BeginPageSetup 
+ /pgsave save def     
+%%EndPageSetup
+
+  /Helvetica 48 selectfont % not used
+ 
+  /is-blah-in-currentdict { 
+    /blah is-known 
+    {(/blah is in currentdict) ==}
+    {(/blah is NOT in currentdict) ==} ifelse
+  } def
+ 
+  /blah 42 def
+  is-blah-in-currentdict % yes
+
+  3 dict begin
+    is-blah-in-currentdict % no
+  end 
+ 
+  /blah discard
+  is-blah-in-currentdict % no
+
+  % str num
+  /just-do-something-already { 
+    2 dict begin
+      % def one at a time
+      /num defi 
+      /text defi
+      text ==
+      num == 
+    end
+  } def
+ 
+  (Buongiorno, amici!) 15 just-do-something-already
+  
+  % str num
+  /and-now-for-something-completely-different { 
+    2 dict begin
+      % def all at once
+      % the name-order matches the operand-order documented in the above comment
+      [/first-name /age] defi
+      first-name ==
+      age ==
+    end
+  } def
+  
+  (Richard) 45 and-now-for-something-completely-different
+
+pgsave restore
+showpage
+%%PageTrailer
+%%Trailer    
+%%EOF 
