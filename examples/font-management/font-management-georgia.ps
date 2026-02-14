@@ -1,11 +1,11 @@
 %!PS-Adobe-3.0
-%%Title: Font Management (Helvetica)
+%%Title: Font Management (Georgia)
 %%Version: 1.0
 %%Creator: John O'Hanley
 %%CreationDate: 2026-02-13
 %%LanguageLevel: 3.0
 %%DocumentMedia: Plain 612.0 792.0 60 white ()
-%%DocumentNeededResources: font Helvetica Helvetica-Oblique Helvetica-Bold Courier
+%%DocumentNeededResources: font Georgia Georgia-Italic Georgia-Bold Consolas
 %%BoundingBox: 0 0 612 792
 %%Orientation: Portrait 
 %%Pages: 1
@@ -19,7 +19,13 @@
 
 % INITIALIZE THE FONTS YOU WANT TO USE, AND QUICKLY SWITCH BETWEEN THEM.
 %
-% (THIS EXAMPLE USES HELVETICA, A BUILT-IN FONT FOR POSTSCRIPT AND PDF.)
+% THIS EXAMPLE USES GEORGIA AND CONSOLAS, FONTS INCLUDED IN C:\Windows\Fonts\.
+% If you use fonts that aren't part of the small set of default fonts that come with PostScript/PDF, 
+% then you'll need to tell your tools where to find your system's fonts.
+% For Ghostscript, you can:
+%    - set the GS_FONTPATH environment variable
+%    - the '-sFONTPATH=' command line switch.
+
 
 % pass two numbers; a value and a percent
 % example '70 15 pct' is 15% of 70
@@ -109,11 +115,10 @@ end
   true setstrokeadjust  % minimizes off-by-one-pixel line issues
   
   % Define new fonts that are 'latinized' versions of an existing font.
-  % Helvetica is an Adobe Type 1 font, with FontMatrix [0.001 0 0 0.001 0 0]
-  /MyRegular /Helvetica latinize
-  /MyItalic /Helvetica-Oblique latinize
-  /MyBold /Helvetica-Bold latinize
-  /MyNumeric /Courier   latinize  % this is also a built-in font
+  /MyRegular /Georgia latinize
+  /MyItalic  /Georgia-Italic latinize
+  /MyBold    /Georgia-Bold latinize
+  /MyNumeric /Consolas   latinize  
 
   % this dict allows easy lookup of my desired fonts  
   /my-fonts <<

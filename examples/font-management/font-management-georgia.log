@@ -1,0 +1,36 @@
+C:\ghostscript\gs10.04.0\bin>echo %GS_FONTPATH%
+C:\Windows\Fonts
+
+C:\ghostscript\gs10.04.0\bin>gswin64c.exe -dNOSAFER -sDEVICE=pdfwrite  -o C:\johanley\ProjectsPhoton\postscript-notes\examples\font-management\font-management-georgia.pdf  C:\johanley\ProjectsPhoton\postscript-notes\examples\font-management\font-management-georgia.ps
+GPL Ghostscript 10.04.0 (2024-09-18)
+Copyright (C) 2024 Artifex Software, Inc.  All rights reserved.
+This software is supplied under the GNU AGPLv3 and comes with NO WARRANTY:
+see the file COPYING for details.
+Scanning C:\Windows\Fonts for fonts... 380 files, 188 scanned, 166 new fonts.
+Can't find (or can't open) font file %rom%Resource/Font/%rom%Re.
+Can't find (or can't open) font file Georgia.
+Loading Georgia font from C:\Windows\Fonts/georgia.ttf... 6370364 4992611 2365288 1034368 1 done.
+(Georgia)
+42
+1.0
+Can't find (or can't open) font file %rom%Resource/Font/%rom%Resource/.
+Can't find (or can't open) font file Georgia-Italic.
+Loading Georgia-Italic font from C:\Windows\Fonts/georgiai.ttf... 6390564 5002451 2790380 1440084 1 done.
+(Georgia-Italic)
+42
+1.0
+Can't find (or can't open) font file %rom%Resource/Font/%rom%Resourc.
+Can't find (or can't open) font file Georgia-Bold.
+Loading Georgia-Bold font from C:\Windows\Fonts/georgiab.ttf... 6390564 5008857 3240612 1856110 1 done.
+(Georgia-Bold)
+42
+1.0
+Can't find (or can't open) font file %rom%Resource/Font/%rom%Res.
+Can't find (or can't open) font file Consolas.
+Loading Consolas font from C:\Windows\Fonts/consola.ttf... 6464692 5083768 4342064 2929550 1 done.
+(Consolas)
+42
+1.0
+Loading StandardSymbolsPS font from %rom%Resource/Font/StandardSymbolsPS... 6533724 5154596 4426008 3008437 2 done.
+
+C:\ghostscript\gs10.04.0\bin>
