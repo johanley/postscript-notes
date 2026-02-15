@@ -5,7 +5,7 @@
 %%CreationDate: 2026-02-14
 %%LanguageLevel: 3.0
 %%DocumentMedia: Plain 612.0 792.0 60 white ()
-%%DocumentNeededResources: font Helvetica Helvetica-Oblique Helvetica-Bold Courier
+%%DocumentNeededResources: font Helvetica
 %%BoundingBox: 0 0 612 792
 %%Orientation: Portrait 
 %%Pages: 1
@@ -18,6 +18,7 @@
 
 
 % SIMPLE PROC'S THAT FEEL MUCH LIKE BUILT-IN OPERATORS.
+% (This is of course a matter of taste.)
 
 % key 
 % return true iff the key is in the currentdict
@@ -90,6 +91,52 @@
   end
 } def
 
+% any any -> str
+% [any] -> str
+% convert items to strings using cvs (if necessary), and concatenate the strings together.
+% any items converted using cvs here must have a max string-length of 500.
+/concat-str {
+  dup type /arraytype eq {
+    [/anys] {
+      % build an array of strs; count the total length of all strings
+      /strs anys length array def
+      /ttl-str-len 0 def
+      0 1 anys length 1 sub {
+        /i defi
+        anys i get type /typestring eq {
+            % just put strings into the strs array, without using cvs
+            strs i anys i get put
+            /ttl-str-len ttl-str-len strs i get length add def
+          }
+          {
+            % cvs items to a string, then put them in strs
+            /tmpstr anys i get 500 string cvs def
+            strs i tmpstr put
+            /ttl-str-len ttl-str-len tmpstr length add def
+          }
+        ifelse
+      } for
+      % put the strs into the result-string
+      /result ttl-str-len string def
+      /cursor 0 def
+      strs {
+        dup % str str
+        result cursor % str str result cursor
+        3 -1 roll  % str result cursor str
+        putinterval % str
+        length cursor add 
+        /cursor defi
+      } forall
+      result
+    } def-tmp
+  } 
+  {
+    % put 2 operands into an array, then re-call this proc
+    2 array astore concat-str
+  }
+  ifelse
+} bind def
+
 %%EndProlog
 
 %%BeginSetup 
@@ -100,7 +147,7 @@
  /pgsave save def     
 %%EndPageSetup
 
-  /Helvetica 48 selectfont % not used
+  /Helvetica 24 selectfont 
  
   /is-blah-in-currentdict { 
     /blah is-known 
@@ -155,6 +202,15 @@
   } def
 
   (Italy) 2016 def-many-things-at-once-more-compact
+  
+  300 300 moveto
+  (abc) (def) concat-str show
+  300 250 moveto
+  [(John) (Smith)] concat-str show
+  300 200 moveto
+  [(Abe) 3.14159] concat-str show
+  300 150 moveto
+  [(pi = ) 3.14 (, e = ) 2.79] concat-str show
 
 pgsave restore
 showpage
