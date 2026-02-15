@@ -1,0 +1,210 @@
+%!PS-Adobe-3.0
+%%Title: Text Alignment
+%%Version: 1.0
+%%Creator: John O'Hanley
+%%CreationDate: 2026-02-15
+%%LanguageLevel: 3.0
+%%DocumentMedia: Plain 612.0 792.0 60 white ()
+%%DocumentNeededResources: font Helvetica Helvetica-Oblique Helvetica-Bold Courier
+%%BoundingBox: 0 0 612 792
+%%Orientation: Portrait 
+%%Pages: 1
+%%EndComments 
+
+%%BeginDefaults 
+%%EndDefaults
+
+%%BeginProlog
+
+% TEXT DIMENSIONS AND ALIGNMENT ------
+
+% TEXT DIMENSIONS.
+
+% str
+% return the width/height (dx, dy) of the given text (in the current font)
+% this is useful for centering in various ways
+% https://stackoverflow.com/questions/3618194/how-to-determine-string-height-in-postscript luser droog
+/text-dim {
+  gsave
+    0 0 moveto
+    % the bounding box of the text
+    false charpath flattenpath pathbbox % x0 y0 x1 y1
+  grestore
+  3 -1 roll sub % x0 x1 dy
+  3 1 roll sub % dy -dx
+  -1 mul % dy dx
+  exch % dx dy
+}
+bind def
+
+% str -> number
+% return the width of the given string in the current font
+/text-width {
+  text-dim % dx dy
+  pop % dx
+} bind def
+
+% str -> number
+% return the height of the given string in the current font
+/text-height {
+  text-dim % dx dy
+  exch pop % dy 
+} bind def
+
+% num
+% return a multiple of the height of small 'x' in the current font
+/ex {
+ (x) text-height mul
+} bind def
+
+% num
+% return a multiple of the height of capital 'M' in the current font
+/em {
+ (M) text-height mul
+} bind def
+
+
+% -- ALIGN TEXT IN VARIOUS WAYS 
+
+% text 
+% center text horizontally at the currentpoint
+/show-ctr-x {
+  dup text-dim pop % text dx
+  -2 div % text -dx/2
+  0 rmoveto % text
+  show
+} bind def
+
+% text 
+% center text vertically at the currentpoint
+% WARNING: centering text vertically can give mediocre results (variations in ascenders, descenders etc.)
+/show-ctr-y {
+  dup text-dim exch pop % text dy
+  -2 div % text -dy/2
+  0 exch rmoveto % text
+  show
+} bind def
+
+% text 
+% center text horizontally AND vertically at the currentpoint
+% WARNING: centering text vertically can give mediocre results (variations in ascenders, descenders etc.)
+/show-ctr-xy {
+  dup text-dim % text dx dy
+  -2 div % text dx -dy/2
+  exch % text -dy/2 dx
+  -2 div exch % text -dx/2 -dy/2
+  rmoveto % text
+  show
+} bind def
+
+% text 
+% right-align text horizontally at the currentpoint
+/show-right-align {
+  dup text-dim pop % text dx
+  -1 mul % text -dx
+  0 rmoveto % text
+  show
+} bind def
+
+% text 
+% right-align text horizontally at the currentpoint, and center it vertically
+% WARNING: centering text vertically can give mediocre results (variations in ascenders, descenders etc.)
+/show-right-align-ctr-y {
+  dup text-dim % text dx dy
+  -0.5 mul % text dx -dy/2
+  exch neg % text -dy/2 -dx
+  exch % text -dx -dy/2
+  rmoveto % text
+  show
+} bind def
+
+% size-r 
+% debugging - show the location of the currentpoint 
+% the +X-axis is in red, the +Y-axis in green
+% the currentpoint must exist
+% pass a representative size for the marks made by this proc
+/show-currentpoint {
+3 dict begin 
+  gsave
+   /r exch def
+   currentpoint   
+   /y exch def
+   /x exch def
+   r 0.1 mul setlinewidth
+   
+   % circle in red
+   0.5 0 0 setrgbcolor
+   newpath    % we want the currentpoint, but not the currentpath           
+   x y moveto
+   x y r 0 360 arc 
+   stroke
+
+   % x-axis in red
+   x y moveto        
+   r neg 0   rmoveto 
+   r 3 mul 0 rlineto % horizontal
+   stroke
+   
+   % y-axis in green
+   0 0.5 0 setrgbcolor
+   x y moveto  
+   0 r neg  rmoveto 
+   0 r 3 mul rlineto % vertical
+   stroke
+  grestore
+end
+} bind def
+
+
+%%EndProlog
+
+%%BeginSetup 
+%%EndSetup 
+
+%%Page: 1 1
+%%BeginPageSetup 
+ /pgsave save def     
+%%EndPageSetup
+
+  /Helvetica 24 selectfont 
+  /my-text (Famous blue raincoat) def
+  
+  100 700 moveto 
+  my-text show
+  
+  100 675 moveto
+  my-text text-width 100 string cvs show  (  width) show
+  100 650 moveto
+  my-text text-height 100 string cvs show  (  height) show
+  
+  100 600 moveto
+  1 em 100 string cvs show (  'M'-height) show
+  100 575 moveto
+  1 ex 100 string cvs show (  'x'-height) show
+ 
+  300 500 moveto
+  5 show-currentpoint
+  my-text show
+  300 450 moveto
+  5 show-currentpoint
+  my-text show-ctr-x
+  300 400 moveto
+  5 show-currentpoint
+  my-text show-right-align
+
+  % centering vertically:
+  300 350 moveto
+  5 show-currentpoint
+  my-text show-ctr-y
+  300 300 moveto
+  5 show-currentpoint
+  my-text show-ctr-xy
+  300 250 moveto
+  5 show-currentpoint
+  my-text show-right-align-ctr-y
+
+pgsave restore
+showpage
+%%PageTrailer
+%%Trailer    
+%%EOF 
