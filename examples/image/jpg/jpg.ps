@@ -17,12 +17,11 @@
 %%BeginProlog
 
 % EMBED A JPG IMAGE IN A DOCUMENT. 
-
 % Example command line:
 %   C:\stuff\postscript-notes\examples\image\jpg>C:\ghostscript\gs10.04.0\bin\gswin64c.exe -dNOSAFER -sDEVICE=pdfwrite -o jpg.pdf jpg.ps
 %
 % In this example, you reference a file (an image) somewhere on your system.
-% Note on how Ghostscript finds files:
+% Note how Ghostscript finds files:
 %   https://ghostscript.readthedocs.io/en/latest/Use.html#how-ghostscript-finds-files
 
 
@@ -30,8 +29,7 @@
 % Show a color .jpg image file, with its bottom left at the current origin.
 % This proc uses the recommended style of using a unit square as an intermediate geometry.
 %
-% https://stackoverflow.com/questions/4968443/simple-way-to-add-an-image-in-postscript 
-%   Ghostscript needs the -dNOSAFER option for this to operate correctly.
+% Ghostscript needs the -dNOSAFER option for this to operate correctly.
 %   [w 0 0 h 0 0]  - scan L to R and B to T
 %   [w 0 0 -h 0 h] - scan L to R and T to B (JPEG's apparently use this style)
 /show-jpg {
