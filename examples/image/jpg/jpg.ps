@@ -1,0 +1,83 @@
+%!PS-Adobe-3.0
+%%Title: Embed A Jpg Image In A Document
+%%Version: 1.0
+%%Creator: John O'Hanley
+%%CreationDate: 2026-02-15
+%%LanguageLevel: 3.0
+%%DocumentMedia: Plain 612.0 792.0 60 white ()
+%%DocumentNeededResources: font Helvetica
+%%BoundingBox: 0 0 612 792
+%%Orientation: Portrait 
+%%Pages: 1
+%%EndComments 
+
+%%BeginDefaults 
+%%EndDefaults
+
+%%BeginProlog
+
+% width (name-of-file) px-width px-height
+% Show a color .jpg image file, with its bottom left at the current origin.
+% This proc uses the recommended style of using a unit square as an intermediate geometry.
+%
+% https://stackoverflow.com/questions/4968443/simple-way-to-add-an-image-in-postscript 
+%   Ghostscript needs the -dNOSAFER option for this to operate correctly.
+%   [w 0 0 h 0 0]  - scan L to R and B to T
+%   [w 0 0 -h 0 h] - scan L to R and T to B (JPEG's apparently use this style)
+/show-jpg {
+  gsave
+  4 dict begin
+    /px-h exch def 
+    /px-w exch def 
+    /file-name exch def 
+    /width exch def
+
+    % rescale the unit square, while preserving the aspect ratio of the image
+    width 
+    width px-h px-w div mul  
+    scale 
+    
+    /DeviceRGB setcolorspace
+    <<
+     /ImageType 1 % opaque
+     /Width px-w
+     /Height px-h
+     /BitsPerComponent 8  % not BPP!; BPP = 8 bits/component * 3 components = BPP 24, for typical color JPEGs
+     /Decode [0 1 0 1 0 1]  % standard, fixed
+     /ImageMatrix [px-w 0 0 px-h neg 0 px-h] % transform array; maps FROM the unit square TO the underlying image geometry
+     % opens the file and reads in the image data; the decoder here is specific to JPEG files:
+     /DataSource file-name (r) file /DCTDecode filter  
+    >>
+    image 
+  end
+  grestore
+} bind def
+
+%%EndProlog
+
+%%BeginSetup 
+%%EndSetup 
+
+%%Page: 1 1
+%%BeginPageSetup 
+ /pgsave save def     
+%%EndPageSetup
+
+  /Helvetica 24 selectfont 
+  
+  100 700 moveto (Example JPG: ) show
+  
+  100 500 translate % to the bottom-left of the image
+
+  % show a jpg image in the document
+  200            % the intended width of the image in the current CTM (not the pixel-width!)    
+  (example.jpg)  % the file name (in the current directory, in this case)
+  313            % the image-width in pixels
+  234            % the image-height in pixels
+  show-jpg
+  
+pgsave restore
+showpage
+%%PageTrailer
+%%Trailer    
+%%EOF 
