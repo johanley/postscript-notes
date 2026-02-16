@@ -44,7 +44,7 @@
 % return the max value for the given array of numbers.
 /max {
   1 dict begin
-    /result -1000000 def
+    /result -1E38 def % Red Book 3rd ed., appendix B
     {
      dup
      result gt 
@@ -60,7 +60,7 @@
 % return the min value for the given array of numbers.
 /min {
   1 dict begin
-    /result 1000000 def
+    /result 1E38 def
     {
      dup
      result lt 
