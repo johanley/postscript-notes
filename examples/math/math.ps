@@ -140,8 +140,10 @@
  /pgsave save def     
 %%EndPageSetup
 
-  /Helvetica 12 selectfont
-  
+  /Helvetica 24 selectfont
+
+  % THE pct PROC IS VERY WIDELY USED!
+  % WHEN YOU USE PERCENTAGES, LAYOUTS ARE MUCH LESS BRITTLE.
   page-width 0 pct
   page-height 0 pct moveto
   (Bottom left) show
