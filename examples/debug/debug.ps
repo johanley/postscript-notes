@@ -119,7 +119,7 @@ end
 /do-wonderful-things {
  (in:do-wonderful-things) here
  % ... do things here
- 300 300 moveto (Test 3) show
+ 100 500 moveto (Test 3) show
  (out:do-wonderful-things) here
 } def
 
@@ -140,15 +140,15 @@ end
 
   (Starting: page 1 of 1.) here
   
-  /Helvetica 12 selectfont
+  /Helvetica 24 selectfont
   
   do-wonderful-things
   
-  300 500 moveto 
-  5 show-currentpoint
+  100 700 moveto 
+  10 show-currentpoint
   (Test 1) show
   
-  300 400 
+  100 600 
   (what's on the stack here?) dump-stack
   moveto 
   (Test 2) show
@@ -160,8 +160,8 @@ end
     (Keys and values in currentdict:) dump-current-dict
   end
 
-  15  % leave something on the operand stack intentionally
-  stack-should-be-empty  
+  15  % if you mistakenly leave something on the operand stack 
+  stack-should-be-empty   % then this will complain
   
   (Ending: page 1 of 1.) here
 

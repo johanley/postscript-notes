@@ -1,15 +1,16 @@
+C:\johanley\ProjectsPhoton\postscript-notes\examples\debug>C:\ghostscript\gs10.04.0\bin\gswin64c.exe -dNOSAFER -sDEVICE=pdfwrite -o debug.pdf debug.ps
 GPL Ghostscript 10.04.0 (2024-09-18)
 Copyright (C) 2024 Artifex Software, Inc.  All rights reserved.
 This software is supplied under the GNU AGPLv3 and comes with NO WARRANTY:
 see the file COPYING for details.
 (Starting: page 1 of 1.)
-Loading NimbusSans-Regular font from %rom%Resource/Font/NimbusSans-Regular... 4074648 2697373 1962432 653621 2 done.
+Loading NimbusSans-Regular font from %rom%Resource/Font/NimbusSans-Regular... 4074648 2697411 1962432 653428 2 done.
 (in:do-wonderful-things)
 (out:do-wonderful-things)
 (what's on the stack here?)
 (-- operand stack {)
-400
-300
+600
+100
 (-- })
 (Keys in currentdict:)
 (-- currentdict keys {)
@@ -29,4 +30,4 @@ Loading NimbusSans-Regular font from %rom%Resource/Font/NimbusSans-Regular... 40
 (-- })
 (Ending: page 1 of 1.)
 
-C:\ghostscript\gs10.04.0\bin>
+C:\johanley\ProjectsPhoton\postscript-notes\examples\debug>
