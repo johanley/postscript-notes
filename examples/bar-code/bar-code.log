@@ -1,0 +1,20 @@
+You need to point to the directory containing the bar code, using -sGenericResourceDir.
+Note: I don't know why the *** Warning occurs below.
+
+
+
+C:\johanley\ProjectsPhoton\postscript-notes\examples\bar-code>C:\ghostscript\gs10.04.0\bin\gswin64c.exe -dNOSAFER -sDEVICE=pdfwrite -sGenericResourceDir=C:\temp4\postscriptbarcode-resource-2025-03-14\Resource\ -o bar-code.pdf bar-code.ps
+GPL Ghostscript 10.04.0 (2024-09-18)
+Copyright (C) 2024 Artifex Software, Inc.  All rights reserved.
+This software is supplied under the GNU AGPLv3 and comes with NO WARRANTY:
+see the file COPYING for details.
+
+*** Warning: GenericResourceDir doesn't point to a valid resource directory.
+               the -sGenericResourceDir=... option can be used to set this.
+
+WARNING: /Unicode /Decoding resource is not accessible but it is useful for generating ToUnicode CMap.
+Loading NimbusRoman-Regular font from %rom%Resource/Font/NimbusRoman-Regular... 3366256 2057707 1901832 584003 1 done.
+Loading NimbusSans-Regular font from %rom%Resource/Font/NimbusSans-Regular... 3809872 2494475 2386632 1051317 1 done.
+Loading NimbusMonoPS-Regular font from %rom%Resource/Font/NimbusMonoPS-Regular... 4051488 2741768 2386632 1058841 1 done.
+
+C:\johanley\ProjectsPhoton\postscript-notes\examples\bar-code>

@@ -1,6 +1,23 @@
 %!PS-Adobe-3.0
+%%Title: Bar Code
+%%Version: 1.0
+%%Creator: John O'Hanley
+%%CreationDate: 2026-02-13
+%%LanguageLevel: 3.0
+%%DocumentMedia: Plain 612.0 792.0 60 white ()
+%%DocumentNeededResources: font Helvetica
+%%BoundingBox: 0 0 612 792
+%%Orientation: Portrait 
+%%Pages: 1
+%%EndComments 
 
-% Use a library to render a bar-code.
+%%BeginDefaults 
+%%EndDefaults
+
+%%BeginProlog
+
+% USE TERRY BURTON'S EXCELLENT BAR CODE LIBRARY TO RENDER A BAR CODE.
+% 
 % The library can generate many different kinds of bar-code, including QR codes.
 %     https://github.com/bwipp/postscriptbarcode/
 %
@@ -13,25 +30,36 @@
 %  *** Warning: GenericResourceDir doesn't point to a valid resource directory.
 %               the -sGenericResourceDir=... option can be used to set this.
 
-% 10 x 10 inches
-/pg-wd 720 def
-/pg-ht 720 def
-<</PageSize [pg-wd  pg-ht]>> setpagedevice  
+%%EndProlog 
 
-/Times-Roman 15 selectfont
+%%BeginSetup               
+  /page-width  8.5 72 mul def
+  /page-height 11 72 mul def % absolute values
+  <</PageSize [page-width  page-height]>> setpagedevice  
+  << /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
+  true setstrokeadjust  % minimizes off-by-one-pixel line issues
+%%EndSetup 
 
-% Using a switch -sGenericResourceDir to point to the library:
-%  gswin64c.exe -dNOSAFER -sDEVICE=pdfwrite -sGenericResourceDir=C:\temp4\postscriptbarcode-resource-2025-03-14\Resource\ -o C:\johanley\ProjectsPhoton\postscript-play\bar-code.pdf  C:\johanley\ProjectsPhoton\postscript-play\bar-code.ps
+%%Page: 1 1
+%%BeginPageSetup 
+ /pgsave save def     
+%%EndPageSetup
 
-% the library needs a currentpoint to exist; the 'moveto' establishes that currentpoint
-300 300 moveto 
+  /Helvetica 15 selectfont
 
-% call the library to mark an ISBN code
-(978-1-86074-271 54495) (includetext) /isbn /uk.co.terryburton.bwipp findresource exec
+  % the library needs a currentpoint to exist
+  100 650 moveto 
 
-% Controlling the size of the generated bar code:
-% https://github.com/bwipp/postscriptbarcode/wiki/Resizing-Symbols
+  % call the library to mark an ISBN code
+  (978-1-86074-271 54495) (includetext) /isbn /uk.co.terryburton.bwipp findresource exec
 
-% options: https://github.com/bwipp/postscriptbarcode/wiki/ISBN
+  % Controlling the size of the generated bar code:
+  % https://github.com/bwipp/postscriptbarcode/wiki/Resizing-Symbols
 
+  % options: https://github.com/bwipp/postscriptbarcode/wiki/ISBN
+
+pgsave restore
 showpage
+%%PageTrailer
+%%Trailer    
+%%EOF 
