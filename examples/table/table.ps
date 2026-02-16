@@ -1,121 +1,45 @@
 %!PS-Adobe-3.0
+%%Title: Tables
+%%Version: 1.0
+%%Creator: John O'Hanley
+%%CreationDate: 2026-02-16
+%%LanguageLevel: 3.0
+%%DocumentMedia: Plain 612.0 792.0 60 white ()
+%%DocumentNeededResources: font Helvetica Courier
+%%BoundingBox: 0 0 612 792
+%%Orientation: Portrait 
+%%Pages: 1
+%%EndComments 
 
-% Experiment: make a table of data.
+%%BeginDefaults 
+%%EndDefaults
 
-/pg-wd 400 def
-/pg-ht 500 def
-<</PageSize [pg-wd  pg-ht]>> setpagedevice  
-/Times-Roman 20 selectfont
+%%BeginProlog
 
-% FIRST ARE GENERAL-UTILITY PROC'S THAT APPEAR IN MANY PROLOGS.
+%  BASIC TABLES. THE CELLS ARE IMPLEMENTED AS PROCS, NOT AS DATA.
 
-% array
-% return the last item in an array
-/last-entry {
-  dup
-  length 1 sub 
-  get
-} def
-
-% pass two numbers; a value and a percent
-% example '70 15 pct' is 15% of 70
-/pct {
- 0.01 mul mul
-} def
-
-% text 
-% right-align text horizontally at the currentpoint
-/show-right-align {
-  dup text-dim pop % text dx
-  -1 mul % text -dx
-  0 rmoveto % text
-  show
-} bind def
-
-% text 
-% center text horizontally AND vertically at the currentpoint
-/show-ctr-xy {
-  dup text-dim % text dx dy
-  -2 div % text dx -dy/2
-  exch % text -dy/2 dx
-  -2 div exch % text -dx/2 -dy/2
-  rmoveto % text
-  show
-} bind def
-
-% str -> dx dy
-% return the width/height (dx, dy) of the given text
-% this is useful for centering in various ways
-% https://stackoverflow.com/questions/3618194/how-to-determine-string-height-in-postscript luser droog
-/text-dim {
-  gsave
-    % the bounding box of the text
-    0 0 moveto % because charpath needs a currentpoint
-    false charpath flattenpath pathbbox % x0 y0 x1 y1
-  grestore
-  3 -1 roll sub % x0 x1 dy
-  3 1 roll sub % dy -dx
-  -1 mul % dy dx
-  exch % dx dy
-} def
-
-% str -> real
-/text-height {
-  text-dim % dx dy
-  exch pop % dy 
-} def
-
-
-% --------------------------------------------------
-
-% A SIMPLE ILLUSTRATION, TO BE PLACED IN A TABLE CELL, 
-% AS AN EXAMPLE SHOWING THAT YOU AREN'T LIMITED TO TEXT IN A TABLE CELL.
-
-% draw a simple flower at the origin
-% the caller will want to translate to the center 
-% of the drawing, and experiment with scale
-% example:
-%  4.25 inch 4.25 inch translate
-%  1 inch 1 inch scale
-%  flower
-/flower {
-1 dict begin
-  /flower-petal {
-    newpath
-      0 0 moveto      % center
-      1 0 translate   % mark a straight line 
-      15 rotate       % rotate the axis (no mark)
-      0 15 sin translate  % go 'up' a bit, to the center of the arc
-      0 0 15 sin -90 90 arc  % mark the arc
-    closepath         % back to the center
-  } def
-  0.02 setlinewidth
-  0.85 setgray
-  12 {
-    gsave
-     flower-petal gsave fill grestore  % the gray insides
-     0 setgray stroke  % the dark outline
-    grestore
-    30 rotate
-  } repeat
-end
-} bind def
-
- 
-
-% -----------------------------------------------------------------
-% HERE IS THE BASIC TABLE PROC
-% -----------------------------------------------------------------
-% table-dict -> xs ys
-% return xs ys on the stack, for the coords of all grid lines, in case 
-% the caller wants to render them in some custom manner.
+% table-dict
+% Render a table as a collection of cells. Each cell is a proc.
+% Return xs and ys on the stack, for the coords of all grid lines, in case the caller wants to render them in some custom manner.
+% The caller can either translate the origin to the top left corner of the table, or pass /left and /top in the table-dict.
+% The cells[[]] is an array of rows, top-down and left-to-right.
+% Drawing to each cell is clipped to its rectangular box.
 /basic-table {
 30 dict begin 
-  % put all of the names into the top dictionary
-  {def}forall
-  col-widths length  cells 0 get length  ne  {(NO FUN: mismatch in the number of columns.)==}if
+  % put all of the names into the new currentdict
+  {def} forall
+  col-widths length   cells 0 get length   ne  {
+    (DISAPPOINTMENT: the first row has an unexpected number of columns.) error-message
+  }if
+
+  % the position of the top-left corner
+  % if not present in the currentdict, then these are def'd as 0:
+  /left is-known not { /left 0 def } if
+  /top is-known not { /top 0 def } if
   
-  % calculate the location of grid lines, xs and ys
+  % defs: /bottom /right /xs /ys
+  % the position of the bottom-right corner is calculated from col-widths and row-ht
+  % xs and ys are the locations of vertical and horizontal grid lines, respectively
   /locate-grid-lines {
     /xs col-widths length 1 add array def
     xs 0 left put 
@@ -127,6 +51,7 @@ end
       add  
       put
     } for
+    % do the same for ys
     /ys cells length 1 add array def 
     ys 0 top put 
     1   1   ys length 1 sub {
@@ -137,12 +62,12 @@ end
     } for
     /bottom ys last-entry def
     /right xs last-entry def
-    currentdict /i undef
+    /i discard
   } def
   
   /draw-the-grid {
     newpath
-     % vertical lines, top to bottom, then left to right
+    % vertical lines, top to bottom, then left to right
     0   1   xs length 1 sub {
       xs exch get   top   moveto
       0   bottom top sub   rlineto  % line down
@@ -156,9 +81,9 @@ end
   } def
 
   % i j -> x y w h  
-  % translate 0-based cell indices (i,j) into the numbers describing the cell's box;
+  % translate 0-based cell indices (i,j) into the numbers describing the geometry of the cell's box:
   % xy coords for the bottom left of the cell, and its width and height
-  /cell-indices-to-xy {
+  /cell-indices-to-xywh {
     2 dict begin
       /j exch def
       /i exch def
@@ -172,14 +97,14 @@ end
       } if
       % y = top - (i+1) * row-ht
       top  i 1 add  row-ht  mul   sub 
-      col-widths j get   % width
-      row-ht             % height
+      col-widths j get   % w
+      row-ht             % h
     end
   } def
   
   % pct pct 
-  % move to an arbitrary spot in the cell.
-  % uses percent-width, percent-height of the cell
+  % move to an arbitrary spot in the interior of a cell.
+  % uses percent-width, percent-height of the cell.
   % WARNING: this is a low-level 'back-up', in case of need.
   % you'll see a different 'padding' when the column-width is different!
   /goto {
@@ -191,29 +116,30 @@ end
     moveto
   } def
   
-  % Convenience methods for marking cells:
-  % txt 
-  % left-align text
-  /L { pad pad moveto   show} def 
+  % PROCS THAT CAN BE USED TO CONTROL HOW THE CELL IS MARKED:
   
-  % txt 
-  % right-align text
-  /R { wd pad sub   pad moveto   show-right-align} def 
+  % str 
+  % left-align text within a cell
+  /LF {pad pad moveto   show} def 
   
-  % txt 
-  % centered text
-  /C {50 50 goto show-ctr-xy} def 
+  % str 
+  % right-align text within a cell
+  /RT {wd pad sub   pad moveto   show-right-align} def 
   
-  % Numeric font
-  % using a monospaced font for columns of numbers is usually best
-  /N {/Courier 20 selectfont} def
+  % str 
+  % middle-x the text within a cell
+  /MID {wd 50 pct   pad  moveto  show-ctr-x} def 
   
-  % Italic font
-  /I {/Times-Italic 20 selectfont} def
+  % str
+  % center-xy text within a cell
+  /CTR {50 50 goto show-ctr-xy} def 
+
+  % TRANSLATE to the middle of the cell
+  /T-MID {wd 50 pct  ht 50 pct translate} def 
   
   % gray-value 0..1
-  % shade the whole cell
-  /shaded {
+  % shade the whole cell using a grayscale value
+  /SHADE {
     gsave 
       setgray 
       0 0 wd ht rectfill
@@ -221,6 +147,13 @@ end
     grestore
   } def 
   
+  % Use a font for numbers.
+  /NUM { /Courier 12 selectfont} def
+  
+  % Use a font for text.
+  /TXT { /Helvetica 12 selectfont } def
+
+  % mark all of the cells  
   /mark-cells {
     0  1   cells length 1 sub {
       % over rows
@@ -228,32 +161,34 @@ end
       0  1   cells 0 get length 1 sub {
         /j exch def
         % over columns
-        i j cell-indices-to-xy
-        4 copy  % because we want to consume x y w h twice
+        i j cell-indices-to-xywh
+        4 copy  % to consume x y w h twice
         gsave 
-          rectclip  % clip to the cell's rect
+          rectclip % clip to the cell's rect
           4 2 roll % w h x y
           translate % translate to the bottom left of the cell
           /ht exch def
           /wd exch def
-          mark-the-cell % uses: i j ht wd
+          mark-the-cell % uses: i j ht wd in the currentdict
         grestore
       } for
     } for
   } def
-  
+
+  % mark a single cell
+  %  
   % the cell consists of one thing: a proc that marks the cell!
-  % this is the 'maximally flexible' design: it's not based on data+policies, but on CODE.
-  % the cell knows the origin is the bottom left of the cell.
+  % this is the 'maximally flexible' design: it's not based on data-plus-policies, but on CODE.
+  % the cell 'knows' the origin is the bottom left of the cell.
   /mark-the-cell {
     % just call the proc attached to the cell! nice!
-    cells i get j get exec
+    cells i get j get exec 
   } def
 
   % finally, mark the table using the proc's defined above  
   locate-grid-lines
   mark-cells
-  % in some cases, you won't want to draw this grid at all
+  % in some cases, you won't want to draw a grid at all
   show-all-grid-lines? {
     draw-the-grid 
   } if
@@ -261,44 +196,149 @@ end
   % we always return the locations of all possible grid lines
   xs
   ys 
-  % for debugging, and inspecting the names:
-  %currentdict {pop ==} forall
 end
 } def
 
 
-% --------------------------------------------------------------------
+% BELOW ARE PROCS THAT AREN'T SPECIFICALLY RELATED TO TABLES, BUT 
+% ARE USED BY THE basic-table PROCEDURE ABOVE.
 
-% CALL THE BASIC-TABLE PROC.
+% pass two numbers; a value and a percent
+% example '70 15 pct' is 15% of 70
+% note that 15% is represented here as '15', not as '0.15'
+% this simple proc is very widely used!
+/pct {
+ 0.01 mul mul
+} bind def
 
-% MOST COLUMNS OF NUMBERS SHOULD USE A MONOSPACED FONT.
-% TRYING TO CONVERT AN ARBITRARY FONT TO MONOSPACED FONT WILL USUALLY 
-% PUT YOU TEN LEAGUES DEEP IN CALAMITY.
+% multiple of the height of small 'x' in the current font
+/ex {
+ (x) text-height mul
+} def
 
-0.5 setlinewidth
-<<  
- % the origin of the table, as the top left corner
- % you can translate first to the top-left, and then pass 0 0 here if you wish
- /left pg-wd 5 pct
- /top pg-ht 90 pct
- % row-height for ALL rows, as a multiple of the height of a small 'x' in the current font
- /row-ht (x) text-height 3 mul
- /col-widths [pg-wd 22.5 pct   pg-wd 20 pct   pg-wd 25 pct  pg-wd 25 pct]
- % keeps content 'away from' the sides of the cell
- /pad (x) text-height  80 pct
- /show-all-grid-lines? true
- % the content of all cells in the table is defined as a PROC! very flexible!
- % the system translates the origin to the bottom-left of each cell, and clips each cell
- % you can define short names for text alignment procs (L,R,C), numeric-font (N), and italic-font (I):
- /cells [ 
-   [{(Mercury)L}   {N(3.14)R}             {(Flaubert)L}  {(French)L}] 
-   [{I(Venus)L}    {N 0.8 shaded (2.79)R} {(Center)C}    {wd 50 pct  ht 50 pct translate  8 8 scale flower}] 
-   % (the scale affecting the 'flower' is just hard-coded here; don't do that, I beseech you!)
- ]
->>
-basic-table
+% key 
+% return true iff the key is in the currentdict
+/is-known {
+ currentdict exch known
+} bind def
 
-pop pop % in this case, we discard the grid-line coords 
+% key
+% 'un-def' the given key from the currentdict
+/discard {
+ currentdict exch undef  
+} bind def
 
+% array
+% return the last item in an array
+/last-entry {
+  dup  length 1 sub   get
+} def
 
+% str
+% return the width/height (dx, dy) of the given text (in the current font)
+% this is useful for centering in various ways
+% https://stackoverflow.com/questions/3618194/how-to-determine-string-height-in-postscript luser droog
+/text-dim {
+  gsave
+    0 0 moveto
+    % the bounding box of the text
+    false charpath flattenpath pathbbox % x0 y0 x1 y1
+  grestore
+  3 -1 roll sub % x0 x1 dy
+  3 1 roll sub % dy -dx
+  -1 mul % dy dx
+  exch % dx dy
+}
+bind def
+
+% str -> number
+% height of the given string in the current font
+/text-height {
+  text-dim % dx dy
+  exch pop % dy 
+} def
+
+% text 
+% center text horizontally AND vertically at the currentpoint
+% WARNING: centering text vertically can give mediocre results (variations in text ascenders etc.)
+/show-ctr-xy {
+  dup text-dim % text dx dy
+  -2 div % text dx -dy/2
+  exch % text -dy/2 dx
+  -2 div exch % text -dx/2 -dy/2
+  rmoveto % text
+  show
+} bind def
+
+% text 
+% center text horizontally at the currentpoint
+/show-ctr-x {
+  dup text-dim pop % text dx
+  -2 div % text -dx/2
+  0 rmoveto % text
+  show
+} bind def
+
+% text 
+% right-align text horizontally at the currentpoint
+/show-right-align {
+  dup text-dim pop % text dx
+  -1 mul % text -dx
+  0 rmoveto % text
+  show
+} bind def
+
+%%EndProlog
+
+%%BeginSetup               
+  /page-width  8.5 72 mul def
+  /page-height 11 72 mul def % absolute values
+  <</PageSize [page-width  page-height]>> setpagedevice  
+  << /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
+  true setstrokeadjust  % minimizes off-by-one-pixel line issues
+%%EndSetup 
+
+%%Page: 1 1
+%%BeginPageSetup 
+ /pgsave save def     
+%%EndPageSetup
+
+  /Helvetica 12 selectfont 
+  /wd page-width def
+  /ht page-height def
+  
+  wd 10 pct 
+  ht 90 pct moveto (Example Table: ) show
+
+  % draw a cirle
+  % this demonstrates how you can put anything you want into a cell, because
+  % cells are implemented as procs, not data
+  /CIRCLE {
+    wd 50 pct 
+    ht 50 pct translate
+    0 0 
+    ht 30 pct 
+    0 360 arc fill
+  } def
+
+  wd 10 pct 
+  ht 85 pct translate % to the top-left of the table  
+  <<  
+    /row-ht 4 ex
+    /col-widths [wd 10 pct  wd 10 pct  wd 10 pct  wd 10 pct]
+    /pad 0.8 ex
+    /show-all-grid-lines? true
+    /cells [ 
+      [ {TXT(P1)MID} {NUM(23:18)RT} {NUM(18.4)CTR} {0.85 SHADE TXT(SSE)LF} ]
+      [ {TXT(U1)MID} {NUM(09:23)RT} {NUM(36.2)CTR} {TXT(NW)LF} ]
+      [ {TXT(U1)MID} {NUM(12:59)RT} {NUM(27.9)CTR} {CIRCLE} ]
+    ]
+  >>
+  basic-table
+  pop pop % because we don't use the returned xs and ys in this case
+  
+pgsave restore
 showpage
+%%PageTrailer
+%%Trailer    
+%%EOF 
