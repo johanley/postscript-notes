@@ -288,6 +288,38 @@ bind def
   show
 } bind def
 
+% draw a flower at the center of the cell.
+% this demonstrates how you can put anything you want into a cell, because
+% cells are implemented as procs, not data.
+/FLOWER {
+  wd 50 pct  ht 50 pct translate
+  8 dup scale
+  1 dict begin
+    /flower-petal {
+      newpath
+        0 0 moveto      % center
+        1 0 translate   % mark a straight line 
+        15 rotate       % rotate the axis (no mark)
+        0 15 sin translate  % go 'up' a bit, to the center of the arc
+        0 0 15 sin -90 90 arc  % mark the arc
+      closepath         % back to the center
+    } def
+    gsave 
+      0.02 setlinewidth
+      0.85 setgray
+      1 1 12 {
+        gsave
+         flower-petal gsave fill grestore  % the gray insides
+         0 setgray stroke  % the dark outline
+        grestore
+        30 rotate
+      } for
+    grestore
+  end
+} def
+  
+
+
 %%EndProlog
 
 %%BeginSetup               
@@ -310,17 +342,6 @@ bind def
   wd 10 pct 
   ht 90 pct moveto (Example Table: ) show
 
-  % draw a cirle
-  % this demonstrates how you can put anything you want into a cell, because
-  % cells are implemented as procs, not data
-  /CIRCLE {
-    wd 50 pct 
-    ht 50 pct translate
-    0 0 
-    ht 30 pct 
-    0 360 arc fill
-  } def
-
   wd 10 pct 
   ht 85 pct translate % to the top-left of the table  
   <<  
@@ -331,7 +352,7 @@ bind def
     /cells [ 
       [ {TXT(P1)MID} {NUM(23:18)RT} {NUM(18.4)CTR} {0.85 SHADE TXT(SSE)LF} ]
       [ {TXT(U1)MID} {NUM(09:23)RT} {NUM(36.2)CTR} {TXT(NW)LF} ]
-      [ {TXT(U1)MID} {NUM(12:59)RT} {NUM(27.9)CTR} {CIRCLE} ]
+      [ {TXT(U1)MID} {NUM(12:59)RT} {NUM(27.9)CTR} {FLOWER} ]
     ]
   >>
   basic-table
