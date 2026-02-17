@@ -1,0 +1,93 @@
+%!PS-Adobe-3.0
+%%Title: Code Snippet
+%%Version: 1.0
+%%Creator: John O'Hanley
+%%CreationDate: 2026-02-1
+%%LanguageLevel: 3.0
+%%DocumentMedia: Plain 612.0 792.0 60 white ()
+%%DocumentNeededResources: font Helvetica
+%%BoundingBox: 0 0 612 792
+%%Orientation: Portrait 
+%%Pages: 1
+%%EndComments 
+
+%%BeginDefaults 
+%%EndDefaults
+
+%%BeginProlog
+
+
+%  RENDER A (PostScript) CODE SNIPPET. USE A FIXED-WIDTH FONT. COMMENTS IN ITALICS.
+%  THIS IS A PLEASING EXAMPLE OF HOW CODE IS EASILY TREATED AS DATA IN PostScript.
+
+% {..}
+% pass a proc, and print as a string to stdout
+/demo {
+  cvlit % returns the given object, but with the literal attribute
+  /arg exch def
+  arg type /arraytype eq {(is array)==}{(is not array)==} ifelse % is array
+  arg xcheck == % false
+  arg == % [do-stuff]
+  % i want to look up the name?
+  currentdict /do-stuff known ==  % true
+  currentdict /do-stuff get type == % arraytype
+  currentdict /do-stuff get cvlit type == % arraytype
+  currentdict /do-stuff get cvlit ==  % SUCCESS '[2 3 add ==]'
+} def
+
+% IS THERE ANY WAY TO RETAIN THE WHITESPACES IN THE DEFINITION OF THE PROC? 
+% IT LOOKS LIKE THEY ARE STRIPPED AWAY.
+
+% /name
+/demo2 {
+  currentdict exch get cvlit ==  % SUCCESS '[2 3 add ==]', arraytype
+} def
+
+% /name
+/demo3 {
+  dup ==
+  ({) ==
+  load cvlit ==  % SUCCESS '[2 3 add ==]', arraytype
+  (} def)==
+} def
+
+
+/do-stuff {
+ 2 
+ 14 
+ add ==
+} def
+
+/pct { 0.01 mul mul } bind def
+
+%%EndProlog
+
+%%BeginSetup               
+  /page-width  8.5 72 mul def
+  /page-height 11 72 mul def % absolute values
+  <</PageSize [page-width  page-height]>> setpagedevice  
+  << /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
+  true setstrokeadjust  % minimizes off-by-one-pixel line issues
+%%EndSetup 
+
+%%Page: 1 1
+%%BeginPageSetup 
+ /pgsave save def     
+%%EndPageSetup
+
+  /Helvetica 24 selectfont 
+  /wd page-width def
+  /ht page-height def
+  
+  % using {} defers execution of 'do-stuff'
+  %{do-stuff} demo
+  %/do-stuff demo2
+  /do-stuff demo3
+  
+ 
+
+pgsave restore
+showpage
+%%PageTrailer
+%%Trailer    
+%%EOF 
