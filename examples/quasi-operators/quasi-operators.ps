@@ -250,6 +250,75 @@
   } def-tmp
 } bind def
 
+% str-a str-b -> bool
+% return true iff str-a starts with str-b
+/str-starts-with {
+  [/a /b] {
+    false % default
+    a 0 b length getinterval 
+    b eq {
+      not
+    } if
+  } def-tmp
+} bind def
+
+% str-a str-b -> bool
+% return true iff str-a ends with str-b
+/str-ends-with {
+  [/a /b] {
+    false % default
+    a 
+    a length b length  sub 
+    b length 
+    getinterval 
+    b eq {
+      not
+    } if
+  } def-tmp
+} bind def
+
+% str-a str-b -> bool
+% return true iff str-a contains str-b
+/str-contains {
+  search 
+  dup
+  {4 1 roll pop pop pop}
+  {exch pop} 
+  ifelse  
+} bind def
+
+% str-a str-b str-c -> str bool
+% return true iff str-a has at least 1 occurrence of str-b
+% the returned string has each occurrence of str-b replaced with str-c.
+/str-replace {
+  [/a /b /c] {
+    /result () def 
+    /result-bool false def
+    /target a def % to start with, the target of the search operation
+    {
+      target b search {
+        /result-bool true def
+        % post match pre
+        % found b in the target, so update the result
+        result exch str-concat % result + pre
+        /result defi 
+        pop % discard the match
+        /result result c str-concat def % result + c
+        % keep searching on a new target (the post/remainder)
+        /target defi
+      } 
+      {
+        % b not found in the target
+        result exch str-concat 
+        /result defi
+        exit % the loop
+      }
+      ifelse
+    } loop % until 'exit' is invoked
+    result result-bool % left on the stack
+  } def-tmp
+} bind def
+
 %%EndProlog
 
 %%BeginSetup 
@@ -325,6 +394,7 @@
   100 550 moveto
   [(pi = ) 3.14 (, e = ) 2.79] any-concat show
   
+  (str-is-whitespace:)  ==
   (abc) str-is-whitespace ==
   (abc ) str-is-whitespace ==
   ( abc ) str-is-whitespace ==
@@ -342,7 +412,8 @@
   (\000\011\012\014\015\040) str-is-whitespace ==
   (\000\011\012\014\015\040  ) str-is-whitespace ==
   (\000\011\012\014\015\040  A) str-is-whitespace ==
-  
+
+  (str-trim:)  ==
   (abc) str-trim ==
   ( DEF) str-trim ==
   (GHI ) str-trim ==
@@ -351,12 +422,38 @@
   (     XYZ    ) str-trim ==
   (         ) str-trim ==
   
-  
+
+  (str-upper-case and str-lower-case:)  ==
   (Bob Marley and the Wailers) str-upper-case ==
   (Bob Marley and the Wailers) str-lower-case ==
   (123 456 7890 +-/*!@#$%^&*\(\)) str-upper-case ==
   (123 456 7890 +-/*!@#$%^&*\(\)) str-lower-case ==
+  
+  (str-starts-with:)  ==
+  (Bob Marley) (Bob) str-starts-with ==
+  (Bob Marley) (Bob ) str-starts-with ==
+  (Bob Marley) (Bob m) str-starts-with ==
+  (Bob Marley) ( Bob) str-starts-with ==
 
+  (str-starts-with:)  ==
+  (Bob Marley) (y) str-ends-with ==
+  (Bob Marley) (Marley) str-ends-with ==
+  (Bob Marley) (  Marley) str-ends-with ==
+
+  (str-contains:)  ==
+  (Bob Marley) (Bob) str-contains ==
+  (Bob Marley) ( Mar) str-contains ==
+  (Bob Marley) ( Marley) str-contains ==
+  (Bob Marley) (y) str-contains ==
+  (Bob Marley) (BOB) str-contains ==
+  (Bob Marley) (m) str-contains ==
+  (Bob Marley) (marley) str-contains ==
+
+  (str-replace:)  ==
+  (Bob Marley) (Bob) (Ziggy) str-replace == ==
+  (This is a Stanley Kubrick Movie) (Stanley Kubrick) (Steven Speilberg) str-replace == ==
+  (This is a Stanley Kubrick Movie) (S) (s) str-replace == ==
+  (This is a Stanley Kubrick Movie) (X) (s) str-replace == ==
 
 pgsave restore
 showpage

@@ -16,9 +16,8 @@
 
 %%BeginProlog
 
-
+% TO-DO!!
 %  RENDER A (PostScript) CODE SNIPPET. USE A FIXED-WIDTH FONT. COMMENTS IN ITALICS.
-%  THIS IS A PLEASING EXAMPLE OF HOW CODE IS EASILY TREATED AS DATA IN PostScript.
 
 % {..}
 % pass a proc, and print as a string to stdout
@@ -36,7 +35,10 @@
 } def
 
 % IS THERE ANY WAY TO RETAIN THE WHITESPACES IN THE DEFINITION OF THE PROC? 
-% IT LOOKS LIKE THEY ARE STRIPPED AWAY.
+% IT LOOKS LIKE THEY ARE STRIPPED AWAY by the interpreter.
+% There's a way: define a new proc to take a string instead of a proc. 
+% The string can be converted to a proc  (but the orig str can't be recovered).
+% store the str in the dict stack for later render as a code snippet.
 
 % /name
 /demo2 {
