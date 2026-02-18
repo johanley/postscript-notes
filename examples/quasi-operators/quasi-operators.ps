@@ -18,19 +18,10 @@
 
 
 % SIMPLE PROC'S THAT FEEL MUCH LIKE BUILT-IN OPERATORS.
-% (This is of course a matter of taste.)
+% This is of course a matter of taste.
+% Your own needs and sense of taste will determine what proc's you would categorize as such.
+% Some procs are elementary; they simply read better at the point of call.
 
-% array
-% return the last item in an array
-/last {
-  dup length 1 sub  get
-} bind def
-
-% array
-% return the first item in an array
-/first {
-  0 get
-} bind def
 
 % key 
 % return true iff the key is in the currentdict
@@ -103,220 +94,24 @@
   end
 } def
 
-% str str -> str
-% concatenate exactly two strings together
-/str-concat {
-  [/a /b] {
-    /result a length b length  add string def
-    result 0         a putinterval 
-    result a length  b putinterval
-    result % leave it on the stack
-  } def-tmp
+% pass two numbers; a value and a percent
+% example '70 15 pct' is 15% of 70
+% note that 15% is represented here as '15', not as '0.15'
+% this simple proc is very widely used!
+/pct {
+ 0.01 mul mul
 } bind def
 
-% [any] -> str
-% convert items to strings using cvs (if necessary), and concatenate the strings together.
-% any items converted using cvs here must have a max string-length of 500.
-/any-concat {
-  [/anys] {
-    /result () def 
-    anys {
-      dup 
-      type /stringtype ne {
-        % a cvs conversion is needed
-        500 string cvs 
-      } if
-      result exch str-concat
-      /result defi
-    } forall
-    result % leave it on the stack
-  } def-tmp
+% array
+% return the last item in an array
+/last {
+  dup length 1 sub  get
 } bind def
 
-% str -> bool
-% return true iff all the character codes in the given string are white-space character codes.
-/str-is-whitespace {
-  [/str] {
-    % Red Book 3rd ed. page 27 and page 783 
-    % I'm including 240 here because of the prevalence of ISOLatin1.  
-    /WS [
-      0 % null
-      9 % tab
-      10 % line feed
-      12 % form feed
-      13 % carriage return
-      32 % space (the final frontier...)
-      240 % non-breaking space, in the CE and ISOLatin1 encoding 
-    ] def % character codes 
-    % char code -> bool
-    /is-in-ws-array {
-      /cc defi
-      false % default result
-      WS {
-        cc eq {
-          not exit % replace the default result
-        } if
-      } forall
-    } def
-    % scan each element of the string
-    true % default return value
-    str {
-      % int 0..255
-      is-in-ws-array not {not exit} if 
-    } forall
-  } def-tmp 
-} def
-
-% str -> str
-% remove any whitespace from the start and end of a string.
-/str-trim {
-  [/str] {
-    /first -1 def % idx of first non-space
-    /last -1 def % idx of last non-space
-    % move forward from the start, to find the first non-whitespace:
-    0 1 str length 1 sub {
-      /idx defi
-      str idx 1 getinterval  
-      str-is-whitespace not {
-        /first idx def
-        exit
-      } if
-    } for
-    % move backwards from the end, to find the last non-whitespace:
-    str length 1 sub -1 0 {
-      /idx defi
-      str idx 1 getinterval  
-      str-is-whitespace not {
-        /last idx def
-        exit
-      } if
-    } for
-    % return a substring of the given string
-    first -1 eq 
-      {()}
-      { 
-        str first
-        last first sub 1 add
-        getinterval 
-      }
-    ifelse
-  } def-tmp
-} bind def
-
-% str [a b] delta -> str
-% helper proc for implementing uppercase and lowercase for ISOLatin1.
-% return a str with the same length, but re-map (linearly) character codes from range [a b] to range [a+delta b+delta].
-/str-swap-char-code-range {
-  [/str /range /delta] {
-    range length 2 ne {
-      (DUDE, passed array must have have length 2.) ==
-    } if 
-    /result str length string def
-    /idx 0 def
-    str {
-      % int 0..255
-      /cc defi % character code
-      cc  range first  ge     
-      cc  range last   le and {
-        /cc cc delta add def
-      } if
-      % put the cc into the result
-      result idx cc put
-      /idx idx 1 add def
-    } forall
-    result
-  } def-tmp
-} bind def
-
-% str -> str
-% return a lower-case string. 
-% WARNING: THIS APPLIES TO ISOLatin1 ONLY.
-/str-lower-case {
-  [/str] {
-    /result str    [65   90] 32 str-swap-char-code-range def  % A..Z maps to a..z  101..132 octal
-    /result result [192 221] 32 str-swap-char-code-range def  % accented chars     300..335 octal
-    result
-  } def-tmp
-} bind def
-
-% str -> str
-% return an upper-case string. 
-% WARNING: THIS APPLIES TO ISOLatin1 ONLY.
-/str-upper-case {
-  [/str] {
-    /result str    [ 97 122] -32 str-swap-char-code-range def  % a..z maps to A..Z  141..172 octal
-    /result result [224 253] -32 str-swap-char-code-range def  % accented chars     340..375 octal
-    result
-  } def-tmp
-} bind def
-
-% str-a str-b -> bool
-% return true iff str-a starts with str-b
-/str-starts-with {
-  [/a /b] {
-    false % default
-    a 0 b length getinterval 
-    b eq {
-      not
-    } if
-  } def-tmp
-} bind def
-
-% str-a str-b -> bool
-% return true iff str-a ends with str-b
-/str-ends-with {
-  [/a /b] {
-    false % default
-    a 
-    a length b length  sub 
-    b length 
-    getinterval 
-    b eq {
-      not
-    } if
-  } def-tmp
-} bind def
-
-% str-a str-b -> bool
-% return true iff str-a contains str-b
-/str-contains {
-  search 
-  dup
-  {4 1 roll pop pop pop}
-  {exch pop} 
-  ifelse  
-} bind def
-
-% str-a str-b str-c -> str bool
-% return true iff str-a has at least 1 occurrence of str-b
-% the returned string has each occurrence of str-b replaced with str-c.
-/str-replace {
-  [/a /b /c] {
-    /result () def 
-    /result-bool false def
-    /target a def % to start with, the target of the search operation
-    {
-      target b search {
-        /result-bool true def
-        % post match pre
-        % found b in the target, so update the result
-        result exch str-concat % result + pre
-        /result defi 
-        pop % discard the match
-        /result result c str-concat def % result + c
-        % keep searching on a new target (the post/remainder)
-        /target defi
-      } 
-      {
-        % b not found in the target
-        result exch str-concat 
-        /result defi
-        exit % the loop
-      }
-      ifelse
-    } loop % until 'exit' is invoked
-    result result-bool % left on the stack
-  } def-tmp
+% array
+% return the first item in an array
+/first {
+  0 get
 } bind def
 
 %%EndProlog
@@ -384,76 +179,6 @@
   } def
 
   (Italy) 2016 def-many-things-at-once-more-compact
-  
-  100 700 moveto
-  (abc) (def) str-concat show
-  100 650 moveto
-  [(John) (Smith)] any-concat show
-  100 600 moveto
-  [(Abe) 3.14159] any-concat show
-  100 550 moveto
-  [(pi = ) 3.14 (, e = ) 2.79] any-concat show
-  
-  (str-is-whitespace:)  ==
-  (abc) str-is-whitespace ==
-  (abc ) str-is-whitespace ==
-  ( abc ) str-is-whitespace ==
-  () str-is-whitespace ==
-  ( ) str-is-whitespace ==
-  (  ) str-is-whitespace ==
-
-  % using octal literals
-  (\000) str-is-whitespace ==
-  (\011) str-is-whitespace ==
-  (\012) str-is-whitespace ==
-  (\014) str-is-whitespace ==
-  (\015) str-is-whitespace ==
-  (\040) str-is-whitespace ==
-  (\000\011\012\014\015\040) str-is-whitespace ==
-  (\000\011\012\014\015\040  ) str-is-whitespace ==
-  (\000\011\012\014\015\040  A) str-is-whitespace ==
-
-  (str-trim:)  ==
-  (abc) str-trim ==
-  ( DEF) str-trim ==
-  (GHI ) str-trim ==
-  ( PQR ) str-trim ==
-  (  ST ) str-trim ==
-  (     XYZ    ) str-trim ==
-  (         ) str-trim ==
-  
-
-  (str-upper-case and str-lower-case:)  ==
-  (Bob Marley and the Wailers) str-upper-case ==
-  (Bob Marley and the Wailers) str-lower-case ==
-  (123 456 7890 +-/*!@#$%^&*\(\)) str-upper-case ==
-  (123 456 7890 +-/*!@#$%^&*\(\)) str-lower-case ==
-  
-  (str-starts-with:)  ==
-  (Bob Marley) (Bob) str-starts-with ==
-  (Bob Marley) (Bob ) str-starts-with ==
-  (Bob Marley) (Bob m) str-starts-with ==
-  (Bob Marley) ( Bob) str-starts-with ==
-
-  (str-starts-with:)  ==
-  (Bob Marley) (y) str-ends-with ==
-  (Bob Marley) (Marley) str-ends-with ==
-  (Bob Marley) (  Marley) str-ends-with ==
-
-  (str-contains:)  ==
-  (Bob Marley) (Bob) str-contains ==
-  (Bob Marley) ( Mar) str-contains ==
-  (Bob Marley) ( Marley) str-contains ==
-  (Bob Marley) (y) str-contains ==
-  (Bob Marley) (BOB) str-contains ==
-  (Bob Marley) (m) str-contains ==
-  (Bob Marley) (marley) str-contains ==
-
-  (str-replace:)  ==
-  (Bob Marley) (Bob) (Ziggy) str-replace == ==
-  (This is a Stanley Kubrick Movie) (Stanley Kubrick) (Steven Speilberg) str-replace == ==
-  (This is a Stanley Kubrick Movie) (S) (s) str-replace == ==
-  (This is a Stanley Kubrick Movie) (X) (s) str-replace == ==
 
 pgsave restore
 showpage
