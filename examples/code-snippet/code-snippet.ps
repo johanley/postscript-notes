@@ -60,11 +60,10 @@
 } def
 
 % str
-% render a snippet of code with no line breaks
+% render a snippet of poetry with no line breaks
 /POE {
   (italic) 100 use-font show
 } def
-
 
 % new-name old-name 
 % create a new font from an existing one, which uses the ISOLatin1Encoding instead of the standard encoding.
@@ -183,7 +182,6 @@ end
  (M) text-height mul
 } bind def
 
-
 %%EndProlog
 
 %%BeginSetup               
@@ -213,7 +211,6 @@ end
  /pgsave save def     
 %%EndPageSetup
 
-  %/Helvetica 18 selectfont 
   (regular) 100 use-font
   
   5 93 pmoveto
@@ -237,6 +234,7 @@ end
   5 64 pmoveto
   << 
     /leading 1.75 em
+    % this could easily be made more curt, as a simple array of strings
     /lines [
       [{(O thou dissembling cub! What wilt thou be,)POE}]
       [{(When time hath sowed a grizzle on thy case?)POE}]
