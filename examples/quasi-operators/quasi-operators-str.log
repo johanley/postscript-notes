@@ -1,0 +1,76 @@
+C:\johanley\ProjectsPhoton\postscript-notes\examples\quasi-operators>C:\ghostscript\gs10.04.0\bin\gswin64c.exe -dNOSAFER -sDEVICE=pdfwrite -o quasi-operators-str.pdf quasi-operators-str.ps
+GPL Ghostscript 10.04.0 (2024-09-18)
+Copyright (C) 2024 Artifex Software, Inc.  All rights reserved.
+This software is supplied under the GNU AGPLv3 and comes with NO WARRANTY:
+see the file COPYING for details.
+Loading NimbusSans-Regular font from %rom%Resource/Font/NimbusSans-Regular... 4074648 2697415 1888176 593014 2 done.
+(str-is-whitespace:)
+false
+false
+false
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+true
+false
+(str-trim:)
+(abc)
+(DEF)
+(GHI)
+(PQR)
+(ST)
+(XYZ)
+()
+(str-upper-case and str-lower-case:)
+(BOB MARLEY AND THE WAILERS)
+(bob marley and the wailers)
+(123 456 7890 +-/*!@#$%^&*\(\))
+(123 456 7890 +-/*!@#$%^&*\(\))
+(str-starts-with:)
+true
+true
+false
+false
+(str-starts-with:)
+true
+true
+false
+(str-contains:)
+true
+true
+true
+true
+false
+false
+false
+(str-replace:)
+true
+(Ziggy Marley)
+true
+(This is a Steven Speilberg Movie)
+true
+(This is a stanley Kubrick Movie)
+false
+(This is a Stanley Kubrick Movie)
+(str-cc-count:)
+1
+1
+2
+4
+1
+1
+(str-line-count:)
+1
+0
+1
+2
+3
+
+C:\johanley\ProjectsPhoton\postscript-notes\examples\quasi-operators>
