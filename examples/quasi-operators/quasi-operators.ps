@@ -114,6 +114,58 @@
   0 get
 } bind def
 
+% [] [] -> bool
+% return true iff the arrays have the same length, and the elements at the same 
+% index are pair-wise equal using 'eq'.
+/eq-arrays {
+  [/a /b] {
+    true % default
+    a type /arraytype eq   b type /arraytype eq  and {
+      a length b length eq {
+        0  1  a length 1 sub {
+          dup  % i i 
+          a exch get % i a[i]
+          exch % a[i] i
+          b exch get % a[i] b[i]
+          ne {not exit} if  % not pair-wise equal
+        } for
+      } 
+      {not} % the same length
+      ifelse 
+    } 
+    {not} % both array-type objects
+    ifelse
+  } def-tmp
+} def
+
+% [input(s)] {the-proc} [expected-output(s)] -> bool
+% returns false iff the test fails (the target-proc's actual output is not the expected-output).
+% uses 'eq' to compare.
+% simple test harness.
+/test-eq {
+  [/inputs /the-proc /exp-outputs] {
+    true % default success
+    inputs aload pop the-proc
+    % try to match n outputs to the top n things on the stack 
+    count exp-outputs length lt {
+      not % fails
+    } 
+    { % cycle backwards, compare expected-output to stack contents
+      exp-outputs length 1 sub  -1  0 {
+        exp-outputs exch get 
+        
+        dup type /arraytype eq
+         {eq-arrays not {not exit} if} 
+         {ne {not exit} if} 
+        ifelse 
+        
+        %ne {not exit} if
+      } for
+    }
+    ifelse 
+  } def-tmp
+} bind def
+
 %%EndProlog
 
 %%BeginSetup 

@@ -362,7 +362,6 @@
 } bind def
 
 
-
 % array
 % return the last item in an array
 /last {
@@ -440,7 +439,57 @@
   end
 } def
 
+% [] [] -> bool
+% return true iff the arrays have the same length, and the elements at the same 
+% index are pair-wise equal using 'eq'.
+/eq-arrays {
+  [/a /b] {
+    true % default
+    a type /arraytype eq   b type /arraytype eq  and {
+      a length b length eq {
+        0  1  a length 1 sub {
+          dup  % i i 
+          a exch get % i a[i]
+          exch % a[i] i
+          b exch get % a[i] b[i]
+          ne {not exit} if
+        } for
+      } 
+      {not} % the same length
+      ifelse 
+    } 
+    {not} % both array-type objects
+    ifelse
+  } def-tmp
+} def
 
+% [input(s)] {the-proc} [expected-output(s)] -> bool
+% returns false iff the test fails (the target-proc's actual output is not the expected-output).
+% uses 'eq' to compare.
+% simple test harness.
+/test-eq {
+  [/inputs /the-proc /exp-outputs] {
+    true % default success
+    inputs aload pop the-proc
+    % try to match n outputs to the top n things on the stack 
+    count exp-outputs length lt {
+      not % fails
+    } 
+    { % cycle backwards, compare expected-output to stack contents
+      exp-outputs length 1 sub  -1  0 {
+        exp-outputs exch get 
+        
+        dup type /arraytype eq
+         {eq-arrays not {not exit} if} 
+         {ne {not exit} if} 
+        ifelse 
+        
+        %ne {not exit} if
+      } for
+    }
+    ifelse 
+  } def-tmp
+} bind def
 
 %%EndProlog
 
@@ -463,97 +512,127 @@
   100 550 moveto
   [(pi = ) 3.14 (, e = ) 2.79] any-concat show
   
-  (str-is-whitespace:)  ==
-  (abc) str-is-whitespace ==
-  (abc ) str-is-whitespace ==
-  ( abc ) str-is-whitespace ==
-  () str-is-whitespace ==
-  ( ) str-is-whitespace ==
-  (  ) str-is-whitespace ==
+  100 450 moveto
+  (See log output for test case results.) show
+  
 
+  /num-fails 0 def
+  /num-tests 0 def
+  % bool -> -
+  /log-it {
+    not {/num-fails num-fails 1 add def } if
+    /num-tests num-tests 1 add def
+  } def
+  
+  (str-is-whitespace tests...) ==
+  [(abc)] {str-is-whitespace} [false]   test-eq log-it 
+  [(abc )] {str-is-whitespace} [false]   test-eq log-it 
+  [( abc )] {str-is-whitespace} [false]   test-eq log-it 
+  [()] {str-is-whitespace} [true]   test-eq log-it 
+  [( )] {str-is-whitespace} [true]   test-eq log-it 
+  [(  )] {str-is-whitespace} [true]   test-eq log-it 
+  [(\r\n\t  )] {str-is-whitespace} [true]   test-eq log-it 
   % using octal literals
-  (\000) str-is-whitespace ==
-  (\011) str-is-whitespace ==
-  (\012) str-is-whitespace ==
-  (\014) str-is-whitespace ==
-  (\015) str-is-whitespace ==
-  (\040) str-is-whitespace ==
-  (\000\011\012\014\015\040) str-is-whitespace ==
-  (\000\011\012\014\015\040  ) str-is-whitespace ==
-  (\000\011\012\014\015\040  A) str-is-whitespace ==
+  [(\000)] {str-is-whitespace} [true]   test-eq log-it 
+  [(\011)] {str-is-whitespace} [true]   test-eq log-it 
+  [(\012)] {str-is-whitespace} [true]   test-eq log-it 
+  [(\014)] {str-is-whitespace} [true]   test-eq log-it 
+  [(\015)] {str-is-whitespace} [true]   test-eq log-it 
+  [(\040)] {str-is-whitespace} [true]   test-eq log-it 
+  [(\000\011\012\014\015\040)] {str-is-whitespace} [true]   test-eq log-it 
+  [(\000\011\012\014\015\040 )] {str-is-whitespace} [true]   test-eq log-it 
+  [(\000\011\012\014\015\040 A)] {str-is-whitespace} [false]   test-eq log-it 
+  [(TOTAL NUM FAILS: ) num-fails] any-concat ==
 
-  (str-trim:)  ==
-  (abc) str-trim ==
-  ( DEF) str-trim ==
-  (GHI ) str-trim ==
-  ( PQR ) str-trim ==
-  (  ST ) str-trim ==
-  (     XYZ    ) str-trim ==
-  (         ) str-trim ==
+  (str-trim test...)  ==
+  [(abc)] {str-trim} [(abc)]  test-eq log-it 
+  [( DEF)] {str-trim} [(DEF)]  test-eq log-it 
+  [(GHI )] {str-trim} [(GHI)]  test-eq log-it 
+  [( pqr )] {str-trim} [(pqr)]  test-eq log-it 
+  [(  st )] {str-trim} [(st)]  test-eq log-it 
+  [(  xyz       )] {str-trim} [(xyz)]  test-eq log-it 
+  [()] {str-trim} [()]  test-eq log-it 
+  [(\r\n\t)] {str-trim} [()]  test-eq log-it 
+  [(TOTAL NUM FAILS: ) num-fails] any-concat ==
+
+  (str-upper-case tests...)  ==
+  [(Bob Marley and the Wailers)] {str-upper-case} [(BOB MARLEY AND THE WAILERS)]  test-eq log-it 
+  [(123 456 7890 +-/*!@#$%^&*\(\))] {str-upper-case} [(123 456 7890 +-/*!@#$%^&*\(\))]  test-eq log-it 
+  [(TOTAL NUM FAILS: ) num-fails] any-concat ==
   
+  (str-lower-case tests...)  ==
+  [(Bob Marley and the Wailers)] {str-lower-case} [(bob marley and the wailers)]  test-eq log-it 
+  [(123 456 7890 +-/*!@#$%^&*\(\))] {str-lower-case} [(123 456 7890 +-/*!@#$%^&*\(\))]  test-eq log-it 
+  [(TOTAL NUM FAILS: ) num-fails] any-concat ==
 
-  (str-upper-case and str-lower-case:)  ==
-  (Bob Marley and the Wailers) str-upper-case ==
-  (Bob Marley and the Wailers) str-lower-case ==
-  (123 456 7890 +-/*!@#$%^&*\(\)) str-upper-case ==
-  (123 456 7890 +-/*!@#$%^&*\(\)) str-lower-case ==
+  (str-starts-with tests...)  ==
+  [(Bob Marley) (Bob)] {str-starts-with} [true]  test-eq log-it 
+  [(Bob Marley) (Bob )] {str-starts-with} [true]  test-eq log-it 
+  [(Bob Marley) (Bob M)] {str-starts-with} [true]  test-eq log-it 
+  [(Bob Marley) (b)] {str-starts-with} [false]  test-eq log-it 
+  [(Bob Marley) (bob)] {str-starts-with} [false]  test-eq log-it 
+  [(Bob Marley) (bob marley)] {str-starts-with} [false]  test-eq log-it 
+  [(TOTAL NUM FAILS: ) num-fails] any-concat ==
   
-  (str-starts-with:)  ==
-  (Bob Marley) (Bob) str-starts-with ==
-  (Bob Marley) (Bob ) str-starts-with ==
-  (Bob Marley) (Bob m) str-starts-with ==
-  (Bob Marley) ( Bob) str-starts-with ==
+  (str-ends-with tests...)  ==
+  [(Bob Marley) (y)] {str-ends-with} [true]  test-eq log-it 
+  [(Bob Marley) (Marley)] {str-ends-with} [true]  test-eq log-it 
+  [(Bob Marley) ( Marley)] {str-ends-with} [true]  test-eq log-it 
+  [(Bob Marley) (marley)] {str-ends-with} [false]  test-eq log-it 
+  [(TOTAL NUM FAILS: ) num-fails] any-concat ==
 
-  (str-ends-with:)  ==
-  (Bob Marley) (y) str-ends-with ==
-  (Bob Marley) (Marley) str-ends-with ==
-  (Bob Marley) (  Marley) str-ends-with ==
+  (str-contains tests...)  ==
+  [(Bob Marley) (Bob)] {str-contains} [true]  test-eq log-it 
+  [(Bob Marley) (Bob Marley)] {str-contains} [true]  test-eq log-it 
+  [(Bob Marley) ( Mar)] {str-contains} [true]  test-eq log-it 
+  [(Bob Marley) ( Marley)] {str-contains} [true]  test-eq log-it 
+  [(Bob Marley) (y)] {str-contains} [true]  test-eq log-it 
+  [(Bob Marley) (BOB)] {str-contains} [false]  test-eq log-it 
+  [(Bob Marley) (m)] {str-contains} [false]  test-eq log-it 
+  [(Bob Marley) ( Bob Marley)] {str-contains} [false]  test-eq log-it 
+  [(Bob Marley) (Bob Marley )] {str-contains} [false]  test-eq log-it 
+  [(TOTAL NUM FAILS: ) num-fails] any-concat ==
 
-  (str-contains:)  ==
-  (Bob Marley) (Bob) str-contains ==
-  (Bob Marley) ( Mar) str-contains ==
-  (Bob Marley) ( Marley) str-contains ==
-  (Bob Marley) (y) str-contains ==
-  (Bob Marley) (BOB) str-contains ==
-  (Bob Marley) (m) str-contains ==
-  (Bob Marley) (marley) str-contains ==
+  (str-replace tests...)  ==
+  [(Bob Marley) (Bob) (Ziggy)] {str-replace} [(Ziggy Marley) 1]  test-eq log-it 
+  [(This is a Stanley Kubrick Movie) (Stanley Kubrick) (Steven Speilberg)] {str-replace} [(This is a Steven Speilberg Movie) 1]  test-eq log-it 
+  [(This is a Stanley Kubrick Movie) (S) (s)] {str-replace} [(This is a stanley Kubrick Movie) 1]  test-eq log-it 
+  [(This is a Stanley Kubrick Movie) (X) (s)] {str-replace} [(This is a Stanley Kubrick Movie) 0]  test-eq log-it 
+  [(This is the first. This is the second. This is the third.) (the) (THE)] {str-replace} [(This is THE first. This is THE second. This is THE third.) 3]  test-eq log-it 
+  [(TOTAL NUM FAILS: ) num-fails] any-concat ==
 
-  (str-replace:)  ==
-  (Bob Marley) (Bob) (Ziggy) str-replace == ==
-  (This is a Stanley Kubrick Movie) (Stanley Kubrick) (Steven Speilberg) str-replace == ==
-  (This is a Stanley Kubrick Movie) (S) (s) str-replace == ==
-  (This is a Stanley Kubrick Movie) (X) (s) str-replace == ==
-  (This is the first. This is the second. This in the third.) (the) (THE) str-replace == ==
+  (str-cc-count tests...)  ==
+  [(Bob Marley) ( )] {str-cc-count} [1]  test-eq log-it 
+  [(Bob Marley) (B)] {str-cc-count} [1]  test-eq log-it 
+  [(Bob Marley) (y)] {str-cc-count} [1]  test-eq log-it 
+  [(Bob Marley and the Wailers) ( )] {str-cc-count} [4]  test-eq log-it 
+  [(Bob Marley and the Wailers\nRastaman Vibration) (\n)] {str-cc-count} [1]  test-eq log-it 
+  [(Bob Marley and the Wailers
+  Rastaman Vibration) (\n)] {str-cc-count} [1]  test-eq log-it 
+  [(Bob Marley) (X)] {str-cc-count} [0]  test-eq log-it 
+  [(TOTAL NUM FAILS: ) num-fails] any-concat ==
 
-  (str-cc-count:)  ==
-  (Bob Marley) ( ) str-cc-count == 
-  (Bob Marley) (B) str-cc-count == 
-  (Ziggy Marley) (y) str-cc-count == 
-  (Bob Marley and the Wailers) ( ) str-cc-count == 
-  (Bob Marley and the Wailers\nRastaman Vibration) (\n) str-cc-count == 
-  (Bob Marley and the Wailers
-  Rastaman Vibration) (\n) str-cc-count == 
+  (str-line-count tests...)  ==
+  [(Bob Marley)] {str-line-count} [1]  test-eq log-it 
+  [()] {str-line-count} [0]  test-eq log-it    
+  [( )] {str-line-count} [1]  test-eq log-it 
+  [(abc \n def)] {str-line-count} [2]  test-eq log-it 
+  [(abc 
+  def)] {str-line-count} [2]  test-eq log-it 
+  [(TOTAL NUM FAILS: ) num-fails] any-concat ==
 
-  (str-line-count:)  ==
-  (Bob Marley) str-line-count == 
-  () str-line-count == 
-  ( ) str-line-count == 
-  (Bob Marley and the Wailers\nRastaman Vibration) str-line-count == 
-  (Stevie Wonder
-  Songs in the Key of Life 
-  Sir Duke) str-line-count == 
+  (str-split-into-lines tests..) ==
+  [(Abc)] {str-split-into-lines} [[(Abc)]]  test-eq log-it 
+  [(One \n Two \n Three)] {str-split-into-lines} [[(One ) ( Two ) ( Three)]]  test-eq log-it 
+  [()] {str-split-into-lines} [[]]  test-eq log-it 
+  [(  )] {str-split-into-lines} [[(  )]]  test-eq log-it 
+  [(\n)] {str-split-into-lines} [[() ()]]  test-eq log-it 
+  [(Abc\n)] {str-split-into-lines} [[(Abc) ()]]  test-eq log-it 
+  [(Abc\n\n)] {str-split-into-lines} [[(Abc) () ()]]  test-eq log-it 
+  [(p \n q \n r)] {str-split-into-lines} [[(p ) ( q ) ( r)]]  test-eq log-it 
+  [(TOTAL NUM FAILS: ) num-fails] any-concat ==
+  [(TOTAL NUM TESTS: ) num-tests] any-concat ==
   
-  (str-split-into-lines:) ==
-  (One \n Two \n Three) str-split-into-lines ==
-  (Abc) str-split-into-lines ==
-  () str-split-into-lines ==
-  (   ) str-split-into-lines ==
-  (\n) str-split-into-lines ==  % wrong
-  (Abc\n) str-split-into-lines == % wrong
-  (Def\n\n) str-split-into-lines == % wrong
-  (MNP\n\n\n) str-split-into-lines == % wrong
-  (p \n q \n r) str-split-into-lines == 
-
 pgsave restore
 showpage
 %%PageTrailer
