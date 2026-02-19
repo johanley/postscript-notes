@@ -1,9 +1,8 @@
-C:\johanley\ProjectsPhoton\postscript-notes\examples\quasi-operators>C:\ghostscript\gs10.04.0\bin\gswin64c.exe -dNOSAFER -sDEVICE=pdfwrite -o quasi-operators-str.pdf quasi-operators-str.ps
 GPL Ghostscript 10.04.0 (2024-09-18)
 Copyright (C) 2024 Artifex Software, Inc.  All rights reserved.
 This software is supplied under the GNU AGPLv3 and comes with NO WARRANTY:
 see the file COPYING for details.
-Loading NimbusSans-Regular font from %rom%Resource/Font/NimbusSans-Regular... 4074648 2697415 1888176 593014 2 done.
+Loading NimbusSans-Regular font from %rom%Resource/Font/NimbusSans-Regular... 4074648 2697379 1908376 613992 2 done.
 (str-is-whitespace:)
 false
 false
@@ -38,7 +37,7 @@ true
 true
 false
 false
-(str-starts-with:)
+(str-ends-with:)
 true
 true
 false
@@ -51,14 +50,16 @@ false
 false
 false
 (str-replace:)
-true
+1
 (Ziggy Marley)
-true
+1
 (This is a Steven Speilberg Movie)
-true
+1
 (This is a stanley Kubrick Movie)
-false
+0
 (This is a Stanley Kubrick Movie)
+3
+(This is THE first. This is THE second. This in THE third.)
 (str-cc-count:)
 1
 1
@@ -72,5 +73,15 @@ false
 1
 2
 3
+(str-split-into-lines:)
+[(One ) ( Two ) ( Three)]
+[(Abc)]
+[]
+[(   )]
+[() ()]
+[(Abc) ()]
+[(Def) () ()]
+[(MNP) () () ()]
+[(p ) ( q ) ( r)]
 
 C:\johanley\ProjectsPhoton\postscript-notes\examples\quasi-operators>
