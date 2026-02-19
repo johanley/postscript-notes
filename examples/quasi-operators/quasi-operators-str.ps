@@ -50,38 +50,67 @@
   } def-tmp
 } bind def
 
+% return an array of character codes (ints), corresponding to whitespace characters.
+% WARNING: includes 240, the non-breaking space in the CE and ISOLatin1 encoding. 
+/str-whitespace {
+  % Red Book 3rd ed. page 27 and page 783 
+  % I'm including 240 here because of the prevalence of ISOLatin1.  
+  [
+    0 % null
+    9 % tab
+    10 % line feed
+    12 % form feed
+    13 % carriage return
+    32 % space (the final frontier...)
+    240 % non-breaking space, in the CE and ISOLatin1 encoding 
+  ] % character codes 
+} bind def
+
+% return an array of character codes (ints), corresponding to newline characters.
+/str-newline {
+  % Red Book 3rd ed. page 27 and page 783 
+  [
+    10 % line feed
+    13 % carriage return
+  ] % character codes 
+} bind def
+
+% char code (int) -> bool
+% return true iff the character code corresponds to whitespace.
+/str-is-cc-whitespace { 
+  [/cc] {
+    false % default result
+    str-whitespace {
+      cc eq {
+        not exit % override default
+      } if
+    } forall
+  } def-tmp
+} bind def
+
+% char code (int) -> bool
+% return true iff the character code corresponds to a newline character
+% TODO CONSOLIDATE THIS PROPERLY WITH THE SIMILAR METHOD FOR WHITESPACE
+/str-is-cc-newline { 
+  [/cc] {
+    false % default result
+    str-newline {
+      cc eq {
+        not exit % override default
+      } if
+    } forall
+  } def-tmp
+} bind def
+
 % str -> bool
 % return true iff all the character codes in the given string are white-space character codes.
 /str-is-whitespace {
-  [/str] {
-    % Red Book 3rd ed. page 27 and page 783 
-    % I'm including 240 here because of the prevalence of ISOLatin1.  
-    /WS [
-      0 % null
-      9 % tab
-      10 % line feed
-      12 % form feed
-      13 % carriage return
-      32 % space (the final frontier...)
-      240 % non-breaking space, in the CE and ISOLatin1 encoding 
-    ] def % character codes 
-    % char code -> bool
-    /is-in-ws-array {
-      /cc defi
-      false % default result
-      WS {
-        cc eq {
-          not exit % replace the default result
-        } if
-      } forall
-    } def
-    % scan each element of the string
-    true % default return value
-    str {
-      % int 0..255
-      is-in-ws-array not {not exit} if 
-    } forall
-  } def-tmp 
+  % scan each element of the string
+  true exch % default return value
+  { % scan the str
+    % int 0..255
+    str-is-cc-whitespace not {not exit} if 
+  } forall
 } def
 
 % str -> str
@@ -169,6 +198,7 @@
 
 % str-a str-b -> bool
 % return true iff str-a starts with str-b
+% TODO HANDLE EMPTY STRINGS
 /str-starts-with {
   [/a /b] {
     false % default
@@ -181,15 +211,18 @@
 
 % str-a str-b -> bool
 % return true iff str-a ends with str-b
+% returns false for an empty string
 /str-ends-with {
   [/a /b] {
     false % default
-    a 
-    a length b length  sub 
-    b length 
-    getinterval 
-    b eq {
-      not
+    a length 0 gt {
+      a 
+      a length b length  sub 
+      b length 
+      getinterval 
+      b eq {
+        not % override default
+      } if
     } if
   } def-tmp
 } bind def
@@ -204,17 +237,16 @@
   ifelse  
 } bind def
 
-% str-a str-b str-c -> str bool
-% return true iff str-a has at least 1 occurrence of str-b
+% str-a str-b str-c -> str num-replacements-made
 % the returned string has each occurrence of str-b replaced with str-c.
 /str-replace {
   [/a /b /c] {
     /result () def 
-    /result-bool false def
+    /result-count 0 def
     /target a def % to start with, the target of the search operation
     {
       target b search {
-        /result-bool true def
+        /result-count result-count 1 add def
         % post match pre
         % found b in the target, so update the result
         result exch str-concat % result + pre
@@ -232,10 +264,9 @@
       }
       ifelse
     } loop % until 'exit' is invoked
-    result result-bool % left on the stack
+    result result-count % left on the stack
   } def-tmp
 } bind def
-
 
 % str cc-str -> int
 % count the number of times a character code (cc) appears in a string
@@ -260,11 +291,16 @@
 % ()  has 0 lines.
 % ( ) has 1 line.
 % (Bob) has 1 line.
+% Lines can be empty or non-empty.
+% TODO MAYBE THIS SHOULD COERCE NEWLINES TO \N
 /str-line-count {
   [/str] {
     str length 0 eq 
     {0}
     { % do the calc on the stack
+      % this works only because the common operating systems follow a certain pattern
+      % for indicating new lines:
+      %   \r, \n, \r\n
       str (\r) str-cc-count 
       dup 0 eq {
         pop
@@ -275,6 +311,55 @@
   } def-tmp
 } bind def
 
+% str -> str
+% ensure newline characters are coerced to '\n'
+%   Windows:  (\r\n)
+%   Nix/Mac:  (\n)
+%   Old Mac:  (\r)
+/str-coerce-newlines-to-n {
+  % the order is important
+  % this impl is brittle; it depends on quirks in the data
+  (\r\n) (\n) str-replace pop
+  (\r)   (\n) str-replace pop 
+} bind def
+
+% str -> [str]
+% TODO: PASS A PROC TO DETERMINE what chars to 'split' on.
+% chop a string into an array of lines, separating on newline characters.
+% the lines can contain an empty string.
+/str-split-into-lines {
+  [/str] {
+    /str str str-coerce-newlines-to-n def
+    /cut 0 def % where to start/cut for a line 
+    /idx 0 def  % an index into the str
+    /lines str str-line-count array def % the result
+    /lines-idx 0 def
+    /found-line {
+      lines 
+      lines-idx 
+      str cut  idx cut sub   getinterval
+      put
+      /lines-idx lines-idx 1 add def
+      /cut idx 1 add def
+    } def
+    /NL (\n) 0 get def
+    str {
+      % int 0..255
+      NL eq {
+        found-line 
+      } if
+      /idx idx 1 add def
+    } forall
+    % remainders at the end; these cases are mutually exclusive
+    cut  str length 1 sub  le {
+      found-line
+    } if
+    str (\n) str-ends-with { 
+      found-line 
+    } if
+    lines
+  } def-tmp
+} bind def
 
 
 
@@ -419,7 +504,7 @@
   (Bob Marley) (Bob m) str-starts-with ==
   (Bob Marley) ( Bob) str-starts-with ==
 
-  (str-starts-with:)  ==
+  (str-ends-with:)  ==
   (Bob Marley) (y) str-ends-with ==
   (Bob Marley) (Marley) str-ends-with ==
   (Bob Marley) (  Marley) str-ends-with ==
@@ -438,6 +523,7 @@
   (This is a Stanley Kubrick Movie) (Stanley Kubrick) (Steven Speilberg) str-replace == ==
   (This is a Stanley Kubrick Movie) (S) (s) str-replace == ==
   (This is a Stanley Kubrick Movie) (X) (s) str-replace == ==
+  (This is the first. This is the second. This in the third.) (the) (THE) str-replace == ==
 
   (str-cc-count:)  ==
   (Bob Marley) ( ) str-cc-count == 
@@ -456,6 +542,17 @@
   (Stevie Wonder
   Songs in the Key of Life 
   Sir Duke) str-line-count == 
+  
+  (str-split-into-lines:) ==
+  (One \n Two \n Three) str-split-into-lines ==
+  (Abc) str-split-into-lines ==
+  () str-split-into-lines ==
+  (   ) str-split-into-lines ==
+  (\n) str-split-into-lines ==  % wrong
+  (Abc\n) str-split-into-lines == % wrong
+  (Def\n\n) str-split-into-lines == % wrong
+  (MNP\n\n\n) str-split-into-lines == % wrong
+  (p \n q \n r) str-split-into-lines == 
 
 pgsave restore
 showpage
