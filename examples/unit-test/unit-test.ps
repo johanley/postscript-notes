@@ -1,0 +1,232 @@
+%!PS-Adobe-3.0
+%%Title: Unit Tests
+%%Version: 1.0
+%%Creator: John O'Hanley
+%%CreationDate: 2026-02-20
+%%LanguageLevel: 3.0
+%%DocumentMedia: Plain 612.0 792.0 60 white ()
+%%DocumentNeededResources: font Helvetica
+%%BoundingBox: 0 0 612 792
+%%Orientation: Portrait 
+%%Pages: 1
+%%EndComments 
+
+%%BeginDefaults 
+%%EndDefaults
+
+%%BeginProlog
+
+
+% A SIMPLE WAY TO UNIT-TEST PROCS.
+
+% [input(s)] {the-proc} [expected-output(s)] -> bool
+% returns false iff the test fails.
+% a test fails iff the target-proc's actual output is not the expected-output.
+% uses 'eq' to compare values; for arrays, eq-arrays? is used.
+% when calling this proc, the stack has to have exactly 3 items.
+% TODO: DEFINE A 'DEEP-EQUALS' FOR ALL KINDS OF OBJECTS (RECURSIVE - ARRAYS OF ARRAYS, AND WHATNOT)
+/test-eq {
+  count 3 gt {
+    % just in case of an egregious error in the caller
+    (Aborting. A unit-test is being run with a larger-than-expected stack.) ==
+    false 
+  }
+  { 
+    [/inputs /the-target-proc /exp-outputs] {
+      true % default success
+      inputs aload pop the-target-proc % true actual-outputs
+      % try to match the n expected-outputs to the n corresponding actual-outputs on the stack
+      count 1 sub /num-actual-outputs defi
+      num-actual-outputs  exp-outputs length  ne {
+        % the number of actual-outputs is unexpected
+        num-actual-outputs {pop} repeat % clear the actual-outputs
+        not % fail
+      } 
+      { % cycle backwards, compare expected-output to actual-output
+        exp-outputs length 1 sub  -1  0 {
+          exp-outputs exch get 
+          dup type /arraytype eq
+           {eq-arrays? not {not exit} if} 
+           {ne             {not exit} if} 
+          ifelse 
+        } for
+      }
+      ifelse 
+    } def-tmp
+  } ifelse
+} bind def
+
+% [  [[inputs] {target-proc} [expected-outputs]]  ] -> num-tests num-fails
+% run a group of unit tests as a unit.
+% each test is run with test-eq.
+/test-eq-suite {
+  /num-tests 0 def
+  /num-fails 0 def
+  { % [[inputs] {target-proc} [expected-outputs]]
+    /num-tests num-tests 1 add def
+    aload pop % [inputs] {target-proc} [expected-outputs]
+    test-eq not {/num-fails num-fails 1 add def} if
+  } forall
+  num-tests
+  num-fails
+} bind def
+
+
+
+% key
+% 'un-def' the given key from the currentdict
+% if you only have 1-2 new items def'd in a proc, then instead of using a begin-end temporary dict,
+% you might choose to just use the currentdict, and remove (discard) the items at the end of the proc.
+/discard {
+ currentdict exch undef  
+} bind def
+
+% any /name
+% def's /name with any, with any being the next item on the stack
+%
+% any1 any2 [/name1 /name2]
+% def's /name_i with any_i, with any_N being the next N items on the stack
+%
+% an "inverted" version of 'def', with the args reversed.
+% adds items to the current-dict
+% this replaces the very common :
+%   /a exch def
+% with the slightly more curt :
+%   /a defi
+% 
+% If you need to def multiple items, then passing an array of names provides more savings:
+%   [/a /b /c] defi
+% Inspired by code seen here: https://github.com/denismm/dmmlib
+/defi {
+  count 0 eq {
+    (DUDE, the operand stack is empty. Can't def anything.) ==
+  } if
+  dup
+  type /arraytype eq
+  {
+    % any1 any2 [/name1 /name2]
+    % this silly random name avoids collisions with the currentdict (can't use a temp dict here)
+    /names-axnlywdthdenoonpartst exch def % any1 any2
+    % iterate backwards over the names-array, in order to match with the 'any_i' items
+    names-axnlywdthdenoonpartst length 1 sub  -1   0 {
+      names-axnlywdthdenoonpartst exch get exch def
+    } for
+    /names-axnlywdthdenoonpartst discard
+  }
+  {
+    % any /name 
+    exch def
+  }
+  ifelse
+} bind def
+
+% [/name] {...} 
+% use a temp dictionary for the duration of the given proc.
+% populate the temp dict using the given name-array, by consuming values already on the operand stack (below the name-array).
+% this encapsulates a common pattern for the body of many procs:
+%  10 dict begin 
+%     def'ing 1..N items from the operand stack.  
+%  end
+% the given name-array needs to have at least 1 item.
+% inside the proc, the caller can add more items to the temp dict created internally by this proc (in Language Level 2 or greater).
+/def-tmp {
+  exch dup length dict begin 
+    exch        % [/name] {...}
+    /proc defi  % [/name] 
+    defi
+    proc % this exec's the proc
+  end
+} def
+
+% [] [] -> bool
+% return true iff the arrays have the same length, and the elements at the same 
+% index are pair-wise equal using 'eq'.
+/eq-arrays? {
+  [/a /b] {
+    true % default
+    a type /arraytype eq   b type /arraytype eq  and {
+      a length b length eq {
+        0  1  a length 1 sub {
+          dup  % i i 
+          a exch get % i a[i]
+          exch % a[i] i
+          b exch get % a[i] b[i]
+          ne {not exit} if
+        } for
+      } 
+      {not} % the same length
+      ifelse 
+    } 
+    {not} % both array-type objects
+    ifelse
+  } def-tmp
+} bind def
+
+% str str -> str
+% concatenate exactly two strings together
+/str-concat {
+  [/a /b] {
+    /result a length b length  add string def
+    result 0         a putinterval 
+    result a length  b putinterval
+    result % leave it on the stack
+  } def-tmp
+} bind def
+
+% [any] -> str
+% convert items to strings using cvs (if necessary), and concatenate the strings together.
+% any items converted using cvs here must have a max string-length of 500.
+/any-concat {
+  [/anys] {
+    /result () def 
+    anys {
+      dup 
+      type /stringtype ne {
+        % a cvs conversion is needed
+        500 string cvs 
+      } if
+      result exch str-concat
+      /result defi
+    } forall
+    result % leave it on the stack
+  } def-tmp
+} bind def
+
+
+%%EndProlog
+
+%%BeginSetup 
+%%EndSetup 
+
+%%Page: 1 1
+%%BeginPageSetup 
+ /pgsave save def     
+%%EndPageSetup
+
+  %/Helvetica 24 selectfont 
+    
+  % example of a simple unit-test of the built-in 'length' operator:
+  [(Bob)] {length} [3] test-eq ==  % true
+
+  % example of a group of unit-tests gathered together 
+  % (I find this is pleasingly curt, with a minimum of boiler-plate syntax.)
+  [
+    [[(Bob)] {length} [3]]
+    [[(Bob Marley  )] {length} [12]]
+    [[(Bob Marley)] {length} [10]]
+    [[(Bob Marley)] {length} [9]] % this fails intentionally
+    [[(Bob Marley)] {length} [10 (blah)]] % this fails intentionally 
+  ]
+  test-eq-suite %  num-tests num-fails 
+  
+  [/tests /fails] defi
+  [(Num tests: ) tests ( Num fails: ) fails] any-concat ==
+
+
+ 
+
+pgsave restore
+showpage
+%%PageTrailer
+%%Trailer    
+%%EOF 
