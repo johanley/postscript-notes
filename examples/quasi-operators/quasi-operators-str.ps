@@ -361,6 +361,32 @@
   } def-tmp
 } bind def
 
+% a b -> int 
+% return 0 iff strings a and b are 'eq'-equal.
+% return -1 if as is before b, +1 if a is after b.
+% the comparison is a pair-wise comparison of character codes.
+/str-compare {
+  [/a /b] {
+    0 % default
+    a b ne {
+      0   1  a length b length min 1 sub {
+        /i defi
+        a i get  b i get lt {
+          -1 add exit
+        } if
+        a i get  b i get gt {
+          1 add exit 
+        } if
+      } for
+      dup 0 eq {
+        a length b length lt  % decide using length
+          {-1 add}
+          { 1 add} 
+        ifelse
+      } if % still no decision
+    } if % not equal
+  } def-tmp
+} bind def
 
 % array
 % return the last item in an array
@@ -501,20 +527,7 @@
  /pgsave save def     
 %%EndPageSetup
 
-  /Helvetica 24 selectfont 
-  
-  100 700 moveto
-  (abc) (def) str-concat show
-  100 650 moveto
-  [(John) (Smith)] any-concat show
-  100 600 moveto
-  [(Abe) 3.14159] any-concat show
-  100 550 moveto
-  [(pi = ) 3.14 (, e = ) 2.79] any-concat show
-  
-  100 450 moveto
-  (See log output for test case results.) show
-  
+  [(Executed using: ) product ( ) revision ( level ) languagelevel] any-concat ==
 
   /num-fails 0 def
   /num-tests 0 def
@@ -631,7 +644,41 @@
   [(Abc\n\n)] {str-split-into-lines} [[(Abc) () ()]]  test-eq log-it 
   [(p \n q \n r)] {str-split-into-lines} [[(p ) ( q ) ( r)]]  test-eq log-it 
   [(TOTAL NUM FAILS: ) num-fails] any-concat ==
+  
+  
+  (str-compare tests..) ==
+  [(abc) (abc)] {str-compare} [0]   test-eq log-it 
+  [(abc) (def)] {str-compare} [-1]  test-eq log-it 
+  [(def) (abc)] {str-compare} [1]   test-eq log-it  
+  [(abc) (abcdef)] {str-compare} [-1]   test-eq log-it 
+  [(abcdef) (abc)] {str-compare} [1]   test-eq log-it 
+  [() ()] {str-compare} [0]   test-eq log-it 
+  [( ) ( )] {str-compare} [0]   test-eq log-it 
+  [(abc\n) (abc\n)] {str-compare} [0]   test-eq log-it 
+  [(\r\n\t) (\r\n\t)] {str-compare} [0]   test-eq log-it 
+  [(\r\n\t) (\r\n\t )] {str-compare} [-1]   test-eq log-it 
+  [(123) (456)] {str-compare} [-1]   test-eq log-it 
+  [(4) (5)] {str-compare} [-1]   test-eq log-it 
+  [(5) (4)] {str-compare} [1]   test-eq log-it 
+  [(3.14) (3.14)] {str-compare} [0]   test-eq log-it 
+  [(TOTAL NUM FAILS: ) num-fails] any-concat ==
+
   [(TOTAL NUM TESTS: ) num-tests] any-concat ==
+  
+  /Helvetica 24 selectfont 
+  
+  100 700 moveto
+  (abc) (def) str-concat show
+  100 650 moveto
+  [(John) (Smith)] any-concat show
+  100 600 moveto
+  [(Abe) 3.14159] any-concat show
+  100 550 moveto
+  [(pi = ) 3.14 (, e = ) 2.79] any-concat show
+  
+  100 450 moveto
+  [(See log output for ) num-tests ( test case results.)] any-concat show
+
   
 pgsave restore
 showpage
