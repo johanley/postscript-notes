@@ -24,11 +24,13 @@ see the file COPYING for details.
 (TOTAL NUM FAILS: 0)
 (str-line-count tests...)
 (TOTAL NUM FAILS: 0)
-(str-split tests..)
+(str-lines tests..)
 (TOTAL NUM FAILS: 0)
 (str-compare tests..)
 (TOTAL NUM FAILS: 0)
-(TOTAL NUM TESTS: 88)
-Loading NimbusSans-Regular font from %rom%Resource/Font/NimbusSans-Regular... 4074648 2697607 2372976 1031541 2 done.
+(str-num-words tests...)
+(TOTAL NUM FAILS: 0)
+(TOTAL NUM TESTS: 100)
+Loading NimbusSans-Regular font from %rom%Resource/Font/NimbusSans-Regular... 4074648 2697498 2494176 1144133 2 done.
 
 C:\johanley\ProjectsPhoton\postscript-notes\examples\quasi-operators>

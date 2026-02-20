@@ -66,7 +66,8 @@
   ] % character codes 
 } bind def
 
-% return an array of character codes (ints), corresponding to newline characters.
+% return an array of character codes (ints), corresponding to whitespace characters.
+% WARNING: includes 240, the non-breaking space in the CE and ISOLatin1 encoding. 
 /str-newline {
   % Red Book 3rd ed. page 27 and page 783 
   [
@@ -75,8 +76,9 @@
   ] % character codes 
 } bind def
 
+
 % char code (int) -> bool
-% return true iff the character code corresponds to whitespace.
+% return true iff the character code corresponds to a whitespace character code.
 /str-is-cc-whitespace? { 
   [/cc] {
     false % default result
@@ -89,9 +91,8 @@
 } bind def
 
 % char code (int) -> bool
-% return true iff the character code corresponds to a newline character
-% TODO CONSOLIDATE THIS PROPERLY WITH THE SIMILAR METHOD FOR WHITESPACE
-% TODO NEVER CALLED??
+% return true iff the character code corresponds to a newline character code.
+% TODO CONSOLIDATE WITH THE WHITESPACE VERSION OF THIS PROC.
 /str-is-cc-newline? { 
   [/cc] {
     false % default result
@@ -102,6 +103,7 @@
     } forall
   } def-tmp
 } bind def
+
 
 % str -> bool
 % return true iff all the character codes in the given string are white-space character codes.
@@ -317,10 +319,9 @@
 } bind def
 
 % str -> [str]
-% TODO: PASS A PROC TO DETERMINE what chars to 'split' on.
 % chop a string into an array of lines, separating on newline characters.
 % the lines can contain an empty string.
-/str-split {
+/str-lines {
   [/str] {
     /str str str-coerce-newlines-to-n def
     /cut 0 def % where to start/cut for a line 
@@ -380,6 +381,31 @@
     } if % not equal
   } def-tmp
 } bind def
+
+% str proc -> int
+% return the number of parts that result after splitting a string on certain character codes.
+% proc takes a character code, and returns a 'true' iff the character is a 'splitting' char.
+/str-num-parts {
+  [/is-split-char] {
+    /curr false def % whether a char-code is 'kept' or not, as determined by the proc
+    /prev false def
+    0 % default result
+    exch
+    { % 0..255
+      is-split-char not /curr defi
+      % only one transition needs to be detected:
+      curr prev not and {1 add} if
+      /prev curr def
+    } forall
+  } def-tmp
+} bind def
+
+% str -> int
+/str-num-words {
+  {str-is-cc-whitespace?} 
+  str-num-parts
+} bind def
+
 
 % array
 % return the last item in an array
@@ -522,6 +548,7 @@
   /num-fails 0 def
   /num-tests 0 def
   % bool -> -
+  % record test results 
   /log-it {
     not {/num-fails num-fails 1 add def } if
     /num-tests num-tests 1 add def
@@ -626,17 +653,16 @@
   def)] {str-line-count} [2]  test-eq log-it 
   [(TOTAL NUM FAILS: ) num-fails] any-concat ==
 
-  (str-split tests..) ==
-  [(Abc)] {str-split} [[(Abc)]]  test-eq log-it 
-  [(One \n Two \n Three)] {str-split} [[(One ) ( Two ) ( Three)]]  test-eq log-it 
-  [()] {str-split} [[]]  test-eq log-it 
-  [(  )] {str-split} [[(  )]]  test-eq log-it 
-  [(\n)] {str-split} [[() ()]]  test-eq log-it 
-  [(Abc\n)] {str-split} [[(Abc) ()]]  test-eq log-it 
-  [(Abc\n\n)] {str-split} [[(Abc) () ()]]  test-eq log-it 
-  [(p \n q \n r)] {str-split} [[(p ) ( q ) ( r)]]  test-eq log-it 
+  (str-lines tests..) ==
+  [(Abc)] {str-lines} [[(Abc)]]  test-eq log-it 
+  [(One \n Two \n Three)] {str-lines} [[(One ) ( Two ) ( Three)]]  test-eq log-it 
+  [()] {str-lines} [[]]  test-eq log-it 
+  [(  )] {str-lines} [[(  )]]  test-eq log-it 
+  [(\n)] {str-lines} [[() ()]]  test-eq log-it 
+  [(Abc\n)] {str-lines} [[(Abc) ()]]  test-eq log-it 
+  [(Abc\n\n)] {str-lines} [[(Abc) () ()]]  test-eq log-it 
+  [(p \n q \n r)] {str-lines} [[(p ) ( q ) ( r)]]  test-eq log-it 
   [(TOTAL NUM FAILS: ) num-fails] any-concat ==
-  
   
   (str-compare tests..) ==
   [(abc) (abc)] {str-compare} [0]   test-eq log-it 
@@ -654,6 +680,22 @@
   [(5) (4)] {str-compare} [1]   test-eq log-it 
   [(3.14) (3.14)] {str-compare} [0]   test-eq log-it 
   [(TOTAL NUM FAILS: ) num-fails] any-concat ==
+   
+  (str-num-words tests...)  ==
+  [()] {str-num-words} [0]   test-eq log-it 
+  [( )] {str-num-words} [0]   test-eq log-it 
+  [(   )] {str-num-words} [0]   test-eq log-it 
+  [(\012)] {str-num-words} [0]   test-eq log-it 
+  [(\012\015)] {str-num-words} [0]   test-eq log-it 
+  [(abc)] {str-num-words} [1]   test-eq log-it 
+  [(abc def)] {str-num-words} [2]   test-eq log-it 
+  [(abc\tdef)] {str-num-words} [2]   test-eq log-it 
+  [(abc\ndef)] {str-num-words} [2]   test-eq log-it 
+  [(abc\t\r\n def)] {str-num-words} [2]   test-eq log-it 
+  [(abc def xyz)] {str-num-words} [3]   test-eq log-it 
+  [(   abc   def   xyz  \t\n)] {str-num-words} [3]   test-eq log-it 
+  [(TOTAL NUM FAILS: ) num-fails] any-concat ==
+  
 
   [(TOTAL NUM TESTS: ) num-tests] any-concat ==
   
