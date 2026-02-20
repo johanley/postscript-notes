@@ -117,7 +117,7 @@
 % [] [] -> bool
 % return true iff the arrays have the same length, and the elements at the same 
 % index are pair-wise equal using 'eq'.
-/eq-arrays {
+/eq-arrays? {
   [/a /b] {
     true % default
     a type /arraytype eq   b type /arraytype eq  and {
@@ -127,7 +127,7 @@
           a exch get % i a[i]
           exch % a[i] i
           b exch get % a[i] b[i]
-          ne {not exit} if  % not pair-wise equal
+          ne {not exit} if
         } for
       } 
       {not} % the same length
@@ -153,13 +153,10 @@
     { % cycle backwards, compare expected-output to stack contents
       exp-outputs length 1 sub  -1  0 {
         exp-outputs exch get 
-        
         dup type /arraytype eq
-         {eq-arrays not {not exit} if} 
+         {eq-arrays? not {not exit} if} 
          {ne {not exit} if} 
         ifelse 
-        
-        %ne {not exit} if
       } for
     }
     ifelse 

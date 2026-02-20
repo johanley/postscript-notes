@@ -77,7 +77,7 @@
 
 % char code (int) -> bool
 % return true iff the character code corresponds to whitespace.
-/str-is-cc-whitespace { 
+/str-is-cc-whitespace? { 
   [/cc] {
     false % default result
     str-whitespace {
@@ -91,7 +91,8 @@
 % char code (int) -> bool
 % return true iff the character code corresponds to a newline character
 % TODO CONSOLIDATE THIS PROPERLY WITH THE SIMILAR METHOD FOR WHITESPACE
-/str-is-cc-newline { 
+% TODO NEVER CALLED??
+/str-is-cc-newline? { 
   [/cc] {
     false % default result
     str-newline {
@@ -104,12 +105,12 @@
 
 % str -> bool
 % return true iff all the character codes in the given string are white-space character codes.
-/str-is-whitespace {
+/str-is-whitespace? {
   % scan each element of the string
   true exch % default return value
   { % scan the str
     % int 0..255
-    str-is-cc-whitespace not {not exit} if 
+    str-is-cc-whitespace? not {not exit} if 
   } forall
 } def
 
@@ -123,7 +124,7 @@
     0 1 str length 1 sub {
       /idx defi
       str idx 1 getinterval  
-      str-is-whitespace not {
+      str-is-whitespace? not {
         /first idx def
         exit
       } if
@@ -132,7 +133,7 @@
     str length 1 sub -1 0 {
       /idx defi
       str idx 1 getinterval  
-      str-is-whitespace not {
+      str-is-whitespace? not {
         /last idx def
         exit
       } if
@@ -198,30 +199,32 @@
 
 % str-a str-b -> bool
 % return true iff str-a starts with str-b
-% TODO HANDLE EMPTY STRINGS
-/str-starts-with {
+% return false if a or b is an empty string
+/str-starts-with? {
   [/a /b] {
     false % default
-    a 0 b length getinterval 
-    b eq {
-      not
-    } if
+    a length 0 gt  b length 0 gt  and {
+      a 0 b length getinterval 
+      b eq {
+        not % reverse the default
+      } if
+    } if 
   } def-tmp
 } bind def
 
 % str-a str-b -> bool
 % return true iff str-a ends with str-b
-% returns false for an empty string
-/str-ends-with {
+% return false if a or b is an empty string
+/str-ends-with? {
   [/a /b] {
     false % default
-    a length 0 gt {
+    a length 0 gt  b length 0 gt  and {
       a 
       a length b length  sub 
       b length 
       getinterval 
       b eq {
-        not % override default
+        not % reverse the default
       } if
     } if
   } def-tmp
@@ -229,7 +232,7 @@
 
 % str-a str-b -> bool
 % return true iff str-a contains str-b
-/str-contains {
+/str-contains? {
   search 
   dup
   {4 1 roll pop pop pop}
@@ -292,27 +295,17 @@
 % ( ) has 1 line.
 % (Bob) has 1 line.
 % Lines can be empty or non-empty.
-% TODO MAYBE THIS SHOULD COERCE NEWLINES TO \N
 /str-line-count {
-  [/str] {
-    str length 0 eq 
-    {0}
-    { % do the calc on the stack
-      % this works only because the common operating systems follow a certain pattern
-      % for indicating new lines:
-      %   \r, \n, \r\n
-      str (\r) str-cc-count 
-      dup 0 eq {
-        pop
-        str (\n) str-cc-count
-      } if 
-      1 add
-    } ifelse
-  } def-tmp
+  dup length 0 eq {
+    pop 0
+  } { 
+    str-coerce-newlines-to-n 
+    (\n) str-cc-count 1 add
+  } ifelse
 } bind def
 
 % str -> str
-% ensure newline characters are coerced to '\n'
+% ensure all newline characters in a given string are coerced to '\n'
 %   Windows:  (\r\n)
 %   Nix/Mac:  (\n)
 %   Old Mac:  (\r)
@@ -327,7 +320,7 @@
 % TODO: PASS A PROC TO DETERMINE what chars to 'split' on.
 % chop a string into an array of lines, separating on newline characters.
 % the lines can contain an empty string.
-/str-split-into-lines {
+/str-split {
   [/str] {
     /str str str-coerce-newlines-to-n def
     /cut 0 def % where to start/cut for a line 
@@ -354,7 +347,7 @@
     cut  str length 1 sub  le {
       found-line
     } if
-    str (\n) str-ends-with { 
+    str (\n) str-ends-with? { 
       found-line 
     } if
     lines
@@ -379,11 +372,11 @@
         } if
       } for
       dup 0 eq {
-        a length b length lt  % decide using length
+        a length b length lt 
           {-1 add}
           { 1 add} 
         ifelse
-      } if % still no decision
+      } if % still no decision after pair-wise comparisons
     } if % not equal
   } def-tmp
 } bind def
@@ -468,7 +461,7 @@
 % [] [] -> bool
 % return true iff the arrays have the same length, and the elements at the same 
 % index are pair-wise equal using 'eq'.
-/eq-arrays {
+/eq-arrays? {
   [/a /b] {
     true % default
     a type /arraytype eq   b type /arraytype eq  and {
@@ -504,13 +497,10 @@
     { % cycle backwards, compare expected-output to stack contents
       exp-outputs length 1 sub  -1  0 {
         exp-outputs exch get 
-        
         dup type /arraytype eq
-         {eq-arrays not {not exit} if} 
+         {eq-arrays? not {not exit} if} 
          {ne {not exit} if} 
         ifelse 
-        
-        %ne {not exit} if
       } for
     }
     ifelse 
@@ -537,24 +527,24 @@
     /num-tests num-tests 1 add def
   } def
   
-  (str-is-whitespace tests...) ==
-  [(abc)] {str-is-whitespace} [false]   test-eq log-it 
-  [(abc )] {str-is-whitespace} [false]   test-eq log-it 
-  [( abc )] {str-is-whitespace} [false]   test-eq log-it 
-  [()] {str-is-whitespace} [true]   test-eq log-it 
-  [( )] {str-is-whitespace} [true]   test-eq log-it 
-  [(  )] {str-is-whitespace} [true]   test-eq log-it 
-  [(\r\n\t  )] {str-is-whitespace} [true]   test-eq log-it 
+  (str-is-whitespace? tests...) ==
+  [(abc)] {str-is-whitespace?} [false]   test-eq log-it 
+  [(abc )] {str-is-whitespace?} [false]   test-eq log-it 
+  [( abc )] {str-is-whitespace?} [false]   test-eq log-it 
+  [()] {str-is-whitespace?} [true]   test-eq log-it 
+  [( )] {str-is-whitespace?} [true]   test-eq log-it 
+  [(  )] {str-is-whitespace?} [true]   test-eq log-it 
+  [(\r\n\t  )] {str-is-whitespace?} [true]   test-eq log-it 
   % using octal literals
-  [(\000)] {str-is-whitespace} [true]   test-eq log-it 
-  [(\011)] {str-is-whitespace} [true]   test-eq log-it 
-  [(\012)] {str-is-whitespace} [true]   test-eq log-it 
-  [(\014)] {str-is-whitespace} [true]   test-eq log-it 
-  [(\015)] {str-is-whitespace} [true]   test-eq log-it 
-  [(\040)] {str-is-whitespace} [true]   test-eq log-it 
-  [(\000\011\012\014\015\040)] {str-is-whitespace} [true]   test-eq log-it 
-  [(\000\011\012\014\015\040 )] {str-is-whitespace} [true]   test-eq log-it 
-  [(\000\011\012\014\015\040 A)] {str-is-whitespace} [false]   test-eq log-it 
+  [(\000)] {str-is-whitespace?} [true]   test-eq log-it 
+  [(\011)] {str-is-whitespace?} [true]   test-eq log-it 
+  [(\012)] {str-is-whitespace?} [true]   test-eq log-it 
+  [(\014)] {str-is-whitespace?} [true]   test-eq log-it 
+  [(\015)] {str-is-whitespace?} [true]   test-eq log-it 
+  [(\040)] {str-is-whitespace?} [true]   test-eq log-it 
+  [(\000\011\012\014\015\040)] {str-is-whitespace?} [true]   test-eq log-it 
+  [(\000\011\012\014\015\040 )] {str-is-whitespace?} [true]   test-eq log-it 
+  [(\000\011\012\014\015\040 A)] {str-is-whitespace?} [false]   test-eq log-it 
   [(TOTAL NUM FAILS: ) num-fails] any-concat ==
 
   (str-trim test...)  ==
@@ -578,32 +568,34 @@
   [(123 456 7890 +-/*!@#$%^&*\(\))] {str-lower-case} [(123 456 7890 +-/*!@#$%^&*\(\))]  test-eq log-it 
   [(TOTAL NUM FAILS: ) num-fails] any-concat ==
 
-  (str-starts-with tests...)  ==
-  [(Bob Marley) (Bob)] {str-starts-with} [true]  test-eq log-it 
-  [(Bob Marley) (Bob )] {str-starts-with} [true]  test-eq log-it 
-  [(Bob Marley) (Bob M)] {str-starts-with} [true]  test-eq log-it 
-  [(Bob Marley) (b)] {str-starts-with} [false]  test-eq log-it 
-  [(Bob Marley) (bob)] {str-starts-with} [false]  test-eq log-it 
-  [(Bob Marley) (bob marley)] {str-starts-with} [false]  test-eq log-it 
+  (str-starts-with? tests...)  ==
+  [(Bob Marley) (Bob)] {str-starts-with?} [true]  test-eq log-it 
+  [(Bob Marley) (Bob )] {str-starts-with?} [true]  test-eq log-it 
+  [(Bob Marley) (Bob M)] {str-starts-with?} [true]  test-eq log-it 
+  [(Bob Marley) (b)] {str-starts-with?} [false]  test-eq log-it 
+  [(Bob Marley) (bob)] {str-starts-with?} [false]  test-eq log-it 
+  [(Bob Marley) (bob marley)] {str-starts-with?} [false]  test-eq log-it 
+  [(Bob) ()] {str-starts-with?} [false]  test-eq log-it 
+  [() (Bob)] {str-starts-with?} [false]  test-eq log-it 
   [(TOTAL NUM FAILS: ) num-fails] any-concat ==
   
-  (str-ends-with tests...)  ==
-  [(Bob Marley) (y)] {str-ends-with} [true]  test-eq log-it 
-  [(Bob Marley) (Marley)] {str-ends-with} [true]  test-eq log-it 
-  [(Bob Marley) ( Marley)] {str-ends-with} [true]  test-eq log-it 
-  [(Bob Marley) (marley)] {str-ends-with} [false]  test-eq log-it 
+  (str-ends-with? tests...)  ==
+  [(Bob Marley) (y)] {str-ends-with?} [true]  test-eq log-it 
+  [(Bob Marley) (Marley)] {str-ends-with?} [true]  test-eq log-it 
+  [(Bob Marley) ( Marley)] {str-ends-with?} [true]  test-eq log-it 
+  [(Bob Marley) (marley)] {str-ends-with?} [false]  test-eq log-it 
   [(TOTAL NUM FAILS: ) num-fails] any-concat ==
 
-  (str-contains tests...)  ==
-  [(Bob Marley) (Bob)] {str-contains} [true]  test-eq log-it 
-  [(Bob Marley) (Bob Marley)] {str-contains} [true]  test-eq log-it 
-  [(Bob Marley) ( Mar)] {str-contains} [true]  test-eq log-it 
-  [(Bob Marley) ( Marley)] {str-contains} [true]  test-eq log-it 
-  [(Bob Marley) (y)] {str-contains} [true]  test-eq log-it 
-  [(Bob Marley) (BOB)] {str-contains} [false]  test-eq log-it 
-  [(Bob Marley) (m)] {str-contains} [false]  test-eq log-it 
-  [(Bob Marley) ( Bob Marley)] {str-contains} [false]  test-eq log-it 
-  [(Bob Marley) (Bob Marley )] {str-contains} [false]  test-eq log-it 
+  (str-contains? tests...)  ==
+  [(Bob Marley) (Bob)] {str-contains?} [true]  test-eq log-it 
+  [(Bob Marley) (Bob Marley)] {str-contains?} [true]  test-eq log-it 
+  [(Bob Marley) ( Mar)] {str-contains?} [true]  test-eq log-it 
+  [(Bob Marley) ( Marley)] {str-contains?} [true]  test-eq log-it 
+  [(Bob Marley) (y)] {str-contains?} [true]  test-eq log-it 
+  [(Bob Marley) (BOB)] {str-contains?} [false]  test-eq log-it 
+  [(Bob Marley) (m)] {str-contains?} [false]  test-eq log-it 
+  [(Bob Marley) ( Bob Marley)] {str-contains?} [false]  test-eq log-it 
+  [(Bob Marley) (Bob Marley )] {str-contains?} [false]  test-eq log-it 
   [(TOTAL NUM FAILS: ) num-fails] any-concat ==
 
   (str-replace tests...)  ==
@@ -634,15 +626,15 @@
   def)] {str-line-count} [2]  test-eq log-it 
   [(TOTAL NUM FAILS: ) num-fails] any-concat ==
 
-  (str-split-into-lines tests..) ==
-  [(Abc)] {str-split-into-lines} [[(Abc)]]  test-eq log-it 
-  [(One \n Two \n Three)] {str-split-into-lines} [[(One ) ( Two ) ( Three)]]  test-eq log-it 
-  [()] {str-split-into-lines} [[]]  test-eq log-it 
-  [(  )] {str-split-into-lines} [[(  )]]  test-eq log-it 
-  [(\n)] {str-split-into-lines} [[() ()]]  test-eq log-it 
-  [(Abc\n)] {str-split-into-lines} [[(Abc) ()]]  test-eq log-it 
-  [(Abc\n\n)] {str-split-into-lines} [[(Abc) () ()]]  test-eq log-it 
-  [(p \n q \n r)] {str-split-into-lines} [[(p ) ( q ) ( r)]]  test-eq log-it 
+  (str-split tests..) ==
+  [(Abc)] {str-split} [[(Abc)]]  test-eq log-it 
+  [(One \n Two \n Three)] {str-split} [[(One ) ( Two ) ( Three)]]  test-eq log-it 
+  [()] {str-split} [[]]  test-eq log-it 
+  [(  )] {str-split} [[(  )]]  test-eq log-it 
+  [(\n)] {str-split} [[() ()]]  test-eq log-it 
+  [(Abc\n)] {str-split} [[(Abc) ()]]  test-eq log-it 
+  [(Abc\n\n)] {str-split} [[(Abc) () ()]]  test-eq log-it 
+  [(p \n q \n r)] {str-split} [[(p ) ( q ) ( r)]]  test-eq log-it 
   [(TOTAL NUM FAILS: ) num-fails] any-concat ==
   
   

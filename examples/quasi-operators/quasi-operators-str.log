@@ -3,8 +3,8 @@ GPL Ghostscript 10.04.0 (2024-09-18)
 Copyright (C) 2024 Artifex Software, Inc.  All rights reserved.
 This software is supplied under the GNU AGPLv3 and comes with NO WARRANTY:
 see the file COPYING for details.
-Loading NimbusSans-Regular font from %rom%Resource/Font/NimbusSans-Regular... 4074648 2697420 1928576 621262 2 done.
-(str-is-whitespace tests...)
+(Executed using: GPL Ghostscript 10040 level 3)
+(str-is-whitespace? tests...)
 (TOTAL NUM FAILS: 0)
 (str-trim test...)
 (TOTAL NUM FAILS: 0)
@@ -12,11 +12,11 @@ Loading NimbusSans-Regular font from %rom%Resource/Font/NimbusSans-Regular... 40
 (TOTAL NUM FAILS: 0)
 (str-lower-case tests...)
 (TOTAL NUM FAILS: 0)
-(str-starts-with tests...)
+(str-starts-with? tests...)
 (TOTAL NUM FAILS: 0)
-(str-ends-with tests...)
+(str-ends-with? tests...)
 (TOTAL NUM FAILS: 0)
-(str-contains tests...)
+(str-contains? tests...)
 (TOTAL NUM FAILS: 0)
 (str-replace tests...)
 (TOTAL NUM FAILS: 0)
@@ -24,8 +24,11 @@ Loading NimbusSans-Regular font from %rom%Resource/Font/NimbusSans-Regular... 40
 (TOTAL NUM FAILS: 0)
 (str-line-count tests...)
 (TOTAL NUM FAILS: 0)
-(str-split-into-lines tests..)
+(str-split tests..)
 (TOTAL NUM FAILS: 0)
-(TOTAL NUM TESTS: 72)
+(str-compare tests..)
+(TOTAL NUM FAILS: 0)
+(TOTAL NUM TESTS: 88)
+Loading NimbusSans-Regular font from %rom%Resource/Font/NimbusSans-Regular... 4074648 2697607 2372976 1031541 2 done.
 
 C:\johanley\ProjectsPhoton\postscript-notes\examples\quasi-operators>
