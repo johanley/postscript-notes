@@ -118,6 +118,7 @@ Also of interest:
 * [A comparison with Interpress](https://www.tech-insider.org/unix/research/1985/0301.html)
 * James Gosling (creator of Java) [talking about his NeWS window system](https://www.youtube.com/watch?v=4zG0uecYSMA), based on PostScript
 * A site about [concatenative programming languages](https://concatenative.org/wiki/view/Concatenative%20language) - interesting reading! 
+* Example of a small [roll-your-own library](https://codeberg.org/Firedrake/postscript-libraries) written for filling the gaps in core PostScript.
 
 ## Tools
 * [Ghostscript](https://www.ghostscript.com/) for creating, viewing, and converting PS files, and related tasks. **Very commonly used when developing with PS.**
