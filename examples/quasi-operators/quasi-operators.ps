@@ -20,7 +20,7 @@
 % SIMPLE PROC'S THAT FEEL MUCH LIKE BUILT-IN OPERATORS.
 % This is of course a matter of taste.
 % Your own needs and sense of taste will determine what proc's you would categorize as such.
-% Some procs are elementary; they simply read better at the point of call.
+% Some procs are elementary, and simply read better at the point of call.
 
 
 % key 
@@ -104,63 +104,22 @@
 
 % array
 % return the last item in an array
+% if the array is empty, then return the null literal
 /last {
-  dup length 1 sub  get
+  dup length 0 eq
+    {pop null}
+    {dup length 1 sub  get}
+  ifelse
 } bind def
 
 % array
 % return the first item in an array
+% if the array is empty, then return the null literal
 /first {
-  0 get
-} bind def
-
-% [] [] -> bool
-% return true iff the arrays have the same length, and the elements at the same 
-% index are pair-wise equal using 'eq'.
-/eq-arrays? {
-  [/a /b] {
-    true % default
-    a type /arraytype eq   b type /arraytype eq  and {
-      a length b length eq {
-        0  1  a length 1 sub {
-          dup  % i i 
-          a exch get % i a[i]
-          exch % a[i] i
-          b exch get % a[i] b[i]
-          ne {not exit} if
-        } for
-      } 
-      {not} % the same length
-      ifelse 
-    } 
-    {not} % both array-type objects
-    ifelse
-  } def-tmp
-} bind def
-
-% [input(s)] {the-proc} [expected-output(s)] -> bool
-% returns false iff the test fails (the target-proc's actual output is not the expected-output).
-% uses 'eq' to compare.
-% simple test harness.
-/test-eq {
-  [/inputs /the-proc /exp-outputs] {
-    true % default success
-    inputs aload pop the-proc
-    % try to match n outputs to the top n things on the stack 
-    count exp-outputs length lt {
-      not % fails
-    } 
-    { % cycle backwards, compare expected-output to stack contents
-      exp-outputs length 1 sub  -1  0 {
-        exp-outputs exch get 
-        dup type /arraytype eq
-         {eq-arrays? not {not exit} if} 
-         {ne {not exit} if} 
-        ifelse 
-      } for
-    }
-    ifelse 
-  } def-tmp
+  dup length 0 eq 
+    {pop null}
+    {0 get}
+  ifelse
 } bind def
 
 % a b /target-type -> bool
@@ -212,6 +171,144 @@
   } def-tmp
 } bind def
 
+% [input(s)] {the-proc} [expected-output(s)] -> bool
+% returns false iff the test fails.
+% a test fails iff the target-proc's actual output is not the expected-output.
+% uses 'deep-eq' to compare values.
+% when calling this proc, the stack has to have exactly 3 items.
+/unit-test {
+  count 3 gt {
+    % just in case of an egregious error in the caller
+    (Aborting. A unit-test is being run with a larger-than-expected stack.) ==
+    false 
+  }
+  { 
+    [/inputs /the-target-proc /exp-outputs] {
+      true % default success
+      inputs aload pop the-target-proc % true actual-outputs
+      % try to match the n expected-outputs to the n corresponding actual-outputs on the stack
+      count 1 sub /num-actual-outputs defi
+      num-actual-outputs  exp-outputs length  ne {
+        % the number of actual-outputs is unexpected
+        num-actual-outputs {pop} repeat % remove actual-outputs from the stack
+        not % fail
+      } 
+      { % cycle backwards; compare expected-outputs to actual-outputs on the stack 
+        exp-outputs length 1 sub  -1  0 {
+          exp-outputs exch get 
+          deep-eq? not {not exit} if
+          % dup type /arraytype eq
+           % {eq-arrays? not {not exit} if} 
+           % {ne             {not exit} if} 
+          % ifelse 
+        } for
+      }
+      ifelse 
+    } def-tmp
+  } ifelse
+} bind def
+
+% [  [[inputs] {target-proc} [expected-outputs]]  ] -> num-tests num-fails
+% run a group of unit tests as a unit.
+% each test is run with unit-test.
+/unit-test-suite {
+  /num-tests 0 def
+  /num-fails 0 def
+  { % [[inputs] {target-proc} [expected-outputs]]
+    /num-tests num-tests 1 add def
+    aload pop % [inputs] {target-proc} [expected-outputs]
+    unit-test not {/num-fails num-fails 1 add def} if
+  } forall
+  num-tests
+  num-fails
+} bind def
+
+/quasi-operators-run-unit-tests {
+  [
+    [ [1 100] {pct} [1] ]
+    [ [-1 100] {pct} [-1] ]
+    [ [100 -1] {pct} [-1] ]
+    [ [100 100] {pct} [100] ]
+    [ [0 100] {pct} [0] ]
+    %[ [100 -20] {pct} [-20] ]  % this fails because of rounding, which I haven't accounted for
+    [ [100 50] {pct} [50] ]
+    
+    [ [1 5 /integertype] {same-type?} [true] ]
+    [ [1 5.0 /integertype] {same-type?} [false] ]
+    [ [1.0 5.0 /realtype] {same-type?} [true] ]
+    [ [1 5.0 /realtype] {same-type?} [false] ]
+    [ [(a) (b) /stringtype] {same-type?} [true] ]
+    [ [[1 (a)] [true] /arraytype] {same-type?} [true] ]
+
+    [ [[1 2]] {last} [2] ]
+    [ [[1]] {last} [1] ]
+    [ [[]] {last} [null] ]
+
+    [ [[1 2]] {first} [1] ]
+    [ [[(a)]] {first} [(a)] ]
+    [ [[]] {first} [null] ]
+
+    [ [1 1] {deep-eq?} [true] ]
+    [ [(a) (a)] {deep-eq?} [true] ]
+    [ [(a) /a] {deep-eq?} [true] ]  % valid! see the docs for 'eq'
+    [ [/a (a)] {deep-eq?} [true] ]
+    [ [/abc /abc] {deep-eq?} [true] ]
+    [ [1.1 1.1] {deep-eq?} [true] ]
+    [ [1 1.0] {deep-eq?} [true] ]
+    [ [true true] {deep-eq?} [true] ]
+    [ [null null] {deep-eq?} [true] ]
+    [ [ [1 2 3] [1 2 3] ] {deep-eq?} [true] ]
+    [ [ 
+        [1 2 [3 4]] 
+        [1 2 [3 4]] ] {deep-eq?} [true] ]
+    [ [ <<(a) 123>> <<(a) 123>> ] {deep-eq?} [true] ]
+    [ [ <<(a) 123>> <</a 123>> ] {deep-eq?} [true] ]
+    
+    [ [1 0] {deep-eq?} [false] ]
+    [ [(a) (b)] {deep-eq?} [false] ]
+    [ [1 (a)] {deep-eq?} [false] ]
+    [ [ [1 2 3] [1 2] ] {deep-eq?} [false] ]
+    [ [ 
+        [1 2 [3 4]] 
+        [1 2 [3 5]] ] {deep-eq?} [false] ]
+    [ [ <<(a) 123>> <<(a) 124>> ] {deep-eq?} [false] ]
+    [ [ <<(a) 123>> <<(a) 123 (b) 456>> ] {deep-eq?} [false] ]
+
+  ]
+  unit-test-suite
+} def
+
+
+% str str -> str
+% concatenate exactly two strings together
+/str-concat {
+  [/a /b] {
+    /result a length b length  add string def
+    result 0         a putinterval 
+    result a length  b putinterval
+    result % leave it on the stack
+  } def-tmp
+} bind def
+
+% [any] -> str
+% convert items to strings using cvs (if necessary), and concatenate the strings together.
+% any items converted using cvs here must have a max string-length of 500.
+/any-concat {
+  [/anys] {
+    /result () def 
+    anys {
+      dup 
+      type /stringtype ne {
+        % a cvs conversion is needed
+        500 string cvs 
+      } if
+      result exch str-concat
+      /result defi
+    } forall
+    result % leave it on the stack
+  } def-tmp
+} bind def
+
 %%EndProlog
 
 %%BeginSetup 
@@ -223,7 +320,8 @@
 %%EndPageSetup
 
   /Helvetica 24 selectfont 
- 
+  [(Executed using: ) product ( ) revision ( level ) languagelevel] any-concat ==
+
   /is-blah-in-currentdict { 
     /blah is-known 
     {(/blah is in currentdict) ==}
@@ -278,8 +376,9 @@
 
   (Italy) 2016 def-many-things-at-once-more-compact
   
-  %[1 2 3] [1 2 3] deep-eq? ==
-  %<<(a) 1 (b) 3>> <<(a) 1 (b) (blah)>> deep-eq? ==
+  quasi-operators-run-unit-tests
+  [/tests /fails] defi
+  [(Num tests: ) tests ( Num fails: ) fails] any-concat ==
 
 pgsave restore
 showpage

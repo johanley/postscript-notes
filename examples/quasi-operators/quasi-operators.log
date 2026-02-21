@@ -1,9 +1,10 @@
-C:\johanley\ProjectsPhoton\postscript-notes\examples\quasi-operators>C:\ghostscript\gs10.04.0\bin\gswin64c.exe -dNOSAFER -sDEVICE=pdfwrite -o quasi-operators.pdf quasi-operators.ps
+C:\johanley\ProjectsPhoton\postscript-notes\examples\quasi-operators>C:\ghostscript\gs10.04.0\bin\gswin64c.exe -dNOSAFER -sDEVICE=pdfwrite -o quasi-operatons.pdf quasi-operators.ps
 GPL Ghostscript 10.04.0 (2024-09-18)
 Copyright (C) 2024 Artifex Software, Inc.  All rights reserved.
 This software is supplied under the GNU AGPLv3 and comes with NO WARRANTY:
 see the file COPYING for details.
-Loading NimbusSans-Regular font from %rom%Resource/Font/NimbusSans-Regular... 4074648 2697029 1847776 550311 2 done.
+Loading NimbusSans-Regular font from %rom%Resource/Font/NimbusSans-Regular... 4074648 2697380 1875736 584455 2 done.
+(Executed using: GPL Ghostscript 10040 level 3)
 (/blah is in currentdict)
 (/blah is NOT in currentdict)
 (/blah is NOT in currentdict)
@@ -14,5 +15,6 @@ Loading NimbusSans-Regular font from %rom%Resource/Font/NimbusSans-Regular... 40
 (The country and year:)
 (Italy)
 2016
+(Num tests: 38 Num fails: 0)
 
 C:\johanley\ProjectsPhoton\postscript-notes\examples\quasi-operators>

@@ -18,14 +18,15 @@
 
 
 % A SIMPLE WAY TO UNIT-TEST PROCS.
+% The procs are tested for their input-output behavior here.
+% Any side-effects of a proc are not tested here.
 
 % [input(s)] {the-proc} [expected-output(s)] -> bool
 % returns false iff the test fails.
 % a test fails iff the target-proc's actual output is not the expected-output.
-% uses 'eq' to compare values; for arrays, eq-arrays? is used.
+% uses 'deep-eq' to compare values.
 % when calling this proc, the stack has to have exactly 3 items.
-% TODO: DEFINE A 'DEEP-EQUALS' FOR ALL KINDS OF OBJECTS (RECURSIVE - ARRAYS OF ARRAYS, AND WHATNOT)
-/test-eq {
+/unit-test {
   count 3 gt {
     % just in case of an egregious error in the caller
     (Aborting. A unit-test is being run with a larger-than-expected stack.) ==
@@ -39,16 +40,17 @@
       count 1 sub /num-actual-outputs defi
       num-actual-outputs  exp-outputs length  ne {
         % the number of actual-outputs is unexpected
-        num-actual-outputs {pop} repeat % clear the actual-outputs
+        num-actual-outputs {pop} repeat % remove actual-outputs from the stack
         not % fail
       } 
-      { % cycle backwards, compare expected-output to actual-output
+      { % cycle backwards; compare expected-outputs to actual-outputs on the stack 
         exp-outputs length 1 sub  -1  0 {
           exp-outputs exch get 
-          dup type /arraytype eq
-           {eq-arrays? not {not exit} if} 
-           {ne             {not exit} if} 
-          ifelse 
+          deep-eq? not {not exit} if
+          % dup type /arraytype eq
+           % {eq-arrays? not {not exit} if} 
+           % {ne             {not exit} if} 
+          % ifelse 
         } for
       }
       ifelse 
@@ -58,18 +60,20 @@
 
 % [  [[inputs] {target-proc} [expected-outputs]]  ] -> num-tests num-fails
 % run a group of unit tests as a unit.
-% each test is run with test-eq.
-/test-eq-suite {
+% each test is run with unit-test.
+/unit-test-suite {
   /num-tests 0 def
   /num-fails 0 def
   { % [[inputs] {target-proc} [expected-outputs]]
     /num-tests num-tests 1 add def
     aload pop % [inputs] {target-proc} [expected-outputs]
-    test-eq not {/num-fails num-fails 1 add def} if
+    unit-test not {/num-fails num-fails 1 add def} if
   } forall
   num-tests
   num-fails
 } bind def
+
+
 
 
 
@@ -138,30 +142,6 @@
   end
 } def
 
-% [] [] -> bool
-% return true iff the arrays have the same length, and the elements at the same 
-% index are pair-wise equal using 'eq'.
-/eq-arrays? {
-  [/a /b] {
-    true % default
-    a type /arraytype eq   b type /arraytype eq  and {
-      a length b length eq {
-        0  1  a length 1 sub {
-          dup  % i i 
-          a exch get % i a[i]
-          exch % a[i] i
-          b exch get % a[i] b[i]
-          ne {not exit} if
-        } for
-      } 
-      {not} % the same length
-      ifelse 
-    } 
-    {not} % both array-type objects
-    ifelse
-  } def-tmp
-} bind def
-
 % str str -> str
 % concatenate exactly two strings together
 /str-concat {
@@ -192,6 +172,56 @@
   } def-tmp
 } bind def
 
+% a b /target-type -> bool
+% return true iff both a and b have the given target-type, such as /arraytype.
+/same-type? {
+  [/a /b /target-type] {
+    a type target-type eq
+    b type target-type eq and
+  } def-tmp
+} bind def
+
+% a b -> bool
+% a 'deep' version of the eq operator.
+% special handling for pairs of arrays and pairs dicts.
+/deep-eq? {
+  [/a /b] {
+    true % default 
+    a b /dicttype same-type?  not
+    a b /arraytype same-type? not and { 
+      a b ne {not} if % regular eq / ne
+    } if
+    
+    a b /arraytype same-type? {
+      a length  b length  ne 
+        {not} 
+        { % compare pairwise, but use a recursive call
+          0 1 a length 1 sub {
+            /i defi
+            a i get  b i get  deep-eq? not {not exit} if
+          } for
+        } 
+      ifelse
+    } if
+    
+    a b /dicttype same-type? {
+      a length  b length  ne
+      {not} 
+      { % compare keys and values
+        a {
+          [/key /value] defi
+          b key known not 
+            {not exit} 
+            {b key get  value  deep-eq? not {not exit} if} 
+          ifelse
+        } forall
+      } 
+      ifelse
+    } if
+  } def-tmp
+} bind def
+
+
 
 %%EndProlog
 
@@ -206,7 +236,7 @@
   %/Helvetica 24 selectfont 
     
   % example of a simple unit-test of the built-in 'length' operator:
-  [(Bob)] {length} [3] test-eq ==  % true
+  [(Bob)] {length} [3] unit-test ==  % true
 
   % example of a group of unit-tests gathered together 
   % (I find this is pleasingly curt, with a minimum of boiler-plate syntax.)
@@ -217,8 +247,7 @@
     [[(Bob Marley)] {length} [9]] % this fails intentionally
     [[(Bob Marley)] {length} [10 (blah)]] % this fails intentionally 
   ]
-  test-eq-suite %  num-tests num-fails 
-  
+  unit-test-suite %  num-tests num-fails 
   [/tests /fails] defi
   [(Num tests: ) tests ( Num fails: ) fails] any-concat ==
 

@@ -1,37 +1,10 @@
-C:\johanley\ProjectsPhoton\postscript-notes\examples\quasi-operators>C:\ghostscript\gs10.04.0\bin\gswin64c.exe -dNOSAFER -sDEVICE=pdfwrite -o quasi-operators-str.pdf quasi-operators-str.ps
+C:\johanley\ProjectsPhoton\postscript-notes\examples\quasi-operators>C:\ghostscript\gs10.04.0\bin\gswin64c.exe -dNOSAFER -sDEVICE=pdfwrite -o quasi-operatons-str.pdf quasi-operators-str.ps
 GPL Ghostscript 10.04.0 (2024-09-18)
 Copyright (C) 2024 Artifex Software, Inc.  All rights reserved.
 This software is supplied under the GNU AGPLv3 and comes with NO WARRANTY:
 see the file COPYING for details.
 (Executed using: GPL Ghostscript 10040 level 3)
-Loading NimbusSans-Regular font from %rom%Resource/Font/NimbusSans-Regular... 4074648 2697516 1966744 663763 2 done.
-(Running str unit tests.)
-(str-is-whitespace? tests...)
-(TOTAL NUM FAILS: 0)
-(str-trim test...)
-(TOTAL NUM FAILS: 0)
-(str-upper-case tests...)
-(TOTAL NUM FAILS: 0)
-(str-lower-case tests...)
-(TOTAL NUM FAILS: 0)
-(str-starts-with? tests...)
-(TOTAL NUM FAILS: 0)
-(str-ends-with? tests...)
-(TOTAL NUM FAILS: 0)
-(str-contains? tests...)
-(TOTAL NUM FAILS: 0)
-(str-replace tests...)
-(TOTAL NUM FAILS: 0)
-(str-cc-count tests...)
-(TOTAL NUM FAILS: 0)
-(str-line-count tests...)
-(TOTAL NUM FAILS: 0)
-(str-lines tests..)
-(TOTAL NUM FAILS: 0)
-(str-compare tests..)
-(TOTAL NUM FAILS: 0)
-(str-num-words tests...)
-(TOTAL NUM FAILS: 0)
-(TOTAL NUM TESTS: 100)
+Loading NimbusSans-Regular font from %rom%Resource/Font/NimbusSans-Regular... 4074648 2697745 1965048 672875 2 done.
+(Num tests: 102 Num fails: 0)
 
 C:\johanley\ProjectsPhoton\postscript-notes\examples\quasi-operators>
