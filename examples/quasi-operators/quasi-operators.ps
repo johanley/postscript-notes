@@ -163,6 +163,55 @@
   } def-tmp
 } bind def
 
+% a b /target-type -> bool
+% return true iff both a and b have the given target-type, such as /arraytype.
+/same-type? {
+  [/a /b /target-type] {
+    a type target-type eq
+    b type target-type eq and
+  } def-tmp
+} bind def
+
+% a b -> bool
+% a 'deep' version of the eq operator.
+% special handling for pairs of arrays and pairs dicts.
+/deep-eq? {
+  [/a /b] {
+    true % default 
+    a b /dicttype same-type?  not
+    a b /arraytype same-type? not and { 
+      a b ne {not} if % regular eq / ne
+    } if
+    
+    a b /arraytype same-type? {
+      a length  b length  ne 
+        {not} 
+        { % compare pairwise, but use a recursive call
+          0 1 a length 1 sub {
+            /i defi
+            a i get  b i get  deep-eq? not {not exit} if
+          } for
+        } 
+      ifelse
+    } if
+    
+    a b /dicttype same-type? {
+      a length  b length  ne
+      {not} 
+      { % compare keys and values
+        a {
+          [/key /value] defi
+          b key known not 
+            {not exit} 
+            {b key get  value  deep-eq? not {not exit} if} 
+          ifelse
+        } forall
+      } 
+      ifelse
+    } if
+  } def-tmp
+} bind def
+
 %%EndProlog
 
 %%BeginSetup 
@@ -228,6 +277,9 @@
   } def
 
   (Italy) 2016 def-many-things-at-once-more-compact
+  
+  %[1 2 3] [1 2 3] deep-eq? ==
+  %<<(a) 1 (b) 3>> <<(a) 1 (b) (blah)>> deep-eq? ==
 
 pgsave restore
 showpage
