@@ -22,7 +22,7 @@
 % See below for an example dict.
 % Render a table as a collection of cells. Each cell is a proc.
 % Return xs and ys on the stack, for the coords of all grid lines, in case the caller wants to render them in some custom manner.
-% The caller can either translate the origin to the top left corner of the table, or pass /left and /top in the table-dict.
+% The caller translates the origin to the top left corner of the table.
 % The cells[[]] is an array of rows, top-down and left-to-right.
 % Drawing to each cell is clipped to its rectangular box.
 /basic-table {
@@ -34,9 +34,8 @@
   }if
 
   % the position of the top-left corner
-  % if not present in the currentdict, then these are def'd as 0:
-  /left is-known not { /left 0 def } if
-  /top is-known not { /top 0 def } if
+  /left 0 def 
+  /top 0 def
   
   % defs: /bottom /right /xs /ys
   % the position of the bottom-right corner is calculated from col-widths and row-ht
