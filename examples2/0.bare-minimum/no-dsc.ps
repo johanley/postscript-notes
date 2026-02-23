@@ -1,0 +1,22 @@
+%!PS
+
+% This file is intended for execution by a PostScript interpreter.
+% Its first-line header indicates to tools that the file is an executable PostScript file. 
+% That information is NOT used by the PS interpreter, but by other tools.
+
+% This style can be used when no document is produced (as is the case here)
+% It might also be used when the document does NOT conform to the Document Structuring Conventions (DSC).
+
+% output to stdout, information about the PS interpreter
+product ==
+revision ==
+languagelevel ==
+
+% an example of including a PS file in another.
+(included-file.ps) run
+
+% use the procedure defined in the included file
+3.14 2.79 midpoint ==
+
+% terminate the interpreter
+quit
