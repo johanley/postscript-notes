@@ -1,0 +1,38 @@
+C:\johanley\ProjectsPhoton\postscript-notes\examples2\04.debug>C:\ghostscript\gs10.04.0\bin\gswin64c.exe -dNOSAFER -sDEVICE=pdfwrite -o debug-use.pdf debug-use.ps
+GPL Ghostscript 10.04.0 (2024-09-18)
+Copyright (C) 2024 Artifex Software, Inc.  All rights reserved.
+This software is supplied under the GNU AGPLv3 and comes with NO WARRANTY:
+see the file COPYING for details.
+(using.ps is initializing...)
+(debug.ps)
+(  running...)
+(../01.base/base.ps)
+(  running...)
+(Starting: page 1 of 1.)
+Loading NimbusSans-Regular font from %rom%Resource/Font/NimbusSans-Regular... 4074648 2697453 2023032 704697 2 done.
+(in:do-wonderful-things)
+(out:do-wonderful-things)
+(what's on the stack here?)
+(-- operand stack {)
+70
+10
+(-- })
+(Keys in currentdict:)
+(-- currentdict keys {)
+/shoe-size
+/name
+(-- })
+(Keys and values in currentdict:)
+(-- currentdict {)
+8
+/shoe-size
+(Bob)
+/name
+(-- })
+(---- TO ERR IS HUMAN; THY STACK IS NOT EMPTY. THY 'RESTORE' OPERATION MAY FAIL...: )
+(-- operand stack {)
+15
+(-- })
+(Ending: page 1 of 1.)
+
+C:\johanley\ProjectsPhoton\postscript-notes\examples2\04.debug>

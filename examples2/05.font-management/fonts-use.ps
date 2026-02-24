@@ -1,0 +1,108 @@
+%!PS-Adobe-3.0
+%%Title: Font Management (Helvetica)
+%%Version: 1.0
+%%Creator: John O'Hanley
+%%CreationDate: 2026-02-24
+%%LanguageLevel: 3.0
+%%DocumentMedia: Plain 612.0 792.0 60 white ()
+%%DocumentNeededResources: font Helvetica Helvetica-Oblique Helvetica-Bold Courier Symbol
+%%BoundingBox: 0 0 612 792
+%%Orientation: Portrait 
+%%Pages: 1
+%%EndComments 
+
+%%BeginDefaults 
+%%EndDefaults
+
+%%BeginProlog
+
+(../02.using/using.ps) run
+(../01.base/base.ps) using
+(fonts.ps) using
+
+% THIS EXAMPLE USES FONTS THAT ARE PART OF THE BUILT-IN DEFAULT FONTS FOR POSTSCRIPT/PDF.
+
+  % x-pct y-pct 
+  % Moveto, but using percentages of /page-width and /page-height.
+  /pmoveto {
+    page-height exch pct % x-pct y
+    exch % y x-pct
+    page-width exch pct % y x
+    exch % x y 
+    moveto 
+  } bind def
+
+%%EndProlog 
+
+%%BeginSetup               
+
+  /page-width  8.5 72 mul def
+  /page-height 11 72 mul def % absolute values
+  <</PageSize [page-width  page-height]>> setpagedevice  
+  << /NeverEmbed [ ] >> setdistillerparams
+  true setstrokeadjust  % minimizes off-by-one-pixel line issues
+  
+  % Define new fonts that are usually 'latinized' versions of an existing font.
+  % Helvetica is an Adobe Type 1 font, with FontMatrix [0.001 0 0 0.001 0 0]
+  /MyRegular /Helvetica latinize
+  /MyItalic  /Helvetica-Oblique latinize
+  /MyBold    /Helvetica-Bold latinize
+  /MyNumeric /Courier   latinize  % this is also a built-in font
+  % later, you'll be using the strings to identify which font you want to use:
+  << 
+    (regular) /MyRegular
+    (italic)  /MyItalic
+    (bold)    /MyBold
+    (numeric) /MyNumeric
+    (symbol)  /Symbol  % not 'latinized'
+  >>
+  page-height 1.5 pct 
+  init-my-fonts
+  
+%%EndSetup 
+
+%%Page: 1 1
+%%BeginPageSetup 
+ /pgsave save def     
+%%EndPageSetup
+
+  % the 'use-font' proc uses a size as a percent of /default-font-size
+  (regular) 100 use-font 
+  10 90 pmoveto (Regular 100) show
+  
+  % the 'r-use-font' proc uses a size as a percent of the current font size
+  % let's reduce the font to 80% of its current font size, three times in a row
+  (regular) 80 r-use-font 
+  30 90 pmoveto (80% current size) show  % 0.8
+  (regular) 80 r-use-font 
+  50 90 pmoveto (80% current size) show  % 0.8^2 = 0.64
+  (regular) 80 r-use-font 
+  70 90 pmoveto (80% current size) show  % 0.8^3 = 0.512
+
+  (regular) 60 use-font 
+  10 85 pmoveto (Regular 60) show
+
+  (italic) 100 use-font 
+  10 80 pmoveto (Italic 100) show
+
+  (bold) 100 use-font 
+  10 75 pmoveto (Bold 100) show
+
+  (numeric) 100 use-font 
+  10 70 pmoveto (Numeric 100) show
+
+  (symbol) 150 use-font 
+  10 65 pmoveto (Symbol 100) show  % this outputs Greek-letter analogs - Sigma for S, and so on
+  30 65 pmoveto (\141 \142 \147) show  % this uses octal literals for alpha, beta, gamma; see the PostScript Language Reference.
+
+  10 60 pmoveto 
+  (\362 \266f \345) show  % the integral sign is too small
+
+  10 55 pmoveto 
+  (\341f \174 y\361) show 
+
+pgsave restore
+showpage
+%%PageTrailer
+%%Trailer    
+%%EOF 

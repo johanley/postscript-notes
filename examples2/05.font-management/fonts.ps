@@ -1,0 +1,103 @@
+
+(../01.base/base.ps) using
+
+% INITIALIZE THE FONTS YOU WANT TO USE, AND QUICKLY SWITCH BETWEEN THEM.
+%
+% NOTE: IF YOU 'LATINIZE' FONTS, THE TEXTUAL ENCODING OF YOUR POSTSCRIPT FILES SHOULD BE 8859-1 (ISOlatin1).
+%
+% This code creates two objects in the currentdict as a side-effect:
+%   - a dict named 'my-configured-fonts', which maps font-name strings to fonts (a font dictionary)
+%   - a num named 'default-font-size'
+
+% If you use fonts that aren't part of the small set of default fonts that come with PostScript/PDF, 
+% then you'll need to tell your tools where to find fonts on your system.
+% For Ghostscript, you can:
+%
+%    - set the GS_FONTPATH environment variable
+%    - set the '-sFONTPATH=' command line switch.
+%
+% On Windows OS, fonts are usually in C:\Windows\Fonts
+
+% <<(name) font>> default-size 
+% Set up your collection of (usually latinized) fonts that you'll be using in the document.
+% The keys used in the dict are strings that you pass to procs defined below.
+/init-my-fonts {
+  /default-font-size exch def
+  /my-configured-fonts exch def
+} bind def
+
+% new-font-name old-font-name 
+% Create a new font from an existing one, which uses the ISOLatin1Encoding instead of the standard encoding.
+% calling this allows (almost all) accented characters in West European languages to be treated as any other character.
+% https://stackoverflow.com/questions/270672/unicode-in-postscript
+/latinize {
+  findfont
+  dup length dict 
+  begin
+    % copy everything in the source font's dict except for the FID (a unique id for a font)
+    { 1 index /FID ne {def}{pop pop} ifelse } forall
+    /Encoding ISOLatin1Encoding def % override the encoding entry in this dict
+    currentdict  % push this font-dict onto the operand stack
+  end
+  definefont  % internally sets a FID (font-id) for the new font
+  %pop % remove the new font object from the operand stack
+  1 dict begin
+    % log the font information
+    /the-new-font exch def
+    (Latinized font. /FontName:) == 
+    the-new-font /FontName get == 
+    (/FontType:) == 
+    the-new-font /FontType get == 
+    (/FontMatrix scale-x:) == 
+    the-new-font /FontMatrix get 0 get ==
+  end
+} bind def
+
+% Return the current font size.
+% The returned value may be a rounded value, slightly different from the expected value.
+% WARNING: this has only been tested with Type 1 and Type 42 fonts.
+/current-font-size {
+  % the font-size is part of the font-matrix
+  % this depends on the fontmatrix, which in turn depends on the fonttype
+  currentfont /FontMatrix get 0 get
+  currentfont /FontType get 1 eq {
+    % Adobe Type 1 fonts have a FontMatrix [0.001 0 0 0.001 0 0], not [1 0 0 1 0 0]
+    1000 mul
+  } if
+  % DO ANY OTHER FONT TYPES HAVE A FONT MATRIX DIFFERENT FROM [1 0 0 1 0 0]?
+} bind def
+
+% str size
+% Set the font using a configured font name, and the font size.
+% WARNING: You usually call use-font or r-use-font instead of this proc.
+% This proc is really meant as a helper-proc for those other two.
+/use-another-font {
+2 dict begin 
+  /font-size exch def
+  /font-name exch def
+  % THE 'my-configured-fonts' DICT IS DEFINED ELSEWHERE.
+  my-configured-fonts font-name known not {
+    (DUDE, you're using an unknown font name.) ==
+    font-name ==
+  } if
+  my-configured-fonts font-name get 
+  font-size
+  selectfont
+end 
+} bind def
+
+% str pct
+% The font name, and the percentage of the DEFAULT font-size.
+% Set the current font.
+/use-font {
+  default-font-size exch pct
+  use-another-font
+} bind def
+
+% str pct
+% The font name, and the percentage of the CURRENT font-size.
+% Set the current font.
+/r-use-font {
+  current-font-size exch pct
+  use-another-font
+} bind def

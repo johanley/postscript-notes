@@ -1,0 +1,53 @@
+C:\johanley\ProjectsPhoton\postscript-notes\examples2\05.font-management>echo %GS_FONTPATH%
+C:\Windows\Fonts
+
+C:\johanley\ProjectsPhoton\postscript-notes\examples2\05.font-management>C:\ghostscript\gs10.04.0\bin\gswin64c.exe -dNOSAFER -sDEVICE=pdfwrite -o fonts-use-georgia.pdf fonts-use-georgia.ps
+GPL Ghostscript 10.04.0 (2024-09-18)
+Copyright (C) 2024 Artifex Software, Inc.  All rights reserved.
+This software is supplied under the GNU AGPLv3 and comes with NO WARRANTY:
+see the file COPYING for details.
+(using.ps is initializing...)
+(../01.base/base.ps)
+(  running...)
+(fonts.ps)
+(  running...)
+(../01.base/base.ps)
+(  already run)
+Scanning C:\Windows\Fonts for fonts... 380 files, 188 scanned, 166 new fonts.
+Can't find (or can't open) font file %rom%Resource/Font/%rom%Re.
+Can't find (or can't open) font file Georgia.
+Loading Georgia font from C:\Windows\Fonts/georgia.ttf... 6365480 4990588 2425888 1086469 1 done.
+(Latinized font. /FontName:)
+(Georgia)
+(/FontType:)
+42
+(/FontMatrix scale-x:)
+1.0
+Can't find (or can't open) font file %rom%Resource/Font/%rom%Resource/.
+Can't find (or can't open) font file Georgia-Italic.
+Loading Georgia-Italic font from C:\Windows\Fonts/georgiai.ttf... 6385680 5000428 2850980 1491993 1 done.
+(Latinized font. /FontName:)
+(Georgia-Italic)
+(/FontType:)
+42
+(/FontMatrix scale-x:)
+1.0
+Can't find (or can't open) font file %rom%Resource/Font/%rom%Resourc.
+Can't find (or can't open) font file Georgia-Bold.
+Loading Georgia-Bold font from C:\Windows\Fonts/georgiab.ttf... 6385680 5006834 3281012 1904291 1 done.
+(Latinized font. /FontName:)
+(Georgia-Bold)
+(/FontType:)
+42
+(/FontMatrix scale-x:)
+1.0
+Loading NimbusMonoPS-Regular font from %rom%Resource/Font/NimbusMonoPS-Regular... 6580592 5206850 3301212 1920197 1 done.
+(Latinized font. /FontName:)
+/Courier
+(/FontType:)
+1
+(/FontMatrix scale-x:)
+0.001
+Loading StandardSymbolsPS font from %rom%Resource/Font/StandardSymbolsPS... 6696328 5323928 3361812 1977908 2 done.
+
+C:\johanley\ProjectsPhoton\postscript-notes\examples2\05.font-management>

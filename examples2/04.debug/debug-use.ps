@@ -1,0 +1,88 @@
+%!PS-Adobe-3.0
+%%Title: Debugging Procs
+%%Version: 1.0
+%%Creator: John O'Hanley
+%%CreationDate: 2026-02-24
+%%LanguageLevel: 3.0
+%%DocumentMedia: Plain 612.0 792.0 60 white ()
+%%DocumentNeededResources: font Helvetica
+%%BoundingBox: 0 0 612 792
+%%Orientation: Portrait 
+%%Pages: 1
+%%EndComments 
+
+%%BeginDefaults 
+%%EndDefaults
+
+%%BeginProlog
+
+(../02.using/using.ps) run
+(debug.ps) using
+(../01.base/base.ps) using
+
+% x-pct y-pct 
+% Moveto, but using percentages of /page-width and /page-height.
+/pmoveto {
+  page-height exch pct % x-pct y
+  exch % y x-pct
+  page-width exch pct % y x
+  exch % x y 
+  moveto 
+} bind def
+
+% x-pct y-pct
+% some task in your program...
+/do-wonderful-things {
+ (in:do-wonderful-things) here
+ % ... do things here
+ pmoveto (Do wonderful things.) show
+ (out:do-wonderful-things) here
+} def
+
+%%EndProlog 
+
+%%BeginSetup               
+  /page-width  8.5 72 mul def
+  /page-height 11 72 mul def % absolute values
+  <</PageSize [page-width  page-height]>> setpagedevice  
+  << /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
+  true setstrokeadjust  % minimizes off-by-one-pixel line issues
+%%EndSetup 
+
+%%Page: 1 1
+%%BeginPageSetup 
+ /pgsave save def     
+%%EndPageSetup
+
+  (Starting: page 1 of 1.) here
+  
+  /Helvetica 24 selectfont
+  
+  10 90 pmoveto 
+  10 show-currentpoint
+  (Show the currentpoint.) show
+  
+  10 80 do-wonderful-things
+  
+  10 70 
+  (what's on the stack here?) dump-stack
+  pmoveto 
+  (Dump the operand stack.) show
+  
+  3 dict begin 
+    /name (Bob) def
+    /shoe-size 8 def
+    (Keys in currentdict:) dump-keys
+    (Keys and values in currentdict:) dump-current-dict
+  end
+
+  15  % if you mistakenly leave something on the operand stack 
+  stack-should-be-empty   % then this will complain
+  
+  (Ending: page 1 of 1.) here
+
+pgsave restore
+showpage
+%%PageTrailer
+%%Trailer    
+%%EOF 

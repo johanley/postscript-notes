@@ -1,0 +1,103 @@
+
+
+% SIMPLE DEBUGGING PROCS OF GENERAL UTILITY.
+% Typically, you place calls to these procs temporarily in your code.
+
+% str 
+% Prints a message to stdout.
+% If you have no debugger, this can help find the exact location of a problem, by 
+% planting various calls to this proc before and after the problematic code.
+% It's primitive, but it works. 
+% Also, using a named proc like this may help you find/remove your debugging statements.
+/here {
+ ==
+} bind def
+
+% If the operand stack is not empty, then print an error message to stdout.
+% At the end of every page, the operand stack should be empty.
+% leaving things on the stack unintentionally is a programming error.
+/stack-should-be-empty { 
+  count 0 gt {
+   % this indicates a problem: you've left something on the stack at the end of the program
+   (---- TO ERR IS HUMAN; THY STACK IS NOT EMPTY. THY 'RESTORE' OPERATION MAY FAIL...: )  dump-stack
+  } if
+} bind def
+
+% dict
+% Show the keys and values of the given dict on stdout.
+/list-dict {
+ { == ==  } forall
+} bind def
+
+% str 
+% Show everything on the operand stack (but leave the stack intact).
+% The str is a debugging remark sent to stdout.
+/dump-stack {
+  ==
+  (-- operand stack {) ==
+  pstack 
+  (-- }) ==
+} bind def
+
+% str 
+% Show the contents of the currentdict (keys and values).
+% The str is a debugging remark sent to stdout.
+/dump-current-dict {
+  ==
+  (-- currentdict {) ==
+  currentdict list-dict
+  (-- }) ==
+} bind def
+
+% str
+% Show the key-names of the currentdict.
+% The str is a debugging remark sent to stdout.
+/dump-keys {
+  ==
+  (-- currentdict keys {) ==
+  currentdict {pop ==} forall
+  (-- }) ==
+} bind def
+
+% str
+% Show a useful message on stdout, and dump the contents of the operand stack to stdout.
+/error-message {
+  dump-stack
+} bind def
+
+% size-r 
+% Show the location of the currentpoint in a document.
+% The +X-axis is in red, the +Y-axis in green.
+% The currentpoint must exist.
+% Pass a representative size for the marks made by this proc.
+/show-currentpoint {
+  3 dict begin 
+    gsave
+      /r exch def
+      currentpoint   
+      /y exch def
+      /x exch def
+      r 0.1 mul setlinewidth
+       
+      % circle in red
+      0.5 0 0 setrgbcolor
+      newpath    % we want the currentpoint, but not the currentpath           
+      x y moveto
+      x y r 0 360 arc 
+      stroke
+
+      % x-axis in red
+      x y moveto        
+      r neg 0   rmoveto 
+      r 3 mul 0 rlineto % horizontal
+      stroke
+       
+      % y-axis in green
+      0 0.5 0 setrgbcolor
+      x y moveto  
+      0 r neg  rmoveto 
+      0 r 3 mul rlineto % vertical
+      stroke
+    grestore
+  end
+} bind def
