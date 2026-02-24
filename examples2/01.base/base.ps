@@ -1,0 +1,162 @@
+
+
+% THE SET OF BUILT-IN OPERATORS IN PostScript IS QUITE MINIMALIST.
+% They provide only the bare essentials. 
+% Most programmers feel the need to create additional procs that
+% "fill in the gaps" left by the core built-in operators.
+% This is of course a matter of taste.
+% Your own needs and sense of taste will determine what proc's you would categorize as such.
+%
+% Some of these procs are elementary; they exist simply because they read better at the point of call.
+%
+% You may prefer to create a rather large 'base.ps', instead of chopping it into various pieces, 
+% as I've done here.
+
+
+% key -> bool
+% Return true iff the key is in the currentdict.
+/is-known {
+ currentdict exch known
+} bind def
+
+% key -> .
+% 'un-def' the given key from the currentdict.
+% If you only have 1-2 new items def'd in a proc, then instead of using a begin-end temporary dict,
+% you might choose to just use the currentdict, and remove (discard) the items at the end of the proc.
+/discard {
+ currentdict exch undef  
+} bind def
+
+% any /name
+% def's /name with any, with 'any' being the next item on the stack.
+%
+% any1 any2 [/name1 /name2]
+% def's /name_i with any_i, with any_N being the next N items on the stack
+%
+% An "inverted" version of 'def', with the arguments reversed.
+% Adds items to the currentdict
+% This replaces the very common:
+%   /a exch def
+% with the slightly more curt:
+%   /a defi
+% 
+% If you need to def multiple items, then passing an array of names provides more savings:
+%   [/a /b /c] defi
+% Inspired by code seen here: https://github.com/denismm/dmmlib
+/defi {
+  count 0 eq {
+    (DUDE, the operand stack is empty. Can't def anything.) ==
+  } if
+  dup
+  type /arraytype eq
+  {
+    % any1 any2 [/name1 /name2]
+    % this silly random name avoids collisions with the currentdict (can't use a temp dict here)
+    /names-axnlywdthdenoonpartst exch def % any1 any2
+    % iterate backwards over the names-array, in order to match with the 'any_i' items
+    names-axnlywdthdenoonpartst length 1 sub  -1   0 {
+      names-axnlywdthdenoonpartst exch get exch def
+    } for
+    /names-axnlywdthdenoonpartst discard
+  }
+  {
+    % any /name 
+    exch def
+  }
+  ifelse
+} bind def
+
+% [/name] {...} -> .
+% Use a temp dictionary for the duration of the given proc.
+% Populate the temp dict using the given name-array, by consuming values already on the operand stack (below the name-array).
+% This encapsulates a common pattern for the body of many procs:
+%  10 dict begin 
+%     def'ing 1..N items from the operand stack.  
+%  end
+% The given name-array needs to have at least 1 item.
+% Inside the proc, the caller can add more items to the temp dict created internally by this proc (in Language Level 2 or greater).
+/def-tmp {
+  exch dup length dict begin 
+    exch        % [/name] {...}
+    /proc defi  % [/name] 
+    defi
+    proc % this exec's the proc
+  end
+} def
+
+% Return a percentage of a given value.
+% Example: '80 25 pct' returns 20.
+% Note that 15% is represented here as '15', not as '0.15'.
+% This simple proc is very widely used!
+/pct {
+ 0.01 mul mul
+} bind def
+
+% array -> any
+% Return the last item in an array.
+% If the array is empty, then return the null literal.
+/last {
+  dup length 0 eq
+    {pop null}
+    {dup length 1 sub  get}
+  ifelse
+} bind def
+
+% array
+% Return the first item in an array.
+% If the array is empty, then return the null literal
+/first {
+  dup length 0 eq 
+    {pop null}
+    {0 get}
+  ifelse
+} bind def
+
+% a b /target-type -> bool
+% Return true iff both a and b have the given target-type, such as /arraytype.
+/same-type? {
+  [/a /b /target-type] {
+    a type target-type eq
+    b type target-type eq and
+  } def-tmp
+} bind def
+
+% any any -> bool
+% A 'deep', recursive version of the eq operator
+% Special handling for pairs of arrays and pairs dicts.
+/deep-eq? {
+  [/a /b] {
+    true % default 
+    a b /dicttype same-type?  not
+    a b /arraytype same-type? not and { 
+      a b ne {not} if % regular eq / ne
+    } if
+    
+    a b /arraytype same-type? {
+      a length  b length  ne 
+        {not} 
+        { % compare pairwise, but use a recursive call
+          0 1 a length 1 sub {
+            /i defi
+            a i get  b i get  deep-eq? not {not exit} if
+          } for
+        } 
+      ifelse
+    } if
+    
+    a b /dicttype same-type? {
+      a length  b length  ne
+      {not} 
+      { % compare keys and values
+        a {
+          [/key /value] defi
+          b key known not 
+            {not exit} 
+            {b key get  value  deep-eq? not {not exit} if} 
+          ifelse
+        } forall
+      } 
+      ifelse
+    } if
+  } def-tmp
+} bind def

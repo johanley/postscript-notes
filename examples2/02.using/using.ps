@@ -1,0 +1,64 @@
+
+(using.ps is initializing...) == 
+
+% CALL THIS ONCE, AT THE VERY BEGINNING OF YOUR POSTSCRIPT PROGRAM:
+%
+%   (using.ps) run 
+%
+% This creates a table in userdict, used to flag files that have been 'run' already.
+% After this call, you can would usually use 'using' calls (see below) instead of 'run' calls.
+
+% A table to remember which files have already been passed to the 'run' operator.
+% The key to this table is actually the 'simple' file name 'blah.ps' instead of '../other/blah.ps' (or similar).
+% This is because the exact same file can be referenced (relatively) in many ways, from different directories.
+userdict /using-table <<(using.ps) true>> put
+
+% file-name file-sep-int -> file-name
+% Extract the simple file name (blah.ps) from the given file name (..\other\blah.ps).
+%
+% The file-sep-int is the integer corresponding to the file separator on your operating system.
+% IS THERE ANY WAY OF DETECTING WHAT THE OS IS? 
+% (One option is to use the nix version regardless of OS; it seems to work fine on Windows anyway).
+% 92 = \134 octal is '\' Windows
+% 47 = \057 octal is '/' Nix
+/simple-file-name {
+  3 dict begin
+    /sep exch def
+    /file-name exch def
+    file-name % default result (if no sep found)
+    file-name length 1 sub -1 0 {
+      % backwards over the file-name, looking for sep
+      /idx exch def
+      file-name idx get  sep eq {
+        pop % remove the default result
+        file-name idx 1 add   file-name length 1 sub idx sub   getinterval
+        exit
+      } if
+    } for
+  end
+} bind def
+
+% (file-name) -> .
+% Use the 'run' operator on the given file name, but only once.
+% Here, '..\other\blah.ps' is treated the same as 'blah.ps' (for example); only the simple file name matters.
+/using {
+  
+  % IMPORTANT: the code below uses only the operand stack, and no dictionaries.
+  % The 'run' invocations below are intended to 'def' things into userdict.
+  % If you define a temp dict here, then the def's will be against the temp dict, not userdict.
+  %
+  % In addition, nothing is def'd here: if a 'run' invocation below results in a recursive call to this proc, 
+  % then the def'd data would be overwritten. But the operand stack can handle those shenanigans.
+  
+  dup == % fn (log the full file reference)
+  dup % fn fn 
+  92 simple-file-name % fn sfn 
+  dup  % fn sfn sfn
+  using-table exch known not 
+    {using-table exch true put
+     (  running...) ==
+     run % using the fn; this may recursively invoke another 'using' call (and often does)
+    } 
+    {pop pop (  already run) == }
+  ifelse
+} bind def
