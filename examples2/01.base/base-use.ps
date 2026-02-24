@@ -1,5 +1,5 @@
 %!PS-Adobe-3.0
-%%Title: Example of a Document Structuring Conventions (DSC) document.
+%%Title: Use base.ps.
 %%Version: 1.0
 %%Creator: John O'Hanley
 %%CreationDate: 2026-02-23
@@ -16,31 +16,23 @@
 
 %%BeginProlog
 
-  % The first-line header '%!PS-Adobe-3.0' informs tools (but not the PS interpreter) that:
-  %   - the file is an executable PostScript program
-  %   - the document follows the Document Structuring Conventions (DSC), version 3.0.
-  %     The info in DSC comments are not used by the core PS interpreter, but by other tools.
-  %     The data in DSC comments are 'advisory'. The data should be accurate, but 
-  %     tools never verify that DSC data agree with the output document. 
-  % 
-  %  The documentation for the DSC is in the 2ND EDITION of the Red Book (not the 3rd edition).
-  
-  % -- most of your PostScript procedures appear here, in the Prolog section --
-  
-  % num num -> num
-  % the percentage of a number
-  % example: 80 25 pct yields 20
-  % NOTE: this simple proc is surprisingly useful. 
-  /pct {
-    0.01 mul mul
-  } bind def
-  % the docs recommend that 'bind' be used if 
-  % the proc is called more than a few times
+(../02.using/using.ps) run
+(base.ps) using
 
-  % here's an example of including a file in the body of your program.
-  % this simply injects the content of the file at this location, and starts to interpret it
-  % as normal PostScript content.
-  (included-file.ps) run
+% now you can use the proc's in base.ps:
+
+% str str -> sum of their lengths
+/total-length {
+  [/a /b] { % I like this way of def'ing things
+    a length b length add
+  } def-tmp
+} def
+
+% any any -> bool
+% return true iff both args are 'deeply equal'
+/are-they-deeply-equal? { 
+  deep-eq?
+} def
 
 %%EndProlog 
 
@@ -59,13 +51,17 @@
 
   % set the font, and show some text near the top of the page
   /Helvetica 15 selectfont
-  page-width 10 pct 
+  page-width 10 pct  % pct is in base.ps
   page-height 90 pct moveto 
   (Hello Bratislava.) show
-  
-  % use the content of the included file here
-  % just output to stdout in this case
-  25 30 midpoint ==  
+
+  % to stdout  
+  (Hello) (Bratislava) total-length == 
+  (Hello) (Bratislava) are-they-deeply-equal? == 
+  (Hello) (Hello) are-they-deeply-equal? == 
+  [1 2 3 (Four)]  [1 2 3 (Four)]  are-they-deeply-equal? == 
+  [1 2 3 (Four)]  [1 2 3 (four)]  are-they-deeply-equal? == 
+  [1 2 3 <<(a) true>>]  [1 2 3 <</a true>>]  are-they-deeply-equal? == 
 
 pgsave restore
 showpage
