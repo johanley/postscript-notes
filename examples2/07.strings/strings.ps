@@ -1,0 +1,391 @@
+
+% SIMPLE PROC'S FOR STRINGS THAT ARE 'MISSING' FROM PostScript.
+
+(../01.base/base.ps) using
+
+% str str -> str
+% Concatenate exactly two strings together.
+/str-concat {
+  [/a /b] {
+    /result a length b length  add string def
+    result 0         a putinterval 
+    result a length  b putinterval
+    result % leave it on the stack
+  } def-tmp
+} bind def
+
+% [any] -> str
+% Convert items to strings using cvs (if necessary), and concatenate the strings together.
+% WARNING: items converted here using cvs must have a max string-length of 500.
+/any-concat {
+  [/anys] {
+    /result () def 
+    anys {
+      dup 
+      type /stringtype ne {
+        % a cvs conversion is needed
+        500 string cvs 
+      } if
+      result exch str-concat
+      /result defi
+    } forall
+    result % leave it on the stack
+  } def-tmp
+} bind def
+
+% Return an array of character codes (ints), corresponding to whitespace characters.
+% WARNING: includes 240, the non-breaking space in the CE and ISOLatin1 encoding. 
+/str-whitespace {
+  % Red Book 3rd ed. page 27 and page 783 
+  % I'm including 240 here because of the prevalence of ISOLatin1.  
+  [
+    0 % null
+    9 % tab
+    10 % line feed
+    12 % form feed
+    13 % carriage return
+    32 % space (the final frontier...)
+    240 % non-breaking space, in the CE and ISOLatin1 encoding 
+  ] % character codes 
+} bind def
+
+% char-code (int) -> bool
+% Return true iff the character code corresponds to a whitespace character code.
+/str-is-cc-whitespace? { 
+  [/cc] {
+    false % default result
+    str-whitespace {
+      cc eq {
+        not exit % override default
+      } if
+    } forall
+  } def-tmp
+} bind def
+
+% str -> bool
+% Return true iff all character codes in the given string are white-space character codes.
+/str-is-whitespace? {
+  % scan each element of the string
+  true exch % default return value
+  { % scan the str
+    % int 0..255
+    str-is-cc-whitespace? not {not exit} if 
+  } forall
+} def
+
+% Return an array of character codes (ints), corresponding to newline characters.
+/str-newline {
+  % Red Book 3rd ed. page 27 and page 783 
+  [
+    10 % line feed
+    13 % carriage return
+  ] % character codes 
+} bind def
+
+% char-code (int) -> bool
+% Return true iff the character code corresponds to a newline character code.
+% TODO CONSOLIDATE WITH THE WHITESPACE VERSION OF THIS PROC.
+/str-is-cc-newline? { 
+  [/cc] {
+    false % default result
+    str-newline {
+      cc eq {
+        not exit % override default
+      } if
+    } forall
+  } def-tmp
+} bind def
+
+% str -> str
+% Remove any whitespace from the start and end of a string.
+/str-trim {
+  [/str] {
+    /first -1 def % idx of first non-space
+    /last -1 def % idx of last non-space
+    % move forward from the start, to find the first non-whitespace:
+    0 1 str length 1 sub {
+      /idx defi
+      str idx 1 getinterval  
+      str-is-whitespace? not {
+        /first idx def
+        exit
+      } if
+    } for
+    % move backwards from the end, to find the last non-whitespace:
+    str length 1 sub -1 0 {
+      /idx defi
+      str idx 1 getinterval  
+      str-is-whitespace? not {
+        /last idx def
+        exit
+      } if
+    } for
+    % return a substring of the given string
+    first -1 eq 
+      {()}
+      { 
+        str first
+        last first sub 1 add
+        getinterval 
+      }
+    ifelse
+  } def-tmp
+} bind def
+
+% str [a b] delta -> str
+% Helper proc for implementing uppercase and lowercase for ISOLatin1.
+% Return a str with the same length, but re-map (linearly) character codes from range [a b] to range [a+delta b+delta].
+/str-swap-char-code-range {
+  [/str /range /delta] {
+    range length 2 ne {
+      (DUDE, passed array must have have length 2.) ==
+    } if 
+    /result str length string def
+    /idx 0 def
+    str {
+      % int 0..255
+      /cc defi % character code
+      cc  range first  ge     
+      cc  range last   le and {
+        /cc cc delta add def
+      } if
+      % put the cc into the result
+      result idx cc put
+      /idx idx 1 add def
+    } forall
+    result
+  } def-tmp
+} bind def
+
+% str -> str
+% Return a lower-case string. 
+% WARNING: THIS APPLIES TO ISOLatin1 ONLY.
+/str-lower-case {
+  [/str] {
+    /result str    [65   90] 32 str-swap-char-code-range def  % A..Z maps to a..z  101..132 octal
+    /result result [192 221] 32 str-swap-char-code-range def  % accented chars     300..335 octal
+    result
+  } def-tmp
+} bind def
+
+% str -> str
+% Return an upper-case string. 
+% WARNING: THIS APPLIES TO ISOLatin1 ONLY.
+/str-upper-case {
+  [/str] {
+    /result str    [ 97 122] -32 str-swap-char-code-range def  % a..z maps to A..Z  141..172 octal
+    /result result [224 253] -32 str-swap-char-code-range def  % accented chars     340..375 octal
+    result
+  } def-tmp
+} bind def
+
+% str-a str-b -> bool
+% Return true iff str-a starts with str-b.
+% Return false if a or b is an empty string.
+/str-starts-with? {
+  [/a /b] {
+    false % default
+    a length 0 gt  b length 0 gt  and {
+      a 0 b length getinterval 
+      b eq {
+        not % reverse the default
+      } if
+    } if 
+  } def-tmp
+} bind def
+
+% str-a str-b -> bool
+% Return true iff str-a ends with str-b.
+% Return false if a or b is an empty string.
+/str-ends-with? {
+  [/a /b] {
+    false % default
+    a length 0 gt  b length 0 gt  and {
+      a 
+      a length b length  sub 
+      b length 
+      getinterval 
+      b eq {
+        not % reverse the default
+      } if
+    } if
+  } def-tmp
+} bind def
+
+% str-a str-b -> bool
+% Return true iff str-a contains str-b.
+/str-contains? {
+  search 
+  dup
+  {4 1 roll pop pop pop}
+  {exch pop} 
+  ifelse  
+} bind def
+
+% str-a str-b str-c -> str num-replacements-made
+% The returned string has each occurrence of str-b replaced with str-c.
+/str-replace {
+  [/a /b /c] {
+    /result () def 
+    /result-count 0 def
+    /target a def % to start with, the target of the search operation
+    {
+      target b search {
+        /result-count result-count 1 add def
+        % post match pre
+        % found b in the target, so update the result
+        result exch str-concat % result + pre
+        /result defi 
+        pop % discard the match
+        /result result c str-concat def % result + c
+        % keep searching on a new target (the post/remainder)
+        /target defi
+      } 
+      {
+        % b not found in the target
+        result exch str-concat 
+        /result defi
+        exit % the loop
+      }
+      ifelse
+    } loop % until 'exit' is invoked
+    result result-count % left on the stack
+  } def-tmp
+} bind def
+
+% str cc-str -> int
+% Count the number of times a character code (cc) appears in a string.
+% The character code is passed as a string having length 1.
+/str-cc-count {
+  [/str /cc] {
+    cc length 1 ne {(str-cc-count: The target cc-str should have length 1.)} if
+    /result 0 def
+    /target cc 0 get def
+    str {
+      % int 0..255
+      target eq { 
+        /result result 1 add def 
+      } if
+    } forall
+    result
+  } def-tmp
+} bind def
+
+% str -> int
+% Count the number of lines in the given string.
+% ()  has 0 lines.
+% ( ) has 1 line.
+% (Bob) has 1 line.
+% Lines can be empty or non-empty.
+/str-line-count {
+  dup length 0 eq {
+    pop 0
+  } { 
+    str-coerce-newlines-to-n 
+    (\n) str-cc-count 1 add
+  } ifelse
+} bind def
+
+% str -> str
+% Ensure all newline characters in a given string are coerced to '\n'
+%   Windows:  (\r\n)
+%   Nix/Mac:  (\n)
+%   Old Mac:  (\r)
+/str-coerce-newlines-to-n {
+  % the order is important
+  % this impl is brittle; it depends on quirks in the data
+  (\r\n) (\n) str-replace pop
+  (\r)   (\n) str-replace pop 
+} bind def
+
+% str -> [str]
+% Chop a string into an array of lines, separating on newline characters.
+% The lines can contain an empty string.
+/str-lines {
+  [/str] {
+    /str str str-coerce-newlines-to-n def
+    /cut 0 def % where to start/cut for a line 
+    /idx 0 def  % an index into the str
+    /lines str str-line-count array def % the result
+    /lines-idx 0 def
+    /found-line {
+      lines 
+      lines-idx 
+      str cut  idx cut sub   getinterval
+      put
+      /lines-idx lines-idx 1 add def
+      /cut idx 1 add def
+    } def
+    /NL (\n) 0 get def
+    str {
+      % int 0..255
+      NL eq {
+        found-line 
+      } if
+      /idx idx 1 add def
+    } forall
+    % remainders at the end; these cases are mutually exclusive
+    cut  str length 1 sub  le {
+      found-line
+    } if
+    str (\n) str-ends-with? { 
+      found-line 
+    } if
+    lines
+  } def-tmp
+} bind def
+
+% a b -> int 
+% Return 0 iff strings a and b are equal according to the 'eq' operator.
+% Return -1 if as is before b, +1 if a is after b.
+% The comparison is a pair-wise comparison of character codes.
+% This proc can be used to implement a sorting algorithm for strings.
+/str-compare {
+  [/a /b] {
+    0 % default
+    a b ne {
+      0   1  a length b length min 1 sub {
+        /i defi
+        a i get  b i get lt {
+          -1 add exit
+        } if
+        a i get  b i get gt {
+          1 add exit 
+        } if
+      } for
+      dup 0 eq {
+        a length b length lt 
+          {-1 add}
+          { 1 add} 
+        ifelse
+      } if % still no decision after pair-wise comparisons
+    } if % not equal
+  } def-tmp
+} bind def
+
+% str proc -> int
+% Return the number of parts that result after splitting a string on certain character codes.
+% Proc takes a character code (int), and returns a 'true' iff the character is a 'splitting' char.
+/str-num-parts {
+  [/is-split-char] {
+    /curr false def % whether a char-code is 'kept' or not, as determined by the proc
+    /prev false def
+    0 % default result
+    exch
+    { % 0..255
+      is-split-char not /curr defi
+      % only one transition is detected:
+      curr prev not and {1 add} if
+      /prev curr def
+    } forall
+  } def-tmp
+} bind def
+
+% str -> int
+% Return the number of words in the given string.
+% The words are separated by whitespace character codes.
+/str-num-words {
+  {str-is-cc-whitespace?} 
+  str-num-parts
+} bind def
+

@@ -1,0 +1,114 @@
+
+% SIMPLE MATHEMATICAL CALCULATIONS OF GENERAL UTILITY.
+
+(../01.base/base.ps) using
+
+% num num -> num 
+% Return the arithmetic mean of two numbers.
+/midpoint {
+  add 2 div
+} bind def
+
+% num num pct -> num
+% Example: 10 20 50 pct-between returns 15 (halfway between 10 and 20).
+% Returns null iff the pct value is negative.
+/pct-between {
+  [/a /b /percent] { 
+    percent 0 lt {
+      %(pct-between: last arg must be non-negative.) ==
+      null
+    } {
+      b a sub percent pct 
+      a add
+    } ifelse
+  } def-tmp
+} bind def
+
+% [num] -> num
+% Return the maximum value for the given array of numbers.
+% Returns null iff the array is empty.
+/max {
+  dup 
+  length 0 eq {
+    %(max: array is empty.) ==
+    pop null
+  } {
+    1 dict begin
+      /result -1E38 def % Red Book 3rd ed., appendix B
+      { dup
+        result gt 
+          {/result defi}
+          {pop}
+        ifelse
+      } forall
+      result
+    end
+  } ifelse
+} bind def
+
+% [num] -> num
+% Return the minimum value for the given array of numbers.
+% Returns null iff the array is empty.
+/min {
+  dup 
+  length 0 eq {
+    %(min: array is empty.) ==
+    pop null
+  } {
+    1 dict begin
+      /result 1E38 def % Red Book 3rd ed., appendix B
+      { dup
+        result lt 
+          {/result defi}
+          {pop}
+        ifelse
+      } forall
+      result
+    end
+  } ifelse
+} bind def
+
+% val min max linear-range
+% Returns (val - min)/(max - min) * linear-range.
+% linearly maps a problem-domain value from the range [min..max] into the range [0..linear-range].
+% The first 3 args represent problem-domain data; the last arg represents some linear measure in the document.
+/rescale {
+  [/val /min /max /linear-range] {
+    val min sub
+    max min sub div
+    linear-range mul
+  } def-tmp
+} bind def
+
+% [[xy]] -> [llx lly urx ury]
+% Return the bounding box [llx lly urx ury] of a path built from the given array of points.
+% From the bounding box, the caller can read off the min-max of either x or y (for the given array of points).
+/points-bbox {
+  [/pts] {
+    gsave
+      % make a temporary path, and compute its bbox in the current CTM
+      newpath 
+      pts 0 get 0 get   pts 0 get 1 get  moveto  % the first point
+      pts  1   pts length 1 sub   getinterval {  
+        % [xy]
+        aload pop  % x y
+        lineto 
+      } forall % the remaining points
+      pathbbox % llx lly urx ury
+      4 array astore % [llx lly urx ury]
+      newpath % remove the currentpath used to do the calc (the grestore makes this redundant)
+    grestore
+  } def-tmp
+} bind def
+
+% [[xy]] - an array of points
+% Return the center x y of the bounding-box of the given points.
+/center-of-bbox {
+  1 dict begin
+    points-bbox % [llx lly urx ury]
+    /box exch def 
+    box 0 get  box 2 get  midpoint % x
+    box 1 get  box 3 get  midpoint % x y 
+  end
+} bind def
+

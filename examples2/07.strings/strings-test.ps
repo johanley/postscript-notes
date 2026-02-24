@@ -1,0 +1,155 @@
+%!PS
+
+(../02.using/using.ps) run 
+(strings.ps) using
+(../03.unit-test/unit-test.ps) using
+
+/strings-unit-tests {
+  [
+    [  [(a) (b)] {str-concat} [(ab)]   ]
+    [  [()  () ] {str-concat} [()]   ]
+    [  [(a) () ] {str-concat} [(a)]   ]
+    [  [(Bob) (Smith) ] {str-concat} [(BobSmith)]   ]
+    
+    [  [[(a) (b)]] {any-concat} [(ab)]   ]
+    [  [[()  ()]] {any-concat} [()]   ]
+    [  [[(a) ()]] {any-concat} [(a)]   ]
+    [  [[(Bob) (Smith)]] {any-concat} [(BobSmith)]   ]
+    [  [[(a) 1]] {any-concat} [(a1)]   ]
+    [  [[(a) 1.0]] {any-concat} [(a1.0)]   ]
+    [  [[(a) /blah]] {any-concat} [(ablah)]   ]
+    [  [[(a) (blah)]] {any-concat} [(ablah)]   ]
+    [  [[(a) true]] {any-concat} [(atrue)]   ]
+    
+    [ [(abc)] {str-is-whitespace?} [false] ]
+    [ [(abc )] {str-is-whitespace?} [false] ]
+    [[(abc)] {str-is-whitespace?} [false] ]
+    [[(abc )] {str-is-whitespace?} [false]   ] 
+    [[( abc )] {str-is-whitespace?} [false]   ] 
+    [[()] {str-is-whitespace?} [true]   ] 
+    [[( )] {str-is-whitespace?} [true]   ] 
+    [[(  )] {str-is-whitespace?} [true]   ] 
+    [[(\r\n\t  )] {str-is-whitespace?} [true]   ] 
+    % using octal literals
+    [[(\000)] {str-is-whitespace?} [true]   ] 
+    [[(\011)] {str-is-whitespace?} [true]   ] 
+    [[(\012)] {str-is-whitespace?} [true]   ] 
+    [[(\014)] {str-is-whitespace?} [true]   ] 
+    [[(\015)] {str-is-whitespace?} [true]   ] 
+    [[(\040)] {str-is-whitespace?} [true]   ] 
+    [[(\000\011\012\014\015\040)] {str-is-whitespace?} [true]   ] 
+    [[(\000\011\012\014\015\040 )] {str-is-whitespace?} [true]   ] 
+    [[(\000\011\012\014\015\040 A)] {str-is-whitespace?} [false]   ] 
+    
+    [ [10] {str-is-cc-newline?} [true]  ] 
+    [ [13] {str-is-cc-newline?} [true]  ] 
+    [ [11] {str-is-cc-newline?} [false]  ] 
+
+    [[(abc)] {str-trim} [(abc)]  ] 
+    [[( DEF)] {str-trim} [(DEF)]  ] 
+    [[(GHI )] {str-trim} [(GHI)]  ] 
+    [[( pqr )] {str-trim} [(pqr)]  ] 
+    [[(  st )] {str-trim} [(st)]  ] 
+    [[(  xyz       )] {str-trim} [(xyz)]  ] 
+    [[()] {str-trim} [()]  ] 
+    [[(\r\n\t)] {str-trim} [()]  ] 
+
+    [[(Bob Marley and the Wailers)] {str-upper-case} [(BOB MARLEY AND THE WAILERS)]  ] 
+    [[(123 456 7890 +-/*!@#$%^&*\(\))] {str-upper-case} [(123 456 7890 +-/*!@#$%^&*\(\))]  ] 
+    
+    [[(Bob Marley and the Wailers)] {str-lower-case} [(bob marley and the wailers)]  ] 
+    [[(123 456 7890 +-/*!@#$%^&*\(\))] {str-lower-case} [(123 456 7890 +-/*!@#$%^&*\(\))]  ] 
+
+    [[(Bob Marley) (Bob)] {str-starts-with?} [true]  ] 
+    [[(Bob Marley) (Bob )] {str-starts-with?} [true]  ] 
+    [[(Bob Marley) (Bob M)] {str-starts-with?} [true]  ] 
+    [[(Bob Marley) (b)] {str-starts-with?} [false]  ] 
+    [[(Bob Marley) (bob)] {str-starts-with?} [false]  ] 
+    [[(Bob Marley) (bob marley)] {str-starts-with?} [false]  ] 
+    [[(Bob) ()] {str-starts-with?} [false]  ] 
+    [[() (Bob)] {str-starts-with?} [false]  ] 
+    
+    [[(Bob Marley) (y)] {str-ends-with?} [true]  ] 
+    [[(Bob Marley) (Marley)] {str-ends-with?} [true]  ] 
+    [[(Bob Marley) ( Marley)] {str-ends-with?} [true]  ] 
+    [[(Bob Marley) (marley)] {str-ends-with?} [false]  ] 
+
+    [[(Bob Marley) (Bob)] {str-contains?} [true]  ] 
+    [[(Bob Marley) (Bob Marley)] {str-contains?} [true]  ] 
+    [[(Bob Marley) ( Mar)] {str-contains?} [true]  ] 
+    [[(Bob Marley) ( Marley)] {str-contains?} [true]  ] 
+    [[(Bob Marley) (y)] {str-contains?} [true]  ] 
+    [[(Bob Marley) (BOB)] {str-contains?} [false]  ] 
+    [[(Bob Marley) (m)] {str-contains?} [false]  ] 
+    [[(Bob Marley) ( Bob Marley)] {str-contains?} [false]  ] 
+    [[(Bob Marley) (Bob Marley )] {str-contains?} [false]  ] 
+
+    [[(Bob Marley) (Bob) (Ziggy)] {str-replace} [(Ziggy Marley) 1]  ] 
+    [[(This is a Stanley Kubrick Movie) (Stanley Kubrick) (Steven Speilberg)] {str-replace} [(This is a Steven Speilberg Movie) 1]  ] 
+    [[(This is a Stanley Kubrick Movie) (S) (s)] {str-replace} [(This is a stanley Kubrick Movie) 1]  ] 
+    [[(This is a Stanley Kubrick Movie) (X) (s)] {str-replace} [(This is a Stanley Kubrick Movie) 0]  ] 
+    [[(This is the first. This is the second. This is the third.) (the) (THE)] {str-replace} [(This is THE first. This is THE second. This is THE third.) 3]  ] 
+
+    [[(Bob Marley) ( )] {str-cc-count} [1]  ] 
+    [[(Bob Marley) (B)] {str-cc-count} [1]  ] 
+    [[(Bob Marley) (y)] {str-cc-count} [1]  ] 
+    [[(Bob Marley and the Wailers) ( )] {str-cc-count} [4]  ] 
+    [[(Bob Marley and the Wailers\nRastaman Vibration) (\n)] {str-cc-count} [1]  ] 
+    [[(Bob Marley and the Wailers
+    Rastaman Vibration) (\n)] {str-cc-count} [1]  ] 
+    [[(Bob Marley) (X)] {str-cc-count} [0]  ] 
+
+    [[(Bob Marley)] {str-line-count} [1]  ] 
+    [[()] {str-line-count} [0]  ]    
+    [[( )] {str-line-count} [1]  ] 
+    [[(abc \n def)] {str-line-count} [2]  ] 
+    [[(abc 
+    def)] {str-line-count} [2]  ] 
+
+    [[(Abc)] {str-lines} [[(Abc)]]  ] 
+    [[(One \n Two \n Three)] {str-lines} [[(One ) ( Two ) ( Three)]]  ] 
+    [[()] {str-lines} [[]]  ] 
+    [[(  )] {str-lines} [[(  )]]  ] 
+    [[(\n)] {str-lines} [[() ()]]  ] 
+    [[(Abc\n)] {str-lines} [[(Abc) ()]]  ] 
+    [[(Abc\n\n)] {str-lines} [[(Abc) () ()]]  ] 
+    [[(p \n q \n r)] {str-lines} [[(p ) ( q ) ( r)]]  ] 
+    
+    [[(abc) (abc)] {str-compare} [0]   ] 
+    [[(abc) (def)] {str-compare} [-1]  ] 
+    [[(def) (abc)] {str-compare} [1]   ]  
+    [[(abc) (abcdef)] {str-compare} [-1]   ] 
+    [[(abcdef) (abc)] {str-compare} [1]   ] 
+    [[() ()] {str-compare} [0]   ] 
+    [[( ) ( )] {str-compare} [0]   ] 
+    [[(abc\n) (abc\n)] {str-compare} [0]   ] 
+    [[(\r\n\t) (\r\n\t)] {str-compare} [0]   ] 
+    [[(\r\n\t) (\r\n\t )] {str-compare} [-1]   ] 
+    [[(123) (456)] {str-compare} [-1]   ] 
+    [[(4) (5)] {str-compare} [-1]   ] 
+    [[(5) (4)] {str-compare} [1]   ] 
+    [[(3.14) (3.14)] {str-compare} [0]   ] 
+     
+    [[()] {str-num-words} [0]   ] 
+    [[( )] {str-num-words} [0]   ] 
+    [[(   )] {str-num-words} [0]   ] 
+    [[(\012)] {str-num-words} [0]   ] 
+    [[(\012\015)] {str-num-words} [0]   ] 
+    [[(abc)] {str-num-words} [1]   ] 
+    [[(abc def)] {str-num-words} [2]   ] 
+    [[(abc\tdef)] {str-num-words} [2]   ] 
+    [[(abc\ndef)] {str-num-words} [2]   ] 
+    [[(abc\t\r\n def)] {str-num-words} [2]   ] 
+    [[(abc def xyz)] {str-num-words} [3]   ] 
+    [[(   abc   def   xyz  \t\n)] {str-num-words} [3]   ] 
+  ]
+  unit-test-suite
+} def
+
+strings-unit-tests
+[/num-tests /num-fails] defi
+
+(Num tests: ) ==  num-tests ==
+(Num fails: ) ==  num-fails ==
+
+quit

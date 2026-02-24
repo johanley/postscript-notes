@@ -1,0 +1,20 @@
+C:\johanley\ProjectsPhoton\postscript-notes\examples2\06.math>C:\ghostscript\gs10.04.0\bin\gswin64c.exe -dNOSAFER math-test.ps
+GPL Ghostscript 10.04.0 (2024-09-18)
+Copyright (C) 2024 Artifex Software, Inc.  All rights reserved.
+This software is supplied under the GNU AGPLv3 and comes with NO WARRANTY:
+see the file COPYING for details.
+(using.ps is initializing...)
+(math.ps)
+(  running...)
+(../01.base/base.ps)
+(  running...)
+(../03.unit-test/unit-test.ps)
+(  running...)
+(../01.base/base.ps)
+(  already run)
+(Num tests: )
+25
+(Num fails: )
+0
+
+C:\johanley\ProjectsPhoton\postscript-notes\examples2\06.math>
