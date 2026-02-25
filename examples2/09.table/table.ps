@@ -1,0 +1,187 @@
+
+% BASIC TABLES. 
+% THE CELLS ARE IMPLEMENTED AS PROCS, NOT AS DATA.
+
+(../01.base/base.ps) using
+(../04.debug/debug.ps) using
+(../08.text-align/text-align.ps) using
+
+% table-dict
+% See table-use.ps for an example dict.
+% Render a table as a collection of cells. Each cell is a proc.
+% Return xs and ys on the stack, for the coords of all grid lines, in case the caller wants to render them in some custom manner.
+% The caller translates the origin to the top left corner of the table.
+% The cells [[]] is an array of rows, top-down and left-to-right.
+% Drawing in each cell is clipped to its rectangular box.
+/basic-table {
+30 dict begin 
+  % put all of the names into the new currentdict
+  {def} forall
+  col-widths length   cells 0 get length   ne {
+    (DUDE, the first row has an unexpected number of columns.) error-message
+  } if
+
+  % the top-left corner is the origin of CTM coords.
+  /left 0 def 
+  /top 0 def
+  
+  % defs: /bottom /right /xs /ys
+  % The position of the bottom-right corner is calculated from col-widths and row-ht.
+  % xs and ys are the locations of vertical and horizontal grid lines, respectively.
+  /locate-grid-lines {
+    /xs col-widths length 1 add array def
+    xs 0 left put 
+    1  1  xs length 1 sub {
+      /i defi
+      xs i    
+        xs i 1 sub get         % previous
+        col-widths i 1 sub get % add col-width
+        add  
+      put
+    } for
+    % do the same for ys
+    /ys cells length 1 add array def 
+    ys 0 top put 
+    1   1   ys length 1 sub {
+      /i defi
+      ys  i  
+      top   row-ht i mul   sub
+      put
+    } for
+    /bottom ys last def
+    /right xs last def
+    /i discard
+  } def
+  
+  /draw-the-grid {
+    newpath
+    % vertical lines, top to bottom, then left to right
+    0   1   xs length 1 sub {
+      xs exch get   top   moveto
+      0   bottom top sub   rlineto  % line down
+    } for
+    % horizontal lines, left to right, then top to bottom
+    0   1   ys length 1 sub {
+      ys exch get  left exch   moveto
+      right left sub  0  rlineto  % line to the right
+    } for
+    stroke
+  } def
+
+  % i j -> x y w h  
+  % Translate 0-based cell indices (i,j) into the numbers describing the geometry of the cell's box:
+  % xy coords for the bottom left of the cell, and its width and height.
+  /cell-indices-to-xywh {
+    [/i /j] {
+      % let's compute these critters directly on the operand stack
+      % x = left + sum(col-widths 0..j-1) IF j is > 0
+      left  
+      j 0 gt {
+        0   1  j 1 sub {
+          col-widths exch get add 
+        } for
+      } if
+      % y = top - (i+1) * row-ht
+      top  i 1 add  row-ht  mul   sub 
+      col-widths j get   % w
+      row-ht             % h
+    } def-tmp
+  } def
+  
+  % pct pct 
+  % Move to an arbitrary spot in the interior of a cell.
+  % The args are the percent-width, percent-height of the cell.
+  % WARNING: this is a low-level 'back-up', in case of need.
+  % You'll see a different 'padding' when the column-width is different!
+  /goto {
+    % px py
+    ht exch pct % px y
+    exch % y px
+    wd exch pct % y x 
+    exch 
+    moveto
+  } def
+  
+  % PROCS THAT CAN BE USED TO CONTROL HOW THE CELL IS MARKED:
+  
+  % str 
+  % Left-align text within a cell.
+  /LF {pad pad moveto  show} def 
+  
+  % str 
+  % Right-align text within a cell.
+  /RT {wd pad sub   pad moveto   show-right-align} def 
+  
+  % str 
+  % Middle-x the text within a cell.
+  /MID {wd 50 pct   pad  moveto  show-ctr-x} def 
+  
+  % str
+  % Center-xy text within a cell.
+  /CTR {50 50 goto show-ctr-xy} def 
+
+  % TRANSLATE to the middle of the cell.
+  /T-MID {wd 50 pct  ht 50 pct translate} def 
+  
+  % gray-value 0..1
+  % Shade the whole cell using a grayscale value.
+  /SHADE {
+    gsave 
+      setgray 
+      0 0 wd ht rectfill
+      0 0 wd ht rectstroke
+    grestore
+  } def 
+  
+  % Use a font for numbers.
+  /NUM {/Courier 12 selectfont} def
+  
+  % Use a font for text.
+  /TXT {/Helvetica 12 selectfont} def
+
+  % Mark all of the cells.
+  /mark-cells {
+    0  1   cells length 1 sub {
+      % over rows
+      /i defi
+      0  1   cells 0 get length 1 sub {
+        /j exch def
+        % over columns
+        i j cell-indices-to-xywh
+        4 copy  % to consume x y w h twice
+        gsave 
+          rectclip % clip to the cell's rect
+          4 2 roll % w h x y
+          translate % translate to the bottom left of the cell
+          /ht exch def
+          /wd exch def
+          mark-the-cell % uses: i j ht wd in the currentdict
+        grestore
+      } for
+    } for
+  } def
+
+  % Mark a single cell.
+  %  
+  % The cell consists of one thing: a proc that marks the cell!
+  % This is the 'maximally flexible' design: it's not based on data-plus-policies, but on CODE.
+  % The cell 'knows' the origin is the bottom left of the cell.
+  /mark-the-cell {
+    % just call the proc attached to the cell! nice!
+    cells i get j get exec 
+  } def
+
+  % finally, mark the table using the proc's defined above  
+  locate-grid-lines
+  mark-cells
+  % in some cases, you won't want to draw a grid at all
+  show-all-grid-lines? {
+    draw-the-grid 
+  } if
+  % the caller may want to draw the grid in a custom manner, so 
+  % we always return the locations of all possible grid lines
+  xs
+  ys 
+end
+} bind def
+
