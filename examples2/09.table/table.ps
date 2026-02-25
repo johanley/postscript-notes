@@ -145,7 +145,7 @@
       % over rows
       /i defi
       0  1   cells 0 get length 1 sub {
-        /j exch def
+        /j defi
         % over columns
         i j cell-indices-to-xywh
         4 copy  % to consume x y w h twice
@@ -153,8 +153,8 @@
           rectclip % clip to the cell's rect
           4 2 roll % w h x y
           translate % translate to the bottom left of the cell
-          /ht exch def
-          /wd exch def
+          /ht defi
+          /wd defi
           mark-the-cell % uses: i j ht wd in the currentdict
         grestore
       } for
@@ -168,7 +168,7 @@
   % The cell 'knows' the origin is the bottom left of the cell.
   /mark-the-cell {
     % just call the proc attached to the cell! nice!
-    cells i get j get exec 
+    cells i get j get exec
   } def
 
   % finally, mark the table using the proc's defined above  
