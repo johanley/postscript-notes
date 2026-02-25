@@ -5,19 +5,18 @@
 % The procs are tested for their input-output behavior here.
 % Any side-effects of a proc are not tested.
 
-% [input(s)] {the-proc} [expected-output(s)] -> bool
+% [input(s)] {the-proc} [expected-output(s)] compare-using -> bool
 % Returns false iff the test fails.
 % A test fails iff the target-proc's actual output is not the expected-output.
-% Uses 'deep-eq?' to compare values.
-% When calling this proc, the stack has to have exactly 3 items.
+% When calling this proc, the stack has to have exactly 4 items.
 /unit-test {
-  count 3 gt {
+  count 4 gt {
     % just in case of an egregious error in the caller
     (Aborting. A unit-test is being run with a larger-than-expected stack.) ==
     false 
   }
   { 
-    [/inputs /the-target-proc /exp-outputs] {
+    [/inputs /the-target-proc /exp-outputs /compare-using] {
       true % default success
       inputs aload pop the-target-proc % true actual-outputs
       % try to match the n expected-outputs to the n corresponding actual-outputs on the stack
@@ -30,7 +29,8 @@
       { % cycle backwards; compare expected-outputs to actual-outputs on the stack 
         exp-outputs length 1 sub  -1  0 {
           exp-outputs exch get 
-          deep-eq? not {not exit} if
+          compare-using cvx exec 
+          not {not exit} if
         } for
       }
       ifelse 
@@ -38,18 +38,21 @@
   } ifelse
 } bind def
 
-% [  [[inputs] {target-proc} [expected-outputs]]  ] -> num-tests num-fails
+% [  [[inputs] {target-proc} [expected-outputs]]  ] compare-using -> num-tests num-fails
 % Run a group of unit tests as a unit.
 % Each test is run with the unit-test proc.
+% Compare-using is a literal, and the name of a proc. Example: /deep-eq?
 /unit-test-suite {
-  /num-tests 0 def
-  /num-fails 0 def
-  { % [[inputs] {target-proc} [expected-outputs]]
-    /num-tests num-tests 1 add def
-    aload pop % [inputs] {target-proc} [expected-outputs]
-    unit-test not {/num-fails num-fails 1 add def} if
-  } forall
-  num-tests
-  num-fails
+  3 dict begin
+    /compare-using defi
+    /num-tests 0 def
+    /num-fails 0 def
+    { % [[inputs] {target-proc} [expected-outputs]]
+      /num-tests num-tests 1 add def
+      aload pop % [inputs] {target-proc} [expected-outputs]
+      compare-using unit-test not {/num-fails num-fails 1 add def} if
+    } forall
+    num-tests
+    num-fails
+  end   
 } bind def
-

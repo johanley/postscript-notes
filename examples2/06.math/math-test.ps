@@ -2,6 +2,7 @@
 
 (../02.using/using.ps) run 
 (math.ps) using
+(../01.base/base.ps) using
 (../03.unit-test/unit-test.ps) using
 
 /math-unit-tests {
@@ -45,6 +46,7 @@
       % ]] {points-bbox} [[0 0 10 10]]   % this fails because of rounding, which I haven't accounted for
     % ]
   ]
+  /deep-eq?
   unit-test-suite
 } def
 

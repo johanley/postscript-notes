@@ -3,6 +3,7 @@
 (../02.using/using.ps) run 
 (strings.ps) using
 (../03.unit-test/unit-test.ps) using
+(../01.base/base.ps) using
 
 /strings-unit-tests {
   [
@@ -143,6 +144,7 @@
     [[(abc def xyz)] {str-num-words} [3]   ] 
     [[(   abc   def   xyz  \t\n)] {str-num-words} [3]   ] 
   ]
+  /deep-eq?
   unit-test-suite
 } def
 
