@@ -1,0 +1,103 @@
+
+% TEXT DIMENSIONS, AND TEXT ALIGNMENT WITH RESPECT TO THE CURRENTPOINT.
+% The dimensions of text depend on the current font.
+%
+% Note that vertical alignment can often give mediocre results: the presence or absence of 
+% ascenders/descenders can change the relative vertical position of text.
+
+% str -> num num 
+% Return the width/height (dx, dy) of the given text (in the current font).
+% This is useful for centering in various ways
+% https://stackoverflow.com/questions/3618194/how-to-determine-string-height-in-postscript luser droog
+/text-dim {
+  gsave
+    0 0 moveto % a temporary currentpoint
+    % the bounding box of the text
+    false charpath flattenpath pathbbox % x0 y0 x1 y1
+  grestore
+  3 -1 roll sub % x0 x1 dy
+  3 1 roll sub % dy -dx
+  -1 mul % dy dx
+  exch % dx dy
+} bind def
+
+% str -> num
+% Return the width of the given string in the current font.
+/text-width {
+  text-dim % dx dy
+  pop % dx
+} bind def
+
+% str -> num
+% Return the height of the given string in the current font.
+/text-height {
+  text-dim % dx dy
+  exch pop % dy 
+} bind def
+
+% num -> num
+% Return a multiple of the height of small 'x' in the current font.
+/ex {
+ (x) text-height mul
+} bind def
+
+% num -> num
+% Return a multiple of the height of capital 'M' in the current font.
+/em {
+ (M) text-height mul
+} bind def
+
+% -- ALIGN TEXT IN VARIOUS WAYS:
+
+% str 
+% Show text centered horizontally at the currentpoint.
+/show-ctr-x {
+  dup text-dim pop % text dx
+  -2 div % text -dx/2
+  0 rmoveto % text
+  show
+} bind def
+
+% str
+% Show text centered vertically at the currentpoint.
+% WARNING: centering text vertically can give mediocre results (variations in ascenders, descenders etc.)
+/show-ctr-y {
+  dup text-dim exch pop % text dy
+  -2 div % text -dy/2
+  0 exch rmoveto % text
+  show
+} bind def
+
+% str
+% Show text centered horizontally AND vertically at the currentpoint, and show it.
+% WARNING: centering text vertically can give mediocre results (variations in ascenders, descenders etc.)
+/show-ctr-xy {
+  dup text-dim % text dx dy
+  -2 div % text dx -dy/2
+  exch % text -dy/2 dx
+  -2 div exch % text -dx/2 -dy/2
+  rmoveto % text
+  show
+} bind def
+
+% text 
+% Show text right-aligned at the currentpoint.
+/show-right-align {
+  dup text-dim pop % text dx
+  -1 mul % text -dx
+  0 rmoveto % text
+  show
+} bind def
+
+% text 
+% Show text centered vertically at the currentpoint, and right-aligned.
+% WARNING: centering text vertically can give mediocre results (variations in ascenders, descenders etc.)
+/show-right-align-ctr-y {
+  dup text-dim % text dx dy
+  -0.5 mul % text dx -dy/2
+  exch neg % text -dy/2 -dx
+  exch % text -dx -dy/2
+  rmoveto % text
+  show
+} bind def
+

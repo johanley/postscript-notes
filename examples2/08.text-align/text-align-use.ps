@@ -1,0 +1,96 @@
+%!PS-Adobe-3.0
+%%Title: Text Alignment
+%%Version: 1.0
+%%Creator: John O'Hanley
+%%CreationDate: 2026-02-24
+%%LanguageLevel: 3.0
+%%DocumentMedia: Plain 612.0 792.0 60 white ()
+%%DocumentNeededResources: font Helvetica
+%%BoundingBox: 0 0 612 792
+%%Orientation: Portrait 
+%%Pages: 1
+%%EndComments 
+
+%%BeginDefaults 
+%%EndDefaults
+
+%%BeginProlog
+  (../02.using/using.ps) run
+  (../01.base/base.ps) using
+  (../04.debug/debug.ps) using
+  (../07.strings/strings.ps) using
+  (text-align.ps) using
+
+  % x-pct y-pct 
+  % Moveto, but using percentages of /page-width and /page-height.
+  /pmoveto {
+    page-height exch pct % x-pct y
+    exch % y x-pct
+    page-width exch pct % y x
+    exch % x y 
+    moveto 
+  } bind def
+%%EndProlog
+
+%%BeginSetup               
+  /page-width  8.5 72 mul def
+  /page-height 11 72 mul def % absolute values
+  <</PageSize [page-width  page-height]>> setpagedevice  
+  << /NeverEmbed [ ] >> setdistillerparams
+  true setstrokeadjust  % minimizes off-by-one-pixel line issues
+%%EndSetup 
+
+%%Page: 1 1
+%%BeginPageSetup 
+ /pgsave save def     
+%%EndPageSetup
+
+  /Helvetica 24 selectfont 
+  % use text 'belittle' and 'syzygy' to see the effect of 
+  % ascenders/descenders on vertical alignment:
+  /my-text (belittle) def
+  
+  10 90 pmoveto 
+  my-text show
+  
+  10 85 pmoveto
+  [my-text text-width ( text width)] any-concat show
+  10 80 pmoveto
+  [my-text text-height ( text height)] any-concat show
+  
+  10 70 pmoveto
+  [1 em (  'M'-height)] any-concat show
+  10 65 pmoveto
+  [1 ex (  'x'-height)] any-concat show
+ 
+  % horizontal alignment
+  50 60 pmoveto
+  5 show-currentpoint
+  my-text show
+  
+  50 55 pmoveto
+  5 show-currentpoint
+  my-text show-ctr-x
+  
+  50 50 pmoveto
+  5 show-currentpoint
+  my-text show-right-align
+
+  % vertical alignment
+  50 45 pmoveto
+  5 show-currentpoint
+  my-text show-ctr-y
+  
+  50 40 pmoveto
+  5 show-currentpoint
+  my-text show-ctr-xy
+  
+  50 35 pmoveto
+  5 show-currentpoint
+  my-text show-right-align-ctr-y
+
+pgsave restore
+showpage
+%%PageTrailer
+%%Trailer    
+%%EOF 
