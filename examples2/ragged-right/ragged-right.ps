@@ -81,15 +81,16 @@
 } bind def
 
 % str /render -> dx dy
-% Render a single word, simply to calc the change in the currentpoint.
-% WARNING: this proc actually renders the text way off the visible page, far from the origin of coords.
+% Render a single word using nulldevice, simply to calc the change in the currentpoint.
+% Using nulldevice means that no marks are actually made on the page.
 /test-off-page { 
   % Q: should I use 'stringwidth' instead?
   % The font is 'buried' in the /render proc's implementation.
   % Can't the /render change the currentpoint in some weird way, in some cases?
   gsave % the currentpoint
   4 dict begin 
-    0  ht 100 mul  moveto % way up, and off the page, I assume!
+    nulldevice % so that no marks are made on the page!
+    %0  ht 100 mul  moveto % this will be way off the page, if you prefer
     currentpoint 
     [/x0 /y0] defi
     cvx exec 
@@ -104,13 +105,15 @@
 % Move the currentpoint to the start of the next line.
 % This may also finish the current page, and start a new one.
 /carriage-return-line-feed {
-  % TODO TEST FOR END-OF-PAGE HERE
-  % TODO - END PAGE, START NEW PAGE: set up the workbox, translate origin to bottom-left corner, 0 ht moveto 
-  currentpoint exch pop % y
-  left-limit % x-left
-  currentpoint exch pop % x-left y
-  leading sub % x-left y-down
-  moveto  
+  currentpoint exch pop dup % y y
+  0 lt {
+    pop showpage % calls /BeginPage when the next page is init'ed
+  } {
+    left-limit % x-left
+    currentpoint exch pop % x-left y
+    leading sub % x-left y-down
+    moveto  
+  } ifelse
 } bind def
 
 % WARNING: these helper-procs assume certain names in the currentdict.
@@ -146,12 +149,30 @@
   (bold) 100 use-font show 
 } bind def
 
+% int - number of times showpage has been called: 0, 1,...
+% The passed int can be used to provide a page number.
+% For each new page, the initgraphics operator is called. 
+% It resets many items, including the CTM, path, and currentpoint.
+% The font is retained, however.
+/start-new-page {
+  pop
+  (Starting new page) ==
+  % the work-box needs to be re-set for each new page
+  wd 10 pct   ht 5 pct translate % bottom left of the work-box
+  0 ht moveto % where the text will start
+} bind def
+
 %%EndProlog
 
 %%BeginSetup               
   /page-width  8.5 72 mul def
   /page-height 11 72 mul def % absolute values
-  <</PageSize [page-width  page-height]>> setpagedevice  
+  /wd page-width 80 pct def   
+  /ht page-height 90 pct def   
+  <<
+    /PageSize [page-width  page-height]
+    /BeginPage {start-new-page}
+  >> setpagedevice  
   << /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
   true setstrokeadjust  % minimizes off-by-one-pixel line issues
 
@@ -165,7 +186,6 @@
   >>
   page-height 1.5 pct 
   init-my-fonts
-
 %%EndSetup 
 
 %%Page: 1 1
@@ -173,13 +193,6 @@
  /pgsave save def     
 %%EndPageSetup
 
-  % make a work-box
-  /wd page-width 90 pct def   
-  /ht page-height 90 pct def   
-  wd 5 pct   ht 5 pct translate % bottom left of the work-box
-  0 ht moveto % where the text will start
-  [(work-box wd :) wd ( ht: ) ht] any-concat ==
-  
   (regular) 100 use-font
   2.5 em  % this needs a current font
   {left-limit-fixed}  % where to start a line 
@@ -199,8 +212,6 @@ extraordinary.)]
   ]
   text-flow-ragged-right 
 
-  %0 ht 70 pct moveto % 
-  
   2.5 em  % this needs a current font
   {left-limit-fixed}  % where to start a line 
   {right-limit-fixed} % where to end a line 
