@@ -1,0 +1,191 @@
+%!PS-Adobe-3.0
+%%Title: Ragged Right
+%%Version: 1.0
+%%Creator: John O'Hanley
+%%CreationDate: 2026-02-26
+%%LanguageLevel: 3.0
+%%DocumentMedia: Plain 612.0 792.0 60 white ()
+%%DocumentNeededResources: font Helvetica Helvetica-Bold Helvetica-Oblique
+%%BoundingBox: 0 0 612 792
+%%Orientation: Portrait 
+%%Pages: 1
+%%EndComments 
+
+%%BeginDefaults 
+%%EndDefaults
+
+%%BeginProlog
+
+% RENDER TEXT WITH A RAGGED-RIGHT MARGIN.
+
+(../02.using/using.ps) run
+
+(../01.base/base.ps) using
+(../05.font-management/fonts.ps) using
+(../07.strings/strings.ps) using
+(../08.text-align/text-align.ps) using
+
+% leading /left-limit /right-limit /end-of-line [runs]
+%
+% (The name objects passed here are all names of procs.)
+%
+% Render runs of text in a ragged-right style.
+% A 'run' of text is contiguous text that shares the same font/color/look.
+% For brevity, each run is modeled as an array:
+%    [/render-proc (...txt...)]
+% The /render-proc accepts a string, and shows it on the page (it is called one word at a time).
+% If a render-proc varies the y-level, it should ensure that currentpoint.y is put 'back to where it was'.
+% The text should not have any newline characters in it; they will be ignored here.
+%
+% The left-limit and right-limit procs map a y-value to a corresponding left-or-right boundary.
+% Those limits can be fixed or dynamic; a dynamic style allows for text to around an rectangular image (for example).
+% 
+% The /end-of-line proc defines what to do when showing the next word in the current font WOULD result in 
+% overshooting beyond the right-limit. Having this in a proc lets you experiment with different policies.
+%
+% Before calling this proc, the caller:
+%  - defines a work box: 
+%      - translates the origin of the CTM to the bottom left
+%      - defines /wd and /ht for the width and height of the work-box
+%  - moves to a currentpoint at the top-left of the work-box (0 ht moveto)
+/text-flow-ragged-right {
+  [/leading /left-limit /right-limit /end-of-line runs] {
+    runs { 
+      % [/render (str)]
+      aload pop 
+      exch % str /render
+      /render defi
+      str-words { % each word (splits on whitespace)
+        /word defi
+        word /render test-off-page % dx dy
+        pop % dx  (I'm assuming dy is 0 here!)
+        /word-width defi
+        currentpoint % x y 
+        /right-limit cvx exec %  x right-lim
+        exch % right-lim x 
+        word-width add % right-lim x-new
+        exch % x-new right-lim
+        sub /overshoot defi
+        overshoot 0 le { 
+          word /render cvx exec 
+        } { 
+          /end-of-line cvx exec 
+        } ifelse
+      } forall
+    } forall
+  } def-tmp
+} bind def
+
+% str /render -> dx dy
+% Render a single word, simply to calc the change in the currentpoint.
+% WARNING: this proc actually renders the text way off the visible page, far from the origin of coords.
+/test-off-page { 
+  % Q: should I use 'stringwidth' instead?
+  % The font is 'buried' in the /render proc's implementation.
+  % Can /render change the currentpoint in some weird way, in some cases?
+  gsave % the currentpoint
+  4 dict begin 
+    0  ht 100 mul  moveto % way up, and off the page, I assume!
+    currentpoint 
+    [/x0 /y0] defi
+    cvx exec     
+    currentpoint 
+    [/x1 /y1] defi
+    x1 x0 sub % dx
+    y1 y0 sub % dy
+  end
+  grestore % back to the 'real' currentpoint
+} bind def
+
+% Move the currentpoint to the start of the next line.
+% This may also finish the current page, and start a new one.
+/carriage-return-line-feed {
+  0 leading neg rmoveto % line feed
+  currentpoint exch pop % y 
+  % TODO TEST FOR END-OF-PAGE HERE
+  % TODO - END PAGE, START NEW PAGE: set up the workbox, translate origin to bottom-left corner, 0 ht moveto 
+  /left-limit cvx exec %  left-limit
+  currentpoint exch pop % left-limit y 
+  moveto  % carriage return
+} bind def
+
+% WARNING: these helper-procs assume certain names in the currentdict.
+
+/eol-simple {
+  carriage-return-line-feed
+  word /render cvx exec
+} bind def
+
+/right-limit-fixed { wd } bind def
+
+/left-limit-fixed { 0 } bind def
+
+% Procs for rendering a run of text.
+
+% str
+% Regular text.
+/REG { 
+  (regular) 100 use-font show 
+} bind def
+
+% str
+% Italic text.
+/ITAL { 
+  (italic) 100 use-font show 
+} bind def
+
+% str
+% Bold text.
+/BOLD { 
+  (fixed-width) 100 use-font show 
+} bind def
+
+%%EndProlog
+
+%%BeginSetup               
+  /page-width  8.5 72 mul def
+  /page-height 11 72 mul def % absolute values
+  <</PageSize [page-width  page-height]>> setpagedevice  
+  << /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
+  true setstrokeadjust  % minimizes off-by-one-pixel line issues
+
+  /MyRegular /Helvetica latinize
+  /MyBold /Helvetica-Bold latinize
+  /MyItalic /Helvetica-Oblique latinize
+  << 
+    (regular) /MyRegular
+    (bold) /MyBold
+    (italic) /MyItalic
+  >>
+  page-height 1.5 pct 
+  init-my-fonts
+
+%%EndSetup 
+
+%%Page: 1 1
+%%BeginPageSetup 
+ /pgsave save def     
+%%EndPageSetup
+
+  % make a work-box
+  /wd page-width 90 pct def   
+  /ht page-height 90 pct def   
+  wd 5 pct   ht 5 pct translate % bottom left of the work-box
+  0 ht move % to the top-left of the work-box, where the text will start
+
+  1.5 em  % leading
+  /left-limit-fixed  % where to start a line 
+  /right-limit-fixed % where to end a line 
+  /eol-simple % what to do when an overshoot is detected
+  [ % runs of text
+    [/REG (This is a test of the system. Do not be alarmed. Do not run. Do not get excited in any way.)]
+    [/BOLD (This is a BOLD test of the system. Do not be alarmed. Do not run. Do not get excited in any way.)]
+    [/ITAL (This is an ITALIC test of the system. Do not be alarmed. Do not run. Do not get excited in any way.)]
+  ]
+  text-flow-ragged-right 
+
+pgsave restore
+showpage
+%%PageTrailer
+%%Trailer    
+%%EOF 
