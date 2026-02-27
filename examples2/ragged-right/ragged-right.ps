@@ -69,14 +69,14 @@
         exch % x-new right-lim
         sub /overshoot defi
         overshoot 0 le { 
-          currentpoint pop ==
           word SPACE str-concat render
         } { 
-          currentpoint pop ==
           end-of-line
         } ifelse
       } forall
     } forall 
+    carriage-return-line-feed % one way of implementing paragraphs
+    2 em 0 rmoveto  
   } def-tmp
 } bind def
 
@@ -177,7 +177,7 @@
   /wd page-width 90 pct def   
   /ht page-height 90 pct def   
   wd 5 pct   ht 5 pct translate % bottom left of the work-box
-  0 ht moveto % to the top-left of the work-box, where the text will start
+  0 ht moveto % where the text will start
   [(work-box wd :) wd ( ht: ) ht] any-concat ==
   
   (regular) 100 use-font
@@ -186,12 +186,66 @@
   {right-limit-fixed} % where to end a line 
   {eol-simple} % what to do when an overshoot is detected
   [ % runs of text
-    [{REG} (This is a test of the system. Do not be alarmed. Do not run. Do not get excited in any way. Michelle is standing right here.)]
-    [{BOLD} (This is a BOLD test of the system. Do not be alarmed. Do not run. Do not get excited in any way.)]
-    [{ITAL} (This is an ITALIC test of the system. Do not be alarmed. Do not run. Do not get excited in any way.)]
-    [{REG} (This is a test of the system. Do not be alarmed. Do not run. Do not get excited in any way. Michelle is standing right here. and that ais the extreme cas a of a atoe t teu o',.monho  too r aoethuao ubuou  aou ao  u e   ao u ao u aou ao u ao u au o u )]
+[{REG}(It is certainly better for yourself, and more for the security of mankind, that you should live in some \
+rural abode, than appear in the world; such persons, as you, are fatal to the public tranquillity, and do mischief \
+without ever desigining it: but, I must own, when)]
+[{ITAL} (belles)]
+[{REG} (and)]
+[{ITAL} (beaux)]
+[{REG} (retire to country shades for the sake of heavenly \
+contemplation, the world will be well reformed. A hermit's life might be tolerable, while the serious hours are divided \
+between Hyde Park and the Opera; but a more distant retreat, in the full pride of your charms and youth, would be very \
+extraordinary.)]
   ]
   text-flow-ragged-right 
+
+  %0 ht 70 pct moveto % 
+  
+  2.5 em  % this needs a current font
+  {left-limit-fixed}  % where to start a line 
+  {right-limit-fixed} % where to end a line 
+  {eol-simple} % what to do when an overshoot is detected
+  [ % runs of text
+[{REG}(One of the most salient features of our culture is that there is so much bullshit. Everyone knows this. \
+Each of us contributes his share. But we tend to take the situation for granted. Most people are rather confident of their \
+ability to recognize bullshit and to avoid being taken in by it. So the phenomenon has not aroused much deliberate concern, nor \
+attracted much sustained inquiry. In consequence, we have no clear understanding of what bullshit is, why there is so much of it, \
+or what function it serves. And we lack a conscientiously developed appreciation of what it means to us. In other words, we have \
+no theory. I propose to begin the development of a theoretical understanding of bullshit, mainly by providing some tentative and \
+exploratory philosophical analysis. I shall not consider the rhetorical uses and misuses of bullshit. My aim is simply to give a \
+rough account of what bullshit is and what it is not - or (putting it somewhat differently) to articulate, more or less sketchily \
+the structure of its concept. Any suggestion about what conditions are logically both necessary and sufficient for the constitution \
+of bullshit is bound to be somewhat arbitrary. For one thing, the expression)
+]
+[{ITAL}(bullshit)]
+[{REG}(is often employed quite loosely - simply as a generic term of abuse, with no very specific literal meaning. For another, \
+the phenomenon itself is so vast and amorphous that no crips and perspicuous analyisis of its concept can avoid being procrustean. \
+Nonetheless it should be possible to say something helpful, even thought it is not likely to be decisive. Even the most basic \
+and preliminary questions about bullshit remain, after all, not only unanswered but unasked. So for as I'm aware, very little \
+work has been done on this subject. I have not undertaken a survey of the literature, partly because I do not know how to go \
+about it. To be sure, there is one quite obvious place to look - the)]
+[{ITAL}(Oxford English Dictionary.)]
+[{REG}(The)]
+[{ITAL}(OED)]
+[{REG}(has an entry for)]
+[{ITAL}(bullshit)]
+[{REG}(in the supplementary volumes, and it also has entries for various pertinent uses of the word)]
+[{ITAL}(bull)]
+[{REG}(and some related terms. I shall consider some of these entries in due course. I have not consulted dictionaries in \
+languages other than English, because I do not know the words for bullshit or bull in any other language. Another worthwhile \
+source is the title essay in)]
+[{ITAL}(The Prevalence of Humbug)]
+[{REG}(by Max Black. I am uncertain just how close in meaning the word)]
+[{ITAL}(humbug)]
+[{REG}(is to the word)]
+[{ITAL}(bullshit.)]
+[{REG}(Of course, the words are not freely and fully interchangeable; it is clear that they are used differently. But the \
+difference appears on the whole to have more to do with considerations of gentility, and certain other rhetorical parameters, \
+than with the strictly literal modes of significance that concern me most. It is more polite, as well as less intense, to say \
+"Humbug!" than to say "Bullshit!" For the sake of this discussion, I shall assume that there is no other important difference between the two.)]
+  ]
+  text-flow-ragged-right 
+
 
 pgsave restore
 showpage
