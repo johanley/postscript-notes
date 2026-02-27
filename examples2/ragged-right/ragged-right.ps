@@ -50,6 +50,7 @@
 %  - moves to a currentpoint at the top-left of the work-box (0 ht moveto)
 /text-flow-ragged-right {
   [/leading /left-limit /right-limit /end-of-line runs] {
+    /SPACE ( ) def
     runs { 
       % [/render (str)]
       aload pop 
@@ -57,7 +58,7 @@
       /render defi
       str-words { % each word (splits on whitespace)
         /word defi
-        word /render test-off-page % dx dy
+        word /render test-off-page % dx dy  
         pop % dx  (I'm assuming dy is 0 here!)
         /word-width defi
         currentpoint % x y 
@@ -67,7 +68,7 @@
         exch % x-new right-lim
         sub /overshoot defi
         overshoot 0 le { 
-          word /render cvx exec 
+          word SPACE str-concat /render cvx exec 
         } { 
           /end-of-line cvx exec 
         } ifelse
@@ -82,7 +83,7 @@
 /test-off-page { 
   % Q: should I use 'stringwidth' instead?
   % The font is 'buried' in the /render proc's implementation.
-  % Can /render change the currentpoint in some weird way, in some cases?
+  % Can't the /render change the currentpoint in some weird way, in some cases?
   gsave % the currentpoint
   4 dict begin 
     0  ht 100 mul  moveto % way up, and off the page, I assume!
@@ -113,7 +114,7 @@
 
 /eol-simple {
   carriage-return-line-feed
-  word /render cvx exec
+  word SPACE str-concat /render cvx exec
 } bind def
 
 /right-limit-fixed { wd } bind def

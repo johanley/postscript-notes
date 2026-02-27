@@ -277,7 +277,7 @@
 % ( ) has 1 line.
 % (Bob) has 1 line.
 % Lines can be empty or non-empty.
-/str-line-count {
+/str-num-lines {
   dup length 0 eq {
     pop 0
   } { 
@@ -306,7 +306,7 @@
     /str str str-coerce-newlines-to-n def
     /cut 0 def % where to start/cut for a line 
     /idx 0 def  % an index into the str
-    /lines str str-line-count array def % the result
+    /lines str str-num-lines array def % the result
     /lines-idx 0 def
     /found-line {
       lines 
@@ -389,3 +389,38 @@
   str-num-parts
 } bind def
 
+% str -> [str]
+% Chop a string into an array of words, separating on all whitespace characters.
+/str-words {
+  [/str] {
+    /cut 0 def % where to start a word
+    /idx 0 def  % an index into the str
+    /words str str-num-words array def % the result
+    /words-idx 0 def
+    /found-word {
+      words 
+      words-idx 
+      str cut  idx cut sub   getinterval
+      put
+      /words-idx words-idx 1 add def
+    } def
+    /curr false def % whether a character-code is a 'good one' (not whitespace)
+    /prev false def
+    str {
+      % int 0..255
+      str-is-cc-whitespace? not /curr defi
+      % look for certain state transitions
+      curr prev not and {
+        /cut idx def % start a new cut
+      } if
+      curr not prev and {
+        found-word % end a cut
+      } if
+      /prev curr def % prepare for next iteration
+      /idx idx 1 add def
+    } forall
+    % remainder at the end, if any
+    curr { found-word } if
+    words
+  } def-tmp
+} bind def

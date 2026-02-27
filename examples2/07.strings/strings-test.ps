@@ -100,12 +100,12 @@
     Rastaman Vibration) (\n)] {str-cc-count} [1]  ] 
     [[(Bob Marley) (X)] {str-cc-count} [0]  ] 
 
-    [[(Bob Marley)] {str-line-count} [1]  ] 
-    [[()] {str-line-count} [0]  ]    
-    [[( )] {str-line-count} [1]  ] 
-    [[(abc \n def)] {str-line-count} [2]  ] 
+    [[(Bob Marley)] {str-num-lines} [1]  ] 
+    [[()] {str-num-lines} [0]  ]    
+    [[( )] {str-num-lines} [1]  ] 
+    [[(abc \n def)] {str-num-lines} [2]  ] 
     [[(abc 
-    def)] {str-line-count} [2]  ] 
+    def)] {str-num-lines} [2]  ] 
 
     [[(Abc)] {str-lines} [[(Abc)]]  ] 
     [[(One \n Two \n Three)] {str-lines} [[(One ) ( Two ) ( Three)]]  ] 
@@ -143,6 +143,18 @@
     [[(abc\t\r\n def)] {str-num-words} [2]   ] 
     [[(abc def xyz)] {str-num-words} [3]   ] 
     [[(   abc   def   xyz  \t\n)] {str-num-words} [3]   ] 
+    
+    [[(abc def xyz)] {str-words} [[(abc) (def) (xyz)]]   ] 
+    [[(a)] {str-words} [[(a)]]   ] 
+    [[( a)] {str-words} [[(a)]]   ] 
+    [[(a )] {str-words} [[(a)]]   ] 
+    [[( a )] {str-words} [[(a)]]   ] 
+    [[()] {str-words} [ [] ]   ] 
+    [[(a \n)] {str-words} [ [(a)] ]   ] 
+    [[(a \t\012\015)] {str-words} [ [(a)] ]   ] 
+    [[(A very good time it was.)] {str-words} [[(A) (very) (good) (time) (it) (was.)]]   ] 
+    [[( a           b       )] {str-words} [[(a) (b)]]   ] 
+
   ]
   /deep-eq?
   unit-test-suite
