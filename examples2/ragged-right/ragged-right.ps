@@ -1,4 +1,5 @@
 %!PS-Adobe-3.0
+%!PS-Adobe-3.0
 %%Title: Ragged Right
 %%Version: 1.0
 %%Creator: John O'Hanley
@@ -59,6 +60,8 @@
       /render defi
       str-words { % each word (splits on whitespace)
         /word defi
+        % TODO IF STARTS WITH ¶ (PARAGRAPH SYMBOL, OCTAL 266), THEN START A NEW PARAGRAPH.
+        % STRIP THE § CHARACTER.
         word /render test-off-page % dx dy  
         pop % dx  (I'm assuming dy is 0 here!)
         /word-width defi
@@ -217,7 +220,7 @@ extraordinary.)]
   {right-limit-fixed} % where to end a line 
   {eol-simple} % what to do when an overshoot is detected
   [ % runs of text
-[{REG}(One of the most salient features of our culture is that there is so much bullshit. Everyone knows this. \
+[{REG}(¶\266One of the most salient features of our culture is that there is so much bullshit. Everyone knows this. \
 Each of us contributes his share. But we tend to take the situation for granted. Most people are rather confident of their \
 ability to recognize bullshit and to avoid being taken in by it. So the phenomenon has not aroused much deliberate concern, nor \
 attracted much sustained inquiry. In consequence, we have no clear understanding of what bullshit is, why there is so much of it, \

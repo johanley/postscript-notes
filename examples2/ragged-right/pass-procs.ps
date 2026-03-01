@@ -1,0 +1,74 @@
+%!PS
+
+% experiment with passing procs as data
+
+% 1. using cvx on a proc does no harm.
+% 2. passing literals whose value is a literal is a problem.
+% 3. cvx on an arg that is either an anonymous proc or a literal is fine; no effect on the anon-proc.
+
+/do-this {
+  (doing this..) ==
+} def
+
+% proc: either an anonymous proc, or a proc's literal name.
+/consume-and-use {  
+  (consuming and using...) ==
+  cvx 
+  exec
+} def
+
+% proc (anon or literal)
+/pass-to-next-level {
+  (passing to next level...) ==
+  consume-and-use
+} def
+
+% proc (anon or literal)
+/pass-to-next-level-use-named-arg {
+  (passing to next level with named arg...) ==
+  /the-target exch def % ok if the arg is an anonymous proc, fails if a literal
+  /the-target consume-and-use
+} def
+
+% anon-proc or /proc-literal
+/pass-to-next-level-use-named-arg-and-literal {
+  (passing to next level with named arg and literal...) ==
+  cvx  % converts the literal to a proc; does no harm to the anon-proc
+  /the-target exch def
+  /the-target consume-and-use
+  /the-target type ==
+} def
+
+
+{do-this}
+consume-and-use
+
+/do-this
+consume-and-use
+
+{do-this}
+pass-to-next-level
+
+/do-this
+pass-to-next-level
+
+(A)==
+{do-this}
+pass-to-next-level-use-named-arg 
+
+% this does NOT execute the do-this proc
+% we're passing a literal here
+%(B)==
+%/do-this
+%pass-to-next-level-use-named-arg 
+
+(C)==
+/do-this 
+pass-to-next-level-use-named-arg-and-literal
+
+(D)==
+{do-this}
+pass-to-next-level-use-named-arg-and-literal
+
+count  ==
+quit
