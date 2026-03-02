@@ -182,6 +182,17 @@
 % y -> x-left
 /left-limit-fixed { pop 0 } bind def
 
+% y -> x-left
+/left-limit-init-cap {
+  pop
+  wd 7.5 pct  % default
+  init-cap-lines 0 lt {
+    0 mul
+  } if
+  userdict /init-cap-lines  init-cap-lines 1 sub  put
+  [(out:left-limit-init-cap ) init-cap-lines] any-concat ==
+} bind def
+
 % Regular font.
 /R { (regular) 100 use-font } bind def
 
@@ -207,9 +218,9 @@
     (regular) 400 use-font 
     /ltr-ht letter text-height def
     /dy ltr-ht x-ht sub def
-    %0 dy neg rmoveto
+    0 dy neg rmoveto
     letter show  % with no trailing space
-    %0 dy rmoveto 
+    0 dy rmoveto 
   } def-tmp
 } bind def
 
@@ -259,10 +270,13 @@
   (regular) 100 use-font
   
   0 wd pct ht 70 pct moveto
+  
+  /init-cap-lines 2 def
 
   (O)   % the initial letter of the text is rendered in a unique way
   2.5 em  % this needs a current font
-  {left-limit-fixed}  % where to start a line 
+  %{left-limit-fixed}  % where to start a line 
+  {left-limit-init-cap}
   {right-limit-fixed} % where to end a line 
   [ % array of atoms - control codes and text 
 /B(ne of the most salient features of our culture is that there is so much bullshit.) /R (Everyone knows this. \
