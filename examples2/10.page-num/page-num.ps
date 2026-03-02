@@ -1,0 +1,154 @@
+%!PS-Adobe-3.0
+%%Title: Page Numbering
+%%Version: 1.0
+%%Creator: John O'Hanley
+%%CreationDate: 2026-03-02
+%%LanguageLevel: 3.0
+%%DocumentMedia: Plain 612.0 792.0 60 white ()
+%%DocumentNeededResources: font Helvetica 
+%%BoundingBox: 0 0 612 792
+%%Orientation: Portrait 
+%%Pages: 4
+%%EndComments 
+
+%%BeginDefaults 
+%%EndDefaults
+
+%%BeginProlog
+
+% Number pages using the /BeginPage proc in the pagedevice dictionary.
+% Example implementations given here:
+%  - center the page number at the top of the page.
+%  - put the page number at the top-right or top-left, alternatively.
+%  - number in two styles, roman numerals first, then regular numbers.
+
+(../02.using/using.ps) run
+(../01.base/base.ps) using
+(../04.debug/debug.ps) using
+(../07.strings/strings.ps) using
+(../08.text-align/text-align.ps) using
+
+% int - number of times showpage has been called: 0, 1,...
+% The passed int can be used to provide a page number.
+% For each new page, the initgraphics operator is called; that resets many items, 
+% including the CTM, path, and currentpoint. The font is not affected, however.
+/start-new-page {
+  % nothing should happen for the final call to showpage, because 
+  % there's no next page after the final one.
+  dup 3 le { % 0,1,2,3  for 4 pages
+    (Starting new page...) here
+    % the work-box needs to be re-set for each new page
+    wd 10 pct   ht 5 pct translate % bottom left of the work-box
+    1 add 
+    page-number-centered
+    %page-number-parity
+    %page-number-roman-then-hindu-arabic
+    0 ht moveto % where the text will start
+  } if
+} bind def
+
+% int: 1, 2, ...
+% Example: '-14-' placed at the top-middle of the page.
+/page-number-centered {
+  (Centering the page number at the top.) here
+  wd 50 pct  ht 102 pct  moveto  % bit above the work-box
+  4 string cvs (-) str-concat 
+  (-) exch str-concat
+  show-ctr-x
+} bind def
+
+% int: 1, 2, ...
+% Example: '14' placed either on the top-right (odd number) or top-left (even number) of the page.
+/page-number-parity {
+  (Placing the page on the left or right.) here
+  dup % 14 14
+  4 string cvs exch % (14) 14
+  % Tradition: page 1 is a right-hand page.
+  2 mod 0 eq {
+    -2 % even: top left
+  } {
+    102 % odd: top right
+  } ifelse
+  wd exch pct  ht 102 pct  moveto 
+  show-ctr-x
+} bind def
+
+% int: 1, 2, ...
+% Two pages with roman numerals, then remaining pages have hindu-arabic numerals.
+/page-number-roman-then-hindu-arabic {
+  [/page-num] {
+    page-num 2 le {
+      (Placing roman numeral at the top.) here
+      <<1(i) 2(ii)>> page-num get 
+    } {
+      (Placing hindu-arabic numeral at the top.) here
+      page-num 2 sub 4 string cvs
+    } ifelse
+    (-) str-concat 
+    (-) exch str-concat
+    wd 50 pct  ht 102 pct  moveto  
+    show-ctr-x
+  } def-tmp
+} bind def
+
+%%EndProlog
+
+%%BeginSetup               
+  % this has to be set early, such that a font is active when drawing page 1:
+  /Helvetica 18 selectfont 
+  
+  /page-width  8.5 72 mul def
+  /page-height 11 72 mul def 
+  /wd page-width 80 pct def   
+  /ht page-height 90 pct def   
+  <<
+    /PageSize [page-width  page-height]
+    /BeginPage {start-new-page}  % the proc executed with each new page
+  >> setpagedevice  
+  << /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
+  true setstrokeadjust  % minimizes off-by-one-pixel line issues
+  
+%%EndSetup 
+
+%%Page: 1 1
+%%BeginPageSetup 
+/pgsave save def     
+%%EndPageSetup
+  0 wd pct  ht 85 pct moveto
+  (This is page 1.) show
+pgsave restore
+showpage
+%%PageTrailer
+
+%%Page: 2 2
+%%BeginPageSetup 
+/pgsave save def     
+%%EndPageSetup
+  0 wd pct  ht 85 pct moveto
+  (This is page 2.) show
+pgsave restore
+showpage
+%%PageTrailer
+
+%%Page: 3 3
+%%BeginPageSetup 
+/pgsave save def     
+%%EndPageSetup
+  0 wd pct  ht 85 pct moveto
+  (This is page 3.) show
+pgsave restore
+showpage
+%%PageTrailer
+
+%%Page: 4 4 
+%%BeginPageSetup 
+/pgsave save def     
+%%EndPageSetup
+  0 wd pct  ht 85 pct moveto
+  (This is page 4.) show
+pgsave restore
+showpage
+%%PageTrailer
+
+%%Trailer    
+%%EOF 

@@ -1,0 +1,27 @@
+C:\johanley\ProjectsPhoton\postscript-notes\examples2\10.page-num>C:\ghostscript\gs10.04.0\bin\gswin64c.exe -dNOSAFER -sDEVICE=pdfwrite -o page-num.pdf page-num.ps
+GPL Ghostscript 10.04.0 (2024-09-18)
+Copyright (C) 2024 Artifex Software, Inc.  All rights reserved.
+This software is supplied under the GNU AGPLv3 and comes with NO WARRANTY:
+see the file COPYING for details.
+(using.ps is initializing...)
+(../01.base/base.ps)
+(  running...)
+(../04.debug/debug.ps)
+(  running...)
+(../07.strings/strings.ps)
+(  running...)
+(../01.base/base.ps)
+(  already run)
+(../08.text-align/text-align.ps)
+(  running...)
+Loading NimbusSans-Regular font from %rom%Resource/Font/NimbusSans-Regular... 4074648 2697227 2029576 721145 1 done.
+(Starting new page...)
+(Centering the page number at the top.)
+(Starting new page...)
+(Centering the page number at the top.)
+(Starting new page...)
+(Centering the page number at the top.)
+(Starting new page...)
+(Centering the page number at the top.)
+
+C:\johanley\ProjectsPhoton\postscript-notes\examples2\10.page-num>
