@@ -1,0 +1,440 @@
+%!PS-Adobe-3.0
+%%Title: Fixed Line Breaks
+%%Version: 1.0
+%%Creator: John O'Hanley
+%%CreationDate: 2026-02-25
+%%LanguageLevel: 3.0
+%%DocumentMedia: Plain 612.0 792.0 60 white ()
+%%DocumentNeededResources: font Helvetica Helvetica-Bold Helvetica-Oblique Consolas Consolas-Italic
+%%BoundingBox: 0 0 612 792
+%%Orientation: Portrait 
+%%Pages: 1
+%%EndComments 
+
+%%BeginDefaults 
+%%EndDefaults
+
+%%BeginProlog
+
+% RENDER TEXT WITH KNOWN LINE BREAKS.
+% The text doesn't cross a page break.
+% This is the simplest case for laying out lines of text on a single page.
+
+(../01.base/base.ps) run
+(../02.using/using.ps) run
+(../04.debug/debug.ps) run
+(../05.font-management/fonts.ps) using
+(../07.strings/strings.ps) using
+(../08.text-align/text-align.ps) using
+
+% dict
+% Render multiple lines of text with fixed line breaks, using the current font.
+% The current point must exist. 
+% The currentpoint.x is retained for all lines.
+% New pages are created if the text extends beyond one page.
+% SEE EXAMPLE DICT BELOW.
+/fixed-line-breaks-1-font {
+  4 dict begin
+    { def } forall 
+    currentpoint pop /x0 defi
+    lines str-lines {
+      show % the whole line
+      advance-the-line % might cause a new page
+    } forall % lines
+  end
+} bind def
+
+% New-line: set the starting position for the next line.
+% This can cause a new-page as well.
+/advance-the-line {
+  x0 % always align with the original x-position
+  currentpoint exch pop % x0 y 
+  leading sub % x0 y-minus-one-line
+  dup 0 lt {
+    pop pop % discard the stack
+    showpage % top-left of the next page, at x0 (see start-new-page)
+  } {
+    moveto
+  } ifelse
+} bind def
+
+% int - number of times /showpage has been called: 0, 1,...
+% The passed int can be used to provide a page number.
+% For each new page, the initgraphics operator is called; that resets many items, 
+% including the CTM, path, and currentpoint. The font is not affected, however.
+/start-new-page {
+  pop
+  (Starting new page...) here
+  % the work-box needs to be re-set for each new page
+  wd 10 pct   ht 5 pct translate % origin is bottom left of the work-box
+  0  currentdict /x0 known {x0 add (indent with x0)== }if 
+  ht 
+  moveto % the top-left of the work-box (maybe indented to x0)
+} bind def
+
+% dict
+% Render multiple lines of text with fixed line breaks, with possibly multiple fonts per line.
+% The current point must exist. 
+% The currentpoint.x is retained for all lines.
+% New pages are created if the text extends beyond one page.
+% SEE EXAMPLE DICT BELOW.
+/fixed-line-breaks-N-fonts {
+  4 dict begin
+    { def } forall 
+    currentpoint pop /x0 defi
+    lines { 
+      % [procs]
+      % a single line is  an array of procs
+      % one proc for each 'run' of contiguous text that shares one font
+      { 
+        (exec a proc) here
+        exec 
+      } forall % procs in a line
+      advance-the-line
+    } forall % lines
+  end
+} bind def
+
+% str
+% Intended for ALL CAPS text.
+% (A better implementation would use 'small-caps' typeface here.)
+/CAP {
+  0.40 setcolor
+  (capital) 100 use-font show
+  0 setcolor
+} bind def
+
+% str
+% Regular text.
+/REG {
+  (regular) 100 use-font show
+} bind def
+
+% str
+% Italic text.
+/ITAL {
+  (italic) 100 use-font show
+} bind def
+
+% str
+% Text of program code. Uses a fixed-width font.
+/CODE {
+  (fixed-width) 80 use-font show
+} bind def
+
+% str
+% A code comment. Uses a fixed-width font.
+/COM {
+  [(in: COM ) x0] any-concat here
+  0.33 setcolor
+  (fixed-width-italic) 80 use-font show
+  0 setcolor
+} bind def
+
+%%EndProlog
+
+%%BeginSetup               
+  /page-width  8.5 72 mul def
+  /page-height 11 72 mul def % absolute values
+  /wd page-width 80 pct def   
+  /ht page-height 90 pct def   
+  <<
+    /PageSize [page-width  page-height]
+    /BeginPage {start-new-page}  % the proc executed with each new page
+  >> setpagedevice  
+  << /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
+  true setstrokeadjust  % minimizes off-by-one-pixel line issues
+
+  /MyRegular /Helvetica latinize
+  /MyCapital /Helvetica-Bold latinize
+  /MyItalic /Helvetica-Oblique latinize
+  /MyFixedWidth /Consolas latinize
+  /MyFixedWidthItalic /Consolas-Italic latinize
+  << 
+    (regular) /MyRegular
+    (capital) /MyCapital
+    (italic) /MyItalic
+    (fixed-width) /MyFixedWidth
+    (fixed-width-italic) /MyFixedWidthItalic
+  >>
+  page-height 1.5 pct 
+  init-my-fonts
+
+%%EndSetup 
+
+%%Page: 1 1
+%%BeginPageSetup 
+ /pgsave save def     
+%%EndPageSetup
+
+
+  wd 10 pct  ht 100 pct  moveto  % the lines all start at this currentpoint.x
+  % WARNING: a font needs to be present for the leading calc to work below
+  (fixed-width) 80 use-font  
+  << 
+    /leading 1.75 em  % this needs a font to be present!
+    /lines [
+      [ {(% x-pct y-pct)COM} ]
+      [ {(% moveto, but expressed using percentages of)COM} ]
+      [ {(% the /page-width and /page-height)COM}  ]
+      [ {(/pmoveto {)CODE} ]
+      [ {(  [/x-pct /y-pct] {)CODE} ]
+      [ {(    page-width x-pct pct)CODE} ]
+      [ {(    page-height y-pct pct)CODE} ]
+      [ {(    moveto)CODE} {( % a new position)COM}]
+      [ {(  } def-tmp)CODE} ]
+      [ {(} bind def)CODE} ]
+    ]
+  >> fixed-line-breaks-N-fonts
+
+  % This is tedious to enter.
+  % Fancy Idea: temporarily redefine 'def' to take a proc-as-string; store the string; then cvx the string to make it a proc
+  % That way the original string is available for documentation.
+  0 1.75 em 2 mul neg rmoveto  
+  << 
+    /leading 1.75 em  
+    /lines [
+[{(% dict) COM}]
+[{(% Render multiple lines of text with fixed line breaks, using the current font.) COM}]
+[{(% The current point must exist.) COM} ]
+[{(% The currentpoint.x is retained for all lines.) COM}]
+[{(% New pages are created if the text extends beyond one page.) COM}]
+ [{(% SEE EXAMPLE DICT BELOW.) COM}]
+ [{(/fixed-line-breaks-1-font { ) CODE}]
+ [{(  4 dict begin) CODE}]
+ [{(    { def } forall ) CODE}]
+ [{(    currentpoint pop /x0 defi) CODE}]
+ [{(    lines str-lines {) CODE}]
+ [{(      show) CODE} {( % the whole line) COM}]
+ [{(      advance-the-line) CODE} { ( % might cause a new page) COM}]
+[{(    } forall) CODE} {( % lines) COM}]
+[{(  end) CODE}]
+[{(} bind def) CODE}]
+[{() CODE}]
+[{(% New-line: set the starting position for the next line.) COM}]
+[{(% This can cause a new-page as well.) COM}]
+[{(/advance-the-line {) CODE}]
+[{(  x0 ) CODE} {( % always align with the original x-position]) COM} ]
+[{(  currentpoint exch pop) CODE} {( % x0 y ) COM}]
+[{(  leading sub ) CODE} {( % x0 y-minus-one-line) COM}]
+[{(  dup 0 lt {) CODE}]
+[{(    pop pop) CODE} {( % discard the stack) COM}]
+[{(    showpage) CODE} {( % top-left of the next page, at x0 (see start-new-page)) COM}]
+[{(  } {) CODE}]
+[{(    moveto) CODE}]
+[{(  } ifelse) CODE}]
+[{(} bind def) CODE}]
+[{() CODE}]
+[{(% int - number of times /showpage has been called: 0, 1,...) COM}]
+[{(% The passed int can be used to provide a page number.) COM}]
+[{(% For each new page, the initgraphics operator is called; that resets many items, ) COM}]
+[{(% including the CTM, path, and currentpoint. The font is not affected, however.) COM}]
+[{(/start-new-page {) CODE}]
+[{(  pop) CODE}]
+[{(  (Starting new page...) here) CODE}]
+[{(  % the work-box needs to be re-set for each new page) COM}]
+[{(  wd 10 pct   ht 5 pct translate ) CODE} {( % origin is bottom left of the work-box) COM}]
+[{(  0  currentdict /x0 known {x0 add (indent with x0)== }if ) CODE}]
+[{(  ht ) CODE}]
+[{(  moveto ) CODE} {( % the top-left of the work-box (maybe indented to x0)) COM}]
+[{(} bind def) CODE}]
+  ]
+  >> fixed-line-breaks-N-fonts
+  
+  % This is easier to enter (copy-paste), but less attractive visually.
+  (fixed-width) 80 use-font  
+  0 1.75 em 3 mul neg rmoveto
+  << 
+    /leading 1.75 em  
+    /lines   
+(% dict
+% Render multiple lines of text with fixed line breaks, using the current font.
+% The current point must exist. 
+% The currentpoint.x is retained for all lines.
+% New pages are created if the text extends beyond one page.
+% SEE EXAMPLE DICT BELOW.
+/fixed-line-breaks-1-font {
+  4 dict begin
+    { def } forall 
+    currentpoint pop /x0 defi
+    lines str-lines {
+      show % the whole line
+      advance-the-line % might cause a new page
+    } forall % lines
+  end
+} bind def
+
+% New-line: set the starting position for the next line.
+% This can cause a new-page as well.
+/advance-the-line {
+  x0 % always align with the original x-position
+  currentpoint exch pop % x0 y 
+  leading sub % x0 y-minus-one-line
+  dup 0 lt {
+    pop pop % discard the stack
+    showpage % top-left of the next page, at x0 (see start-new-page)
+  } {
+    moveto
+  } ifelse
+} bind def
+
+% int - number of times /showpage has been called: 0, 1,...
+% The passed int can be used to provide a page number.
+% For each new page, the initgraphics operator is called; that resets many items, 
+% including the CTM, path, and currentpoint. The font is not affected, however.
+/start-new-page {
+  pop
+  (Starting new page...) here
+  % the work-box needs to be re-set for each new page
+  wd 10 pct   ht 5 pct translate % origin is bottom left of the work-box
+  0  currentdict /x0 known {x0 add (indent with x0)== }if 
+  ht 
+  moveto % the top-left of the work-box (maybe indented to x0)
+} bind def)    
+   >> fixed-line-breaks-1-font
+  
+  
+  (regular) 100 use-font
+  0 1.75 em 3 mul neg rmoveto
+
+  % % if the string is long, then new pages will be created.
+  << 
+    /leading 1.75 em  % how far to move down for the next line
+    /lines   % 1 string, with newline characters in the string defining each line
+    % source: https://shakespeare.mit.edu/twelfth_night/full.html
+    
+(ACT I
+
+SCENE I. DUKE ORSINO's palace.
+
+Enter DUKE ORSINO, CURIO, and other Lords; Musicians attending    
+
+DUKE ORSINO: If music be the food of love, play on;
+Give me excess of it, that, surfeiting,
+The appetite may sicken, and so die.
+That strain again! it had a dying fall:
+O, it came o'er my ear like the sweet sound,
+That breathes upon a bank of violets,
+Stealing and giving odour! Enough; no more:
+'Tis not so sweet now as it was before.
+O spirit of love! how quick and fresh art thou,
+That, notwithstanding thy capacity
+Receiveth as the sea, nought enters there,
+Of what validity and pitch soe'er,
+But falls into abatement and low price,
+Even in a minute: so full of shapes is fancy
+That it alone is high fantastical.
+CURIO: Will you go hunt, my lord?
+DUKE ORSINO: What, Curio?
+CURIO: The hart.
+DUKE ORSINO: Why, so I do, the noblest that I have:
+O, when mine eyes did see Olivia first,
+Methought she purged the air of pestilence!
+That instant was I turn'd into a hart;
+And my desires, like fell and cruel hounds,
+E'er since pursue me. [Enter VALENTINE]
+How now! what news from her?
+VALENTINE: So please my lord, I might not be admitted;
+But from her handmaid do return this answer:
+The element itself, till seven years' heat,
+Shall not behold her face at ample view;
+But, like a cloistress, she will veiled walk
+And water once a day her chamber round
+With eye-offending brine: all this to season
+A brother's dead love, which she would keep fresh
+And lasting in her sad remembrance.
+DUKE ORSINO: O, she that hath a heart of that fine frame
+To pay this debt of love but to a brother,
+How will she love, when the rich golden shaft
+Hath kill'd the flock of all affections else
+That live in her; when liver, brain and heart,
+These sovereign thrones, are all supplied, and fill'd
+Her sweet perfections with one self king!
+Away before me to sweet beds of flowers:
+Love-thoughts lie rich when canopied with bowers.)    
+  >> fixed-line-breaks-1-font
+
+  0 1.75 em 2 mul neg rmoveto  
+  << 
+    /leading 1.75 em  
+    /lines   
+(SCENE II. The sea-coast.
+
+Enter VIOLA, a Captain, and Sailors
+
+VIOLA: What country, friends, is this?
+Captain: This is Illyria, lady.
+VIOLA: And what should I do in Illyria?
+My brother he is in Elysium.
+Perchance he is not drown'd: what think you, sailors?
+Captain: It is perchance that you yourself were saved.
+VIOLA: O my poor brother! and so perchance may he be.
+Captain: True, madam: and, to comfort you with chance,
+Assure yourself, after our ship did split,
+When you and those poor number saved with you
+Hung on our driving boat, I saw your brother,
+Most provident in peril, bind himself,
+Courage and hope both teaching him the practise,
+To a strong mast that lived upon the sea;
+Where, like Arion on the dolphin's back,
+I saw him hold acquaintance with the waves
+So long as I could see.
+VIOLA: For saying so, there's gold:
+Mine own escape unfoldeth to my hope,
+Whereto thy speech serves for authority,
+The like of him. Know'st thou this country?
+Captain: Ay, madam, well; for I was bred and born
+Not three hours' travel from this very place.
+VIOLA: Who governs here?
+Captain: A noble duke, in nature as in name.
+VIOLA: What is the name?
+Captain: Orsino.
+VIOLA: Orsino! I have heard my father name him:
+He was a bachelor then.
+Captain: And so is now, or was so very late;
+For but a month ago I went from hence,
+And then 'twas fresh in murmur,--as, you know,
+What great ones do the less will prattle of,--
+That he did seek the love of fair Olivia.
+VIOLA: What's she?
+Captain: A virtuous maid, the daughter of a count
+That died some twelvemonth since, then leaving her
+In the protection of his son, her brother,
+Who shortly also died: for whose dear love,
+They say, she hath abjured the company
+And sight of men.
+VIOLA: O that I served that lady
+And might not be delivered to the world,
+Till I had made mine own occasion mellow,
+What my estate is!
+Captain: That were hard to compass;
+Because she will admit no kind of suit,
+No, not the duke's.
+VIOLA: There is a fair behavior in thee, captain;
+And though that nature with a beauteous wall
+Doth oft close in pollution, yet of thee
+I will believe thou hast a mind that suits
+With this thy fair and outward character.
+I prithee, and I'll pay thee bounteously,
+Conceal me what I am, and be my aid
+For such disguise as haply shall become
+The form of my intent. I'll serve this duke:
+Thou shall present me as an eunuch to him:
+It may be worth thy pains; for I can sing
+And speak to him in many sorts of music
+That will allow me very worth his service.
+What else may hap to time I will commit;
+Only shape thou thy silence to my wit.
+Captain: Be you his eunuch, and your mute I'll be:
+When my tongue blabs, then let mine eyes not see.
+VIOLA: I thank thee: lead me on.
+
+Exeunt)
+  >> fixed-line-breaks-1-font
+
+
+pgsave restore
+showpage
+%%PageTrailer
+%%Trailer    
+%%EOF 

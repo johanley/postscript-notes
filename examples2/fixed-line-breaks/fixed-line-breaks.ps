@@ -26,11 +26,12 @@
 (../07.strings/strings.ps) using
 (../08.text-align/text-align.ps) using
 
-% [str]
+% dict
 % Render several lines of text with fixed line breaks, using the current font.
 % The current point must exist.
 % The text will not extend beyond the bottom of the page.
 % At the end of this proc, the currentpoint will be one line below the last line, on the same page.
+% SEE EXAMPLE DICT BELOW.
 /fixed-line-breaks-1-font {
   4 dict begin
     { def } forall 
