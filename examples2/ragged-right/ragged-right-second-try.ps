@@ -26,7 +26,7 @@
 (../07.strings/strings.ps) using
 (../08.text-align/text-align.ps) using
 
-% leading /left-limit /right-limit [atoms]
+% initial-letter leading /left-limit /right-limit [atoms]
 %
 % (The literal name objects passed here are names of procs.)
 % Render text in a ragged-right style.
@@ -51,8 +51,9 @@
 %  - defines /wd and /ht for the width and height of the work-box
 %  - moves to a currentpoint at the top-left of the work-box (0 ht moveto)
 /text-flow-ragged-right {
-  [/leading /left-limit /right-limit /atoms] {
+  [/initial-letter /leading /left-limit /right-limit /atoms] {
     (in:text-flow-ragged-right) here
+    initial-letter as-large-capital
     atoms { 
       dup
       type /nametype eq {
@@ -77,7 +78,7 @@
     % probe the resulting position
     % possibly make changes to the currentposition before executing the atom
     args aload pop   
-    % hacky: code specific to show-ing strings:
+    % hacky: code specific to show-ing strings (should I just pass an arg for that?)
     args length 1 eq {
       args 0 get type /stringtype eq {
         str-trim % remove the trailing space from the arg 
@@ -90,9 +91,9 @@
       pop pop % discard x y 
       NEW-PAGE
     } { % x y
-      right-limit sub % deviation
+      right-limit sub 
       /deviation defi 
-      /new-line? deviation 0 gt def
+      /new-line? deviation 0 gt def % line overflow
       new-line? {
         args length 1 eq {
           % hacky: this check is used to identify the use of /show with a word.
@@ -196,6 +197,22 @@
   2 em 0 rmoveto % indentation
 } bind def
 
+% letter
+% Show a single letter as a large capital. 
+% Arrange the placement such that subsequent regular text aligns with the top of the letter.
+/as-large-capital {
+  [/letter] {
+    (regular) 100 use-font 
+    /x-ht 1 ex def
+    (regular) 400 use-font 
+    /ltr-ht letter text-height def
+    /dy ltr-ht x-ht sub def
+    %0 dy neg rmoveto
+    letter show  % with no trailing space
+    %0 dy rmoveto 
+  } def-tmp
+} bind def
+
 % int - number of times showpage has been called: 0, 1,...
 % The passed int can be used to provide a page number.
 % For each new page, the initgraphics operator is called; that resets many items, 
@@ -242,12 +259,13 @@
   (regular) 100 use-font
   
   0 wd pct ht 70 pct moveto
-  
+
+  (O)   % the initial letter of the text is rendered in a unique way
   2.5 em  % this needs a current font
   {left-limit-fixed}  % where to start a line 
   {right-limit-fixed} % where to end a line 
   [ % array of atoms - control codes and text 
-/B (One of the most salient features of our culture is that there is so much bullshit.) /R (Everyone knows this. \
+/B(ne of the most salient features of our culture is that there is so much bullshit.) /R (Everyone knows this. \
 Each of us contributes his share. But we tend to take the situation for granted. Most people are rather confident of their \
 ability to recognize bullshit and to avoid being taken in by it. So the phenomenon has not aroused much deliberate concern, nor \
 attracted much sustained inquiry.) 
@@ -278,8 +296,6 @@ polite, as well as less intense, to say "Humbug!" than to say "Bullshit!" For th
 there is no other important difference between the two.)
   ]
   text-flow-ragged-right 
-
-  
 
 %pgsave restore
 showpage
