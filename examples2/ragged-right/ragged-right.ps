@@ -17,6 +17,8 @@
 %%BeginProlog
 
 % RENDER TEXT WITH A RAGGED-RIGHT MARGIN.
+% Also implements a large initial capital letter (drop-cap).
+% If that's removed, the implementation is simpler.
 
 (../02.using/using.ps) run
 
@@ -33,7 +35,6 @@
 % The [atoms] array contains strings and control codes, marked/executed in sequence: 
 %    [/R (This is regular text. Here's a single word of) /B (bold) /R (text.)]
 % The control codes are literal names of procs. They change font or currentposition. 
-% They can't have weird side-effects on your program state, because they are test-executed against nulldevice.
 % The strings are chopped into single words (split on whitespace), and marked with the 'show' operator in the usual way.
 %
 % The mental model here is that of executing one 'atom' at a time. 
@@ -42,6 +43,8 @@
 %
 % For each atom, probe-ahead tests are made for line-overflow (on the right) and page-overflow (on the bottom).
 % INTERESTING: those tests are made versus the 'nulldevice', and make no mark upon the output.
+% If your atoms change program-state, then a save-restore mechanism is in place such that the probe-ahead
+% will only affect a temp, writeable copy of your program-state.
 %
 % The /left-limit and /right-limit procs map a y-value to a corresponding left-or-right boundary.
 % Those limits can be fixed or dynamic; a dynamic style allows for text to wrap around an image (for example).
@@ -74,7 +77,6 @@
 } bind def
 
 % [args] proc
-% (I'm passing args in an array in order to be generic and flexible for possible future needs.)
 /process-atom {
   [/args /proc-literal] {
     % probe the resulting position
@@ -108,14 +110,14 @@
         } if
       } if
       new-line? {
-         /CR-LF probe-ahead % x y 
+         /NEW-LINE probe-ahead % x y 
          exch pop % y 
          0 lt {
            (overflow: page) here
            NEW-PAGE
          } {
            (overflow: line) here
-           CR-LF
+           NEW-LINE
          } ifelse
       } if
     } ifelse
@@ -129,9 +131,10 @@
 % If the proc has args, then the caller must place them on the operand stack.
 %
 % Occasionally, your atoms will need to alter state in your program (side effects).
-% This should never occur during probe-ahead. 
-% An atom's proc can easily detect if it's being executed in probe-ahead mode: currentpagedevice returns a zero-length dict.
+% In that case, use the save-restore mechanism implemented below, to ensure that probe-ahead operations 
+% interact only with a temp, writeable copy of the program-state.
 /probe-ahead {
+  save-program-state
   gsave % the currentpoint
   4 dict begin 
     % using the nulldevice ensures no effect on the actual page.
@@ -152,6 +155,45 @@
   add % y dy xnew
   3 1 roll % xnew y dy
   add % xnew ynew
+  restore-program-state
+} bind def
+
+% Returns true iff the nulldevice is currently in effect.
+/probing-ahead? {
+  currentpagedevice length 0 eq
+} bind def
+
+% y -> x-right
+/right-limit-fixed { pop wd } bind def
+
+% y -> x-left
+/left-limit-fixed { pop 0 } bind def
+
+% y -> x-left
+% For the first few lines, indent a little bit, to make room for the big initial letter.
+/left-limit-init-cap {
+  pop
+  0  % default
+  % IMPORTANT: use actions/operators here that search the dict stack TOP-DOWN, to implement 
+  % the save-restore mechanism. 
+  % Here, the 'real' data lives in userdict, and a 'temp/probing' version of the data 
+  % lives in a dict higher than userdict.
+  init-cap-lines 0 gt {   % read: name look-up is top-down (as usual)
+    wd 7.5 pct add
+    /init-cap-lines  init-cap-lines 1 sub   store % write: 'store' has top-down logic
+  } if
+} bind def
+
+% At the start of probe-ahead, save program state that might be changed by an atom's implementation.
+/save-program-state {
+  1 dict begin
+  % copy your program-state from a lower dict into the new current dict
+  /init-cap-lines  /init-cap-lines load  def   % 'load' has top-down behaviour
+} bind def
+
+% At the end of probe-ahead, restore program state that might be changed by an atom's implementation.
+/restore-program-state {
+  end
 } bind def
 
 % this will call /BeginPage (a configured proc in the device-directory)
@@ -162,7 +204,7 @@
 
 % Move the currentpoint to the start of the next line.
 % Move down using the 'leading'.
-/CR-LF {
+/NEW-LINE {
   (crlf...) here
   currentpoint ht eq  exch 0 eq  and {
     % y = ht and x = 0
@@ -178,22 +220,6 @@
   } ifelse
 } bind def
 
-% y -> x-right
-/right-limit-fixed { pop wd } bind def
-
-% y -> x-left
-/left-limit-fixed { pop 0 } bind def
-
-% y -> x-left
-/left-limit-init-cap {
-  pop
-  wd 7.5 pct  % default
-  init-cap-lines 0 lt {
-    0 mul
-  } if
-  userdict /init-cap-lines  init-cap-lines 1 sub  put
-} bind def
-
 % Regular font.
 /R { (regular) 100 use-font } bind def
 
@@ -205,12 +231,12 @@
 
 % Start a new paragraph. 
 /P {
-  CR-LF 
+  NEW-LINE 
   2 em 0 rmoveto % indentation
 } bind def
 
 % letter
-% Show a single letter as a large capital. 
+% Show a single letter as a large capital (drop caps).
 % Arrange the placement such that subsequent regular text aligns with the top of the letter.
 /as-large-capital {
   [/letter] {
@@ -241,12 +267,12 @@
 
 %%BeginSetup               
   /page-width  8.5 72 mul def
-  /page-height 11 72 mul def % absolute values
+  /page-height 11 72 mul def 
   /wd page-width 80 pct def   
   /ht page-height 90 pct def   
   <<
     /PageSize [page-width  page-height]
-    /BeginPage {start-new-page}
+    /BeginPage {start-new-page}  % the proc executed with each new page
   >> setpagedevice  
   << /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
   true setstrokeadjust  % minimizes off-by-one-pixel line issues
@@ -271,7 +297,9 @@
   (regular) 100 use-font
   
   0 wd pct ht 85 pct moveto
-  ()   % any  initial letter of the text is rendered in a unique way
+  /init-cap-lines 0 def % this lives in userdict; temporary, writeable copies are made when probe-ahead is called
+  
+  ()   % no large initial letter
   2.5 em  % this needs a current font
   {left-limit-fixed}  % where to start a line 
   {right-limit-fixed} % where to end a line 
@@ -282,32 +310,30 @@
 
   
   0 wd pct ht 70 pct moveto
-  
-  /init-cap-lines 2 def
+  /init-cap-lines 1 def
 
   (O)   % the initial letter of the text is rendered in a unique way
-  2.5 em  % this needs a current font
-  %{left-limit-fixed}  % where to start a line 
-  {left-limit-init-cap}
+  2.5 em  
+  {left-limit-init-cap} % indentation for the large initial letter
   {right-limit-fixed} % where to end a line 
   [ % array of atoms - control codes and text 
 /B(ne of the most salient features of our culture is that there is so much bullshit.) /R (Everyone knows this. \
 Each of us contributes his share. But we tend to take the situation for granted. Most people are rather confident of their \
 ability to recognize bullshit and to avoid being taken in by it. So the phenomenon has not aroused much deliberate concern, nor \
 attracted much sustained inquiry.) 
-/P (In consequence, we have no clear understanding of what bullshit is, why there is so much of it, \
+  /P (In consequence, we have no clear understanding of what bullshit is, why there is so much of it, \
 or what function it serves. And we lack a conscientiously developed appreciation of what it means to us. In other words, we have \
 no theory. I propose to begin the development of a theoretical understanding of bullshit, mainly by providing some tentative and \
 exploratory philosophical analysis. I shall not consider the rhetorical uses and misuses of bullshit. My aim is simply to give a \
 rough account of what bullshit is and what it is not - or (putting it somewhat differently) to articulate, more or less sketchily \
 the structure of its concept.) 
-/P (Any suggestion about what conditions are logically both necessary and sufficient for the constitution \
+  /P (Any suggestion about what conditions are logically both necessary and sufficient for the constitution \
 of bullshit is bound to be somewhat arbitrary. For one thing, the expression) /I (bullshit) 
 /R (is often employed quite loosely - simply as a generic term of abuse, with no very specific literal meaning. \
 For another, the phenomenon itself is so vast and amorphous that no crips and perspicuous analyisis of its concept can avoid \
 being procrustean. Nonetheless it should be possible to say something helpful, even thought it is not likely to be decisive. \
 Even the most basic and preliminary questions about bullshit remain, after all, not only unanswered but unasked.) 
-/P (So for as I'm aware, very little work has been done on this subject. I have not undertaken a survey of the literature, \
+  /P (So for as I'm aware, very little work has been done on this subject. I have not undertaken a survey of the literature, \
 partly because I do not know how to go about it. To be sure, there is one quite obvious place to look - the) 
 /I (Oxford English Dictionary.) 
 /R(The) /I (OED) /R(has an entry for) /I(bullshit) 
