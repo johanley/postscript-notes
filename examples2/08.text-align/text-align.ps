@@ -101,3 +101,22 @@
   show
 } bind def
 
+% str (ALL CAPS)
+% Like /show, but temporarily rescales the current font to reflect the small-caps style.
+% Derived from the 'Tutorial and Cookbook':
+% https://archive.org/details/PSBlueBook/page/181/mode/2up?view=theater
+/show-small-caps { 
+  3 dict begin    
+    /M 1 em def 
+    /x 1 ex def 
+    % (x + (M-x)/3) / M
+    /y-scale x M x sub 3 div add M div def % the calc for the y-rescaling
+    gsave
+      % 90 percent in the x-direction, variable for the y-direction
+      currentfont [.9 0 0 y-scale 0 0] makefont setfont  
+      show         % show the string with a temp small-caps font
+      currentpoint % ensure currentpoint behaves like 'show' (grestore will revert it)
+    grestore % the old font
+    moveto   % the currentpoint (placed on the stack, above)
+  end 
+} bind def

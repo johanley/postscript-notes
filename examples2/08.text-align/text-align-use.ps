@@ -48,7 +48,7 @@
   /Helvetica 24 selectfont 
   % use text 'belittle' and 'syzygy' to see the effect of 
   % ascenders/descenders on vertical alignment:
-  /my-text (belittle) def
+  /my-text (syzygy) def
   
   10 90 pmoveto 
   my-text show
@@ -88,6 +88,9 @@
   50 35 pmoveto
   5 show-currentpoint
   my-text show-right-align-ctr-y
+  
+  10 25 pmoveto
+  (THIS IS SMALL CAPS. ) show-small-caps (This is REGULAR text.) show
 
 pgsave restore
 showpage
