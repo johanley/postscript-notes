@@ -1,0 +1,296 @@
+%!PS-Adobe-3.0
+%%Title: Arcs
+%%Version: 1.0
+%%Creator: John O'Hanley
+%%CreationDate: 2026-03-03
+%%LanguageLevel: 3.0
+%%DocumentMedia: Plain 720.0 720.0 60 white ()
+%%DocumentNeededResources: font Helvetica
+%%BoundingBox: 0 0 720 720
+%%Orientation: Portrait 
+%%Pages: 1
+%%EndComments 
+
+%%BeginDefaults 
+%%EndDefaults
+
+
+% EXPLORE THE 'arc' COMMANDS.
+
+% arc:  angle1 < angle2; if not then angle2 is coerced +N*360; counter-clockwise from +x-axis
+% arcn: angle1 > angle2; if not then angle2 is coerced -N*360; clockwise         from +x-axis
+% When you switch the order of the angles AND arc <--> arcn, then the path is the same, but switches direction.
+
+% Angles can take negative values.
+
+% The path behaviour is very particular:
+%   - arc APPENDS to the current path if it exists, otherwise it starts a NEW path
+%   - at the end of the operation, the currentpoint is always the end of the arc.
+% When making a circle, pay attention to whether or not a currentpoint exists.
+
+% Circles will be traced N times if the delta between the angles is really big.
+
+% Arcs are implemented internally by Bézier curves!
+
+
+%%BeginProlog
+
+(../02.using/using.ps) run
+(../01.base/base.ps) using
+
+% label y-pct
+% y is a pct of the work-box height.
+% Attach a helpful label to the row of drawings, so the drawings can be 
+% matched to source code.
+/start-row {
+  [/label /y-pct] {
+    wd 2 pct   ht y-pct pct moveto 
+    label show
+    newpath 
+  } def-tmp
+} bind def
+
+% {..} x-pct y-pct  
+% Uses percentages of the work-box. 
+% Translates to the specified position, where the drawing is executed.
+% Note that an anonymous proc {..} is passed to this proc.
+/draw {
+  [/x /y] {
+    gsave 
+      wd x pct  ht y pct translate
+      newpath % the currentpoint is set to undefined too
+      exec  % the passed proc
+    grestore
+  } def-tmp
+} bind def 
+
+/arc-360 {
+ newpath
+ 0 0 50 0 360 arc stroke
+} def
+
+/arc-0-to-90 {
+ newpath
+ 0 0 50 0 90 arc stroke
+} def
+
+/arc-90-to-360 {
+ newpath
+ 0 0 50 90 360 arc stroke
+} def
+
+/arcn-90-to-0 {
+ newpath
+ 0 0 50 90 0 arcn stroke
+} def
+
+/arc-360-with-radius {
+ 0 0 moveto
+ 0 0 50 0 360 arc stroke
+} def
+
+/pie-slice {
+  0 0 moveto % ctr of the pie
+  0 0 50 0 45 arc % ctr-to-arc-0-to-45 stops at 45 degrees
+  closepath % back to the center
+  stroke
+} def
+
+/half-circle {
+  0 0 moveto % ctr of the pie
+  0 0 50 0 180 arc % ctr-to-arc-0-to-180 stops at 180 degree
+  closepath % back to the center
+  stroke
+} def
+
+/ellipse {
+  newpath
+  1 0.5 scale     % squished in the y-direction
+  0 0 50 0 360 arc 
+  stroke
+} def
+
+/windshield-wiper {
+  newpath
+  0 0 50 0 90 arc 
+  0 0 25 90 0 arcn 
+  closepath
+  stroke
+} def
+
+% 'insideness' depends on which of two rules is in effect!
+% non-zero winding number rule (used by 'fill'; more versatile) - ring: the circle-senses are opposite
+% even-odd rule - ring: the circle-senses are the same; the 'eofill' operator uses this style
+/ring-doughnut {
+  0.5 setgray
+  newpath
+  % switch both arc->arcn and the angles at the same time
+  0 0 50 0 360 arc   
+  0 0 25 360 0 arcn  
+  closepath
+  fill
+} def
+
+/rounded-corner {
+  newpath
+  0 0 moveto  % starting point coming into the corner
+  0 40   % the nominal 'squared' corner (not marked)
+  40 40  % the 'target' as you leave the curve 
+  10     % the radius of the circle
+  arct 
+  40 40 lineto
+  stroke
+} def
+
+/rounded-rectangle {
+10 dict begin
+  %starting point on the bottom left
+  /x 10 def
+  /y 10 def
+  /h 60 def
+  /w 80 def   
+  /radius 15 def
+  /x-mid x  w 2 div  add  def
+  /y-mid y  h 2 div  add  def
+  % these operations focus on the corners PLUS the midpoints of the sides
+  x  y-mid  moveto  % start: middle of the left side
+  
+  % top left
+  x y h add    % top left corner
+  x-mid y h add  % middle top
+  radius arct
+  
+  % top right
+  x w add  y h add   
+  x w add  y-mid  
+  radius arct
+  
+  % bottom right
+  x w add  y 
+  x-mid y
+  radius arct
+  
+  % bottom left
+  x y 
+  x y-mid
+  radius arct  closepath  stroke
+end
+} def
+
+% rounded only at the top
+/semi-rounded-rectangle {
+10 dict begin
+  %starting point on the bottom left
+  /x 10 def
+  /y 10 def
+  /h 120 def
+  /w 80 def   
+  /radius 15 def
+  /x-mid x  w 2 div  add  def
+  /y-mid y  h 2 div  add  def
+  
+  x  y-mid  moveto  % start: middle of the left side
+  
+  % top left
+  x y h add    % top left corner
+  x-mid y h add  % middle top
+  radius arct
+  
+  % top right
+  x w add  y h add   
+  x w add  y-mid  
+  radius arct
+  
+  x w add y lineto % bottom right
+  x y lineto       % bottom left
+  closepath  stroke
+end
+} def
+
+/negative-args {
+ newpath
+ 0 0 50 -45 90 arc stroke
+} def
+
+/crescent-moon {
+ 0.5 setgray
+ newpath
+ 0 0 50 -90 90 arc 
+ 0.5 1 scale
+ 0 0 50 90 -90 arcn 
+ closepath
+ fill
+} def
+
+/gibbous-moon {
+ 0.5 setgray
+ newpath
+ 0 0 50 -90 90 arc 
+ 0.5 1 scale
+ 0 0 50 90 270 arc
+ closepath
+ fill
+} def
+
+%%EndProlog 
+
+%%BeginSetup               
+  /page-width  10 72 mul def
+  /page-height 10 72 mul def 
+  <</PageSize [page-width  page-height]>> setpagedevice  
+  << /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
+  true setstrokeadjust  % minimizes off-by-one-pixel line issues
+
+  % set up a work-box
+  /wd page-width 80 pct def   
+  /ht page-height 90 pct def   
+  wd 10 pct  ht 5 pct translate
+
+  /dx wd 5 pct def
+  /dy ht 5 pct def
+  
+%%EndSetup 
+
+%%Page: 1 1
+%%BeginPageSetup 
+ /pgsave save def     
+%%EndPageSetup
+
+  /Helvetica 15 selectfont
+
+  /row 90 def
+  (1) row start-row
+  {arc-360} 15 row draw
+  {arc-0-to-90} 35 row draw 
+  {arc-90-to-360} 55 row draw 
+  {arcn-90-to-0} 75 row draw 
+
+  /row 70 def
+  (2) row start-row
+  {arc-360-with-radius} 15 row draw
+  {pie-slice} 35 row draw
+  {half-circle} 55 row draw
+
+  /row 50 def
+  (3) row start-row
+  {ellipse} 15 row draw
+  {windshield-wiper} 35 row draw
+  {ring-doughnut} 55 row draw
+
+  /row 30 def
+  (4) row start-row
+  {rounded-corner} 15 row draw
+  {rounded-rectangle} 35 row draw
+  {semi-rounded-rectangle} 75 row draw
+
+  /row 10 def
+  (5) row start-row
+  {negative-args} 15 row draw
+  {crescent-moon} 30 row draw
+  {gibbous-moon} 55 row draw
+
+pgsave restore
+showpage
+%%PageTrailer
+%%Trailer    
+%%EOF 

@@ -1,0 +1,205 @@
+%!PS-Adobe-3.0
+%%Title: Maple Leaf
+%%Version: 1.0
+%%Creator: John O'Hanley
+%%CreationDate: 2026-03-03
+%%LanguageLevel: 3.0
+%%DocumentMedia: Plain 612.0 612.0 60 white ()
+%%DocumentNeededResources: font Helvetica
+%%BoundingBox: 0 0 612 612
+%%Orientation: Portrait 
+%%Pages: 1
+%%EndComments 
+
+%%BeginDefaults 
+%%EndDefaults
+
+%%BeginProlog
+
+(../02.using/using.ps) run
+(../01.base/base.ps) using
+
+% x y  x' y' -> [A B C]
+% Return the coefficients in the line equation, given two points on the line.
+% The general equation for a line is Ax + By + C = 0.
+% This proc returns the array [A B C] on the stack
+% https://www.omnicalculator.com/math/line-equation-from-two-points
+/line-eqn {
+  [/x1 /y1 /x2 /y2] {
+    [y2 y1 sub % A 
+     x1 x2 sub % B
+     y1  x2 x1 sub  mul   y2 y1 sub x1 mul   sub] % C
+  } def-tmp
+} bind def
+
+% x1 y1 x1' y1'   x2 y2 x2' y2' -> xi yi
+% Find the intersection point of two lines.
+% Each line is specified by a pair of points on the line.
+% WARNING: don't call this if the lines are parallel!
+/intersection-point {
+  9 dict begin
+    line-eqn /L2 defi
+    line-eqn /L1 defi
+    /A 0 def  % array indices
+    /B 1 def
+    /C 2 def  
+    % idx-1 idx-2 -> num
+    % This is just a function used repeatedly below.
+    % https://www.cuemath.com/geometry/intersection-of-two-lines/
+    /combo {
+      /idx-2 defi
+      /idx-1 defi
+      L1 idx-1 get  L2 idx-2 get   mul    
+      L1 idx-2 get  L2 idx-1 get   mul  sub
+    } def
+    /denom A B combo def
+    B C combo   denom div % x
+    C A combo   denom div % y
+  end   
+} bind def
+
+% x1 y1 x1' y1'  x2 y2 x2' y2'  r -> drawing
+% Input two straight lines (using two points on each line).
+% Return a path along the lines, and joining them with a rounded corner, a circular arc
+% of the given radius r.
+/line-arc-line {
+10 dict begin
+  /r defi
+  4 array astore /L2 defi 
+  4 array astore /L1 defi
+  /x  0 def  % array indices
+  /y  1 def
+  /xp 2 def
+  /yp 3 def
+  /intersection 
+    L1 aload pop 
+    L2 aload pop 
+    intersection-point   
+    2 array  astore 
+  def
+  
+  intersection x get  intersection y get % go towards the intersection point
+  L2 xp get L2 yp get                    % end with a hook pointing TOWARDS the end of L2
+  r
+  arct
+  
+  % now finish, by extending past the hook, with a line to the end of L2
+  L2 xp get  L2 yp get  lineto
+  % current point at the end of L2, ready for the next chunk of the design
+end
+} bind def
+
+% Returns the outline of the maple leaf on the canadian flag.
+% Starts at the bottom, moves up along the left side to the top, and then down the right side.
+%
+% WARNING: the impl is hard-coded to absolute values.
+% WARNING: you will need to 
+%   - translate to the position intended for the center of the maple leaf, re-scale, 
+%   - simultaneously FLIP the sign of the y-coordinate (the source data was 'upside down').
+% EXAMPLE: 
+%   612 0.5 mul 612 0.5 mul translate
+%   0.1 -0.1 scale
+% Data source: https://en.m.wikipedia.org/wiki/File:Flag_of_Canada_(leaf).svg
+% SVG commands: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/d#elliptical_arc_curve
+/maple-leaf-path {
+  newpath
+  -110 2030 moveto  % THE PATH STARTS HERE, at the bottom, and goes up the left side, clockwise
+  %-90 2030 moveto    I CHANGED THIS BY 20 UNITS IN X, TO GET A BETTER RESULT
+  -90 2030  -65 1167  -156 1069  -1015 1220   95 line-arc-line  
+  % THE ORIGINAL SVG SOURCE DATA has been retained here for comparison, and in case of error:
+  %45 -863 rlineto
+  %      a 95 95 0 0 0 -111 -98
+  %      l -859 151 116 -320 
+  %-859 151 rlineto
+
+  -1015 1220  -899 900   -919 827  -1860 65 65 line-arc-line 
+  %116 -320 rlineto
+  %      a 65 65 0 0 0 -20 -73 
+  %      l -941 -762 212 -99 
+  %-941 -762 rlineto
+
+  -1860 65  -1648 -34   -1614  -113  -1800  -685    65 line-arc-line 
+  %212 -99 rlineto
+  %      a 65 65 0 0 0 34 -79 
+  %      l -186 -572 542 115
+  %-186 -572 rlineto
+
+  -1800 -685  -1258 -570  -1185  -608  -1080  -855    65 line-arc-line 
+  %542 115 rlineto 
+  %      a 65 65 0 0 0 73 -38
+  %      l 105 -247 423 454
+  %105 -247 rlineto
+
+  -1080 -855  -657 -401   -546 -458  -750 -1510    65 line-arc-line  
+  %423 454 rlineto
+  %      a 65 65 0 0 0 111 -57
+  %      l -204 -1052 327 189
+  %-204 -1052 rlineto
+
+  -750 -1510   -423 -1321   -332 -1348   0 -2000    65 line-arc-line  
+  %327 189 rlineto
+  %      a 65 65 0 0 0 91 -27 
+  %      l 332 -652 332 652
+  %332 -652 rlineto
+  
+  % LEFT SIDE COMPLETED TO THE TOP (0, -2000)
+  
+  0 -2000  332 -1348   423 -1321  750 -1510   65 line-arc-line  
+  %     a 65 65 0 0 0 91 27
+  %     l 327 -189   -204 1052
+
+  750 -1510   546 -458    657 -401   1080 -855    65 line-arc-line  
+  %    a 65 65 0 0 0 111 57
+  %    l 423-454 105 247
+  
+  1080 -855   1185 -608   1258 -570   1800 -685    65 line-arc-line  
+  %    a 65 65 0 0 0 73 38
+  %    l 542-115-186 572
+  
+  1800 -685   1614 -113   1648 -34   1860 65   65 line-arc-line  
+  %    a 65 65 0 0 0 34 79
+  %    l 212 99-941 762
+  
+  1860 65   859 827   839 900   955 1220    65 line-arc-line  
+  %    a 65 65 0 0 0-20 73
+  %    l 116 320 -859 -151
+
+  955 1220   96 1069  5 1167  50 2030     95 line-arc-line  
+  %955 1220   96 1069  -15 1167  30 2030     95 line-arc-line   I CHANGE BY 20 x-UNITS TO GET A BETTER RESULT
+  %    a 95 95 0 0 0 -111 98
+  %    l 45 863
+  closepath
+} bind def 
+
+%%EndProlog 
+
+%%BeginSetup               
+  /page-width  8.5 72 mul def
+  /page-height 8.5 72 mul def 
+  <</PageSize [page-width  page-height]>> setpagedevice  
+  << /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
+  true setstrokeadjust  % minimizes off-by-one-pixel line issues
+%%EndSetup 
+
+%%Page: 1 1
+%%BeginPageSetup 
+ /pgsave save def     
+%%EndPageSetup
+
+  /Helvetica 15 selectfont % (in case needed at some point)
+
+  % translate to the center of the page
+  page-width 50 pct  page-height 50 pct  translate
+  % rescale/flip y's, because the source data are 'upside down' with respect to PostScript's convention
+  0.1 -0.1 scale
+
+  10 setlinewidth
+  
+  maple-leaf-path 
+  gsave stroke grestore 0.5 setgray fill
+
+pgsave restore
+showpage
+%%PageTrailer
+%%Trailer    
+%%EOF 
