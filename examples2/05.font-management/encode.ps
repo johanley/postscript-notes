@@ -1,0 +1,39 @@
+%!PS
+
+(../02.using/using.ps) run
+(../01.base/base.ps) using
+(fonts.ps) using
+
+% THIS EXAMPLE SHOWS WHAT HAPPENS WHEN THE ENCODING IS INCONSISTENT.
+
+/wd 4 72 mul def 
+/ht 6 72 mul def 
+<</PageSize [wd ht]>> setpagedevice  
+
+% str xp yp
+% 'p' means percent here
+% Reduces code repetition.
+/show-it {
+  [/xp /yp] {
+    wd xp pct
+    ht yp pct moveto
+    show
+  } def-tmp
+} bind def
+
+% re-encode Times-Roman
+/my-lovely-font /Times-Roman latinize
+
+% now /my-lovely-font can be used like any other font
+/my-lovely-font 12 selectfont
+
+/left 3 def
+(File encoding 8859-1 (Latin-1).) left 90 show-it
+(Accented chars: à ç é è À Ç) left 80 show-it
+(- Ça va bien, Madame Brontë?) left 75 show-it
+
+% this fails, because Helvetica hasn't been re-encoded
+/Helvetica 12 selectfont
+(- Ça va bien, Madame Brontë?) left 70 show-it
+
+showpage

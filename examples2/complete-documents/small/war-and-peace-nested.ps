@@ -1,0 +1,1236 @@
+%!PS-Adobe-3.0
+%%Title: War And Peace Characters 
+%%Version: 1.0
+%%Creator: John O'Hanley
+%%CreationDate: 2026-02-07
+%%LanguageLevel: 3.0
+%%DocumentMedia: Plain 612.0 792.0 60 white ()
+%%DocumentNeededResources: font Georgia Georgia-Italic Georgia-Bold Consolas
+%%BoundingBox: 0 0 612 792
+%%Orientation: Portrait 
+%%Pages: 1
+%%EndComments 
+
+% -- END OF THE HEADER --
+
+% Lines in PostScript should not be more than 255 characters.
+
+%%BeginDefaults 
+%%EndDefaults
+
+%%BeginProlog
+  % Only procedure definitions go here. 
+  % Here, the prolog procs are placed into userdict.
+  % Diagram data is placed higher on the dictionary stack.
+
+% -- QUASI-OPERATORS -
+% 
+% These 'feel like' built-in operators.
+
+% key 
+% return true iff the key is in the currentdict
+/is-known {
+ currentdict exch known
+} bind def
+
+% key
+% 'un-def' the given key from the currentdict
+/discard {
+ currentdict exch undef  
+} bind def
+
+% any /name
+% def's /name with any, with any being the next item on the stack
+%
+% any1 any2 [/name1 /name2]
+% def's /name_i with any_i, with any_N being the next N items on the stack
+%
+% an "inverted" version of 'def', with the args reversed.
+% this replaces the very common :
+%   /a exch def
+% with the slightly more curt :
+%   /a defi
+% 
+% If you need to def multiple items, then passing an array of names provides more savings:
+%   [/a /b /c] defi
+% 
+/defi {
+  count 0 eq {
+    (DUDE, the operand stack is empty. Can't def anything.) ==
+  } if
+  dup
+  type /arraytype eq
+  {
+    % any1 any2 [/name1 /name2]
+    /names exch def % any1 any2
+    % iterate backwards over the names-array, in order to match with the 'any_i' items
+    names length 1 sub  -1   0 {
+      names exch get exch def
+    } for
+  }
+  {
+    % any /name 
+    exch def
+  }
+  ifelse
+} bind def
+
+% [/name] {...} 
+% use a temp dictionary for the duration of the given proc.
+% populate the temp dict using the given name-array, by consuming values already on the operand stack (below the name-array).
+% this encapsulates a common pattern for the body of many procs:
+%  10 dict begin 
+%     def'ing 1..N items from the operand stack.  
+%  end
+% the given name-array needs to have at least 1 item.
+% inside the proc, the caller can add more items to the temp dict created internally by this proc (in Language Level 2 or greater).
+/def-tmp {
+  exch dup length dict begin 
+    exch        % [/name] {...}
+    /proc defi  % [/name] 
+    defi
+    proc % this exec's the proc
+  end
+} def
+
+
+% DEBUGGING -----
+
+% str
+% if you have no debugger, this can help find the exact location of a problem, by 
+% planting various calls to this proc around the code with the problem.
+/here {
+ ==
+} bind def
+
+% str 
+% the str is a debugging remark sent to stdout
+% show everything on the operand stack (but leave the stack intact)
+/dump-stack {
+  ==
+  (-- operand stack {) ==
+  pstack 
+  (-- }) ==
+} def
+
+% dict
+% shows the keys and values of the given dict on stdout
+/list-dict {
+ { == ==  } forall
+} bind def
+
+% str 
+% the str is a debugging remark sent to stdout
+% show the contents of the currentdict (keys and values)
+/dump-current-dict {
+  ==
+  (-- currentdict {) ==
+  currentdict list-dict
+  (-- }) ==
+} def
+
+% str
+% the str is a debugging remark sent to stdout
+% show the key-names of the currentdict
+/dump-keys {
+  ==
+  (-- currentdict keys {) ==
+  currentdict {pop ==} forall
+  (-- }) ==
+} def
+
+% str
+% show a useful message on standard-out, and dump the contents of the operand stack to stdout.
+% the passed error message should use ALL CAPS. 
+/error-message {
+  dump-stack
+} bind def
+
+% size-r 
+% debugging - show the location of the currentpoint 
+% the +X-axis is in red, the +Y-axis in green
+% the currentpoint must exist
+% pass a representative size for the marks made by this proc
+/show-currentpoint {
+  gsave
+    currentpoint [/r /x /y] {
+     r 0.1 mul setlinewidth
+     
+     % circle in red
+     0.5 0 0 setrgbcolor
+     newpath    % we want the currentpoint, but not the currentpath           
+     x y moveto
+     x y r 0 360 arc 
+     stroke
+
+     % x-axis in red
+     x y moveto        
+     r neg 0   rmoveto 
+     r 3 mul 0 rlineto % horizontal
+     stroke
+     
+     % y-axis in green
+     0 0.5 0 setrgbcolor
+     x y moveto  
+     0 r neg  rmoveto 
+     0 r 3 mul rlineto % vertical
+     stroke
+    } def-tmp
+  grestore
+} def
+
+% str
+% show the bounding box of the given string, at the currentpoint (which must exist).
+/show-text-bbox {
+  gsave
+    % the bounding box of the text
+    false charpath flattenpath pathbbox % x0 y0 x1 y1
+    4 array astore % [x0 y0 x1 y1] 
+    1 dict begin 
+      /box defi 
+      box 0 get 
+      box 1 get 
+      box 2 get  box 0 get  sub 
+      box 3 get  box 1 get  sub 
+      rectstroke
+    end
+  grestore
+} def
+
+/stack-should-be-empty { 
+  count 0 gt {
+   % this indicates a problem: you've left something on the stack at the end of the program
+   (---- TO ERR IS HUMAN; THY STACK IS NOT EMPTY. THY 'RESTORE' OPERATION MAY FAIL...: )  dump-stack
+  } if
+} def
+
+
+% GEOMETRY AND MATH ------------------
+
+% pass two numbers; a value and a percent
+% example '70 15 pct' is 15% of 70
+% note that 15% is represented here as '15', not as '0.15'
+% this simple proc is very widely used!
+/pct {
+ 0.01 mul mul
+} bind def
+
+% min max pct
+% 10 20 50 pct-between returns 15
+/pct-between {
+  [/min /max /pct-between] {
+    max min sub pct-between pct 
+    min add    
+  } def-tmp
+} def
+
+% [] of numbers
+% return the max value for the given array of numbers.
+/max {
+  1 dict begin
+    /max-result -1000000 def % I know; this isn't the best
+    {
+     dup
+     max-result gt 
+       {/max-result defi}
+       {pop}
+     ifelse
+    } forall
+    max-result
+  end
+} def
+
+% val min max full-range
+% returns (val - min)/(max - min) * full-range
+% linearly map a value onto the range [0..full-range]
+/rescale {
+ [/val /min /max /full-range] {
+  val min sub
+  max min sub div
+  full-range mul
+ } def-tmp
+} def
+
+
+% a b 
+% return the arithmetic mean of two numbers
+/midpoint {
+  add 2 div
+} def
+
+% [[xy]] - an array of points
+% return the bounding box [llx lly urx ury] of a path built from the given array of points
+% from the bounding box, the caller can read off the min-max of either x or y (for the given array of points).
+% (the path is temporary, and doesn't persist after calling this proc.)
+/points-bbox {
+  % make a path, and compute its bbox in the current CTM
+  newpath % just in case 
+  /pts defi
+  pts 0 get 0 get   pts 0 get 1 get  moveto  % the first point
+  pts  1   pts length 1 sub   getinterval {  
+    % [xy]
+    aload pop  % x y
+    lineto
+  } forall % the remaining points
+  pathbbox % llx lly urx ury
+  4 array astore % [llx lly urx ury]
+  newpath % remove the currentpath used to do the calc
+  /pts discard
+} def
+
+% [[xy]] - an array of points
+% return the center x y of the bounding-box of the given points.
+/center-of-bbox {
+  points-bbox % [llx lly urx ury]
+  /box defi
+  box 0 get  box 2 get  midpoint % x
+  box 1 get  box 3 get  midpoint % x y 
+  /box discard
+} def
+
+
+% TEXT AND FONTS -------
+
+% new-name old-name 
+% create a new font from an existing one, which uses the ISOLatin1Encoding instead of the standard encoding
+% NOTE: THE ENCODING OF THIS POSTSCRIPT FILE IS ITSELF 8859-1 = ISOLatin1.
+% Calling this allows (almost all) accented characters in West European languages to be treated as any other character.
+% https://stackoverflow.com/questions/270672/unicode-in-postscript
+/latinize {
+  findfont
+  dup length dict 
+  begin
+    % copy everything in the source font's dict except for the FID (a unique id for a font)
+    { 1 index /FID ne {def}{pop pop} ifelse } forall
+    /Encoding ISOLatin1Encoding def % override the encoding entry in this dict
+    currentdict  % push this font-dict onto the operand stack
+  end
+  definefont  % internally sets a FID (font-id) for the new font
+  %pop % remove the new font object from the operand stack
+  1 dict begin
+    /the-new-font defi
+    [(Latinized font. /FontName:) the-new-font /FontName get
+    ( /FontType:) the-new-font /FontType get
+    ( /FontMatrix scale-x:) the-new-font /FontMatrix get 0 get
+    ] concat-any ==
+  end
+} bind def
+
+% the returned value may be a rounded value, slightly different from the expected value
+% WARNING: this has only been tested with Type 1 and Type 42 fonts.
+/current-font-size {
+  % the font-size is part of the font-matrix
+  % this depends on the fontmatrix, which in turn depends on the fonttype
+  currentfont /FontMatrix get 0 get
+  currentfont /FontType get 1 eq {
+    % Adobe Type 1 fonts have a FontMatrix [0.001 0 0 0.001 0 0], not [1 0 0 1 0 0]
+    1000 mul
+  } if
+  % DO ANY OTHER FONT TYPES HAVE A FONT MATRIX DIFFERENT FROM [1 0 0 1 0 0]?
+} def
+
+% str size
+% set the font using an 'expected/configured' font name, and the font size
+/use-another-font {
+  [/font-name /font-size] {
+    % the 'my-fonts' dict is defined below
+    my-fonts font-name known not {
+      (DUDE, you're using an unknown font name.) ==
+      font-name ==
+    } if
+    my-fonts font-name get 
+    font-size
+    selectfont
+  } def-tmp
+} bind def
+
+% str pct
+% the font name, and the percentage of the DEFAULT font-size
+% set the current font
+/use-font {
+  default-font-size exch pct
+  use-another-font
+} bind def
+
+% str pct
+% the font name, and the percentage of the CURRENT font-size
+% set the current font
+/r-use-font {
+  current-font-size exch pct
+  use-another-font
+} bind def
+
+% str
+% return the width/height (dx, dy) of the given text (in the current font)
+% this is useful for centering in various ways
+% https://stackoverflow.com/questions/3618194/how-to-determine-string-height-in-postscript luser droog
+/text-dim {
+  gsave
+    0 0 moveto
+    % the bounding box of the text
+    false charpath flattenpath pathbbox % x0 y0 x1 y1
+  grestore
+  3 -1 roll sub % x0 x1 dy
+  3 1 roll sub % dy -dx
+  -1 mul % dy dx
+  exch % dx dy
+}
+bind def
+
+% str -> number
+% width of the given string in the current font
+/text-width {
+  text-dim % dx dy
+  pop % dx
+} def
+
+% str -> number
+% height of the given string in the current font
+/text-height {
+  text-dim % dx dy
+  exch pop % dy 
+} def
+
+% multiple of the height of small 'x' in the current font
+/ex {
+ (x) text-height mul
+} def
+
+% multiple of the height of capital 'M' in the current font
+/em {
+ (M) text-height mul
+} def
+
+% return a temp string of length 100, intended for use with the cvs operator
+/sbuff {
+  100 string
+} def
+
+% % (a) (b) -> (ab)  
+% % concatenate two strings
+% % https://en.wikibooks.org/wiki/PostScript_FAQ/Programming_PostScript#How_to_concatenate_strings?
+% /concat-str { 
+  % exch dup length    
+  % 2 index length add string    
+  % dup dup 4 2 roll copy length
+  % 4 -1 roll putinterval
+% } bind def  
+
+% % [(tom) 1.23] ( ) -> (tom1.23)
+% % concat an array of N things (of any type) into one string
+% /concat-strs {
+  % 2 dict begin
+    % /result () def
+    % {
+      % /thing exch sbuff cvs def
+      % /result result thing concat-str def
+    % } forall
+    % result
+  % end
+% } def
+
+% str str -> str
+% concatenate exactly two strings together
+/concat-str {
+  [/a /b] {
+    /result a length b length  add string def
+    result 0         a putinterval 
+    result a length  b putinterval
+    result % leave it on the stack
+  } def-tmp
+} bind def
+
+% [any] -> str
+% convert items to strings using cvs (if necessary), and concatenate the strings together.
+% any items converted using cvs here must have a max string-length of 500.
+/concat-any {
+  [/anys] {
+    /result () def 
+    anys {
+      dup 
+      type /stringtype ne {
+        % a cvs conversion is needed
+        500 string cvs 
+      } if
+      result exch concat-str
+      /result defi
+    } forall
+    result % leave it on the stack
+  } def-tmp
+} bind def
+
+
+% -- DISPLAY TEXT 
+
+% text 
+% center text horizontally AND vertically at the currentpoint
+% WARNING: centering text vertically can give mediocre results (variations in text ascenders etc.)
+/show-ctr-xy {
+  dup text-dim % text dx dy
+  -2 div % text dx -dy/2
+  exch % text -dy/2 dx
+  -2 div exch % text -dx/2 -dy/2
+  rmoveto % text
+  show
+} bind def
+
+% text 
+% center text horizontally at the currentpoint
+/show-ctr-x {
+  dup text-dim pop % text dx
+  -2 div % text -dx/2
+  0 rmoveto % text
+  show
+} bind def
+
+
+% --- DIAGRAMS -------
+
+% margin-pct 
+% the initial work-box is centered on the page, with the given margin on all sides
+% adds wd ht to the currentdict.
+% called only once, upon startup.
+/set-initial-work-box {
+  /margin defi
+  % define the diagram's base-level work-box in terms of the page dimensions, not an existing work-box
+  page-width margin pct  page-height margin pct  translate % lower left
+  /wd page-width  100 margin 2 mul sub pct def
+  /ht page-height 100 margin 2 mul sub pct def
+  /margin discard
+} def 
+
+% margin-pct 
+% similar to set-initial-work-box, but the origin is in the bottom right of the page, 
+% and the coordinate system is rotated 90 degrees.
+/set-initial-work-box-landscape {
+  /margin defi
+  % define the diagram's base-level work-box in terms of the page dimensions, not an existing work-box
+  page-width  page-width margin pct  sub
+  page-height margin pct  translate % lower right
+  90 rotate
+  /wd page-height 100 margin 2 mul sub pct def
+  /ht page-width  100 margin 2 mul sub pct def
+  /margin discard
+} def 
+
+% [llx-pct lly-pct wd-pct ht-pct]
+% sets up a new work-box (wbox), using percentages of an existing work-box.
+% this proc does two separate things:
+%  - move the origin of coordinates to the bottom-left of the new wbox
+%  - define wd and ht in the currentdict
+%
+% BEFORE CALLING THIS PROC, THE CALLER NEEDS TO:
+% - wrap this proc in gsave-restore pair (so that old wbox-geometry can be recovered)
+% - create a new currentdict, to which this proc adds new wd and ht values, 
+%   in order to temporarily HIDE older values (and not overwrite them)
+%
+% THIS PROCEDURE USES STATE LOGIC THAT YOU NEED TO BE CAREFUL ABOUT.
+% The previous context is restored by both popping the dict stack, AND using a gsave-grestore.
+/set-new-work-box {
+  /work-box defi
+  % a new origin of coordinates
+  % this 'translate' operation uses the 'old' wd and ht
+  wd work-box 0 get pct
+  ht work-box 1 get pct translate
+  
+  % re-define the new wd and ht (higher in the dict stack) in terms of the old (lower in the dict stack)
+  % note that this 'hides' the older wd and ht, it doesn't overwrite them!
+  /wd wd work-box 2 get pct def
+  /ht ht work-box 3 get pct def
+  
+  /work-box discard
+} def
+
+% blurb: show a default border using the work-box
+/show-dft-blurb-border {
+  newpath
+  0 0 wd ht rectstroke % using the current work-box
+} def
+
+% the '/border' setting should be absent when the blurb has a default border
+% this avoids needless repetition 
+/show-blurb-border {
+  gsave  
+    /border is-known {border} {show-dft-blurb-border} ifelse  
+  grestore
+} def
+
+% return a str
+% either the id or the title (as override of the id)
+/blurb-title {
+  /title is-known {title} {id} ifelse
+} def
+
+% y-level near the top of the blurb, suitable for a blurb-title
+/near-top {
+  ht 1.5 em sub
+} def
+
+% the default way of showing a blurb.
+% show the id (or title, if present) near the top of the blurb's work-box.
+% show detail lines below. 
+% all text is centered horizontally in the work-box.
+% uses /id, /title, and /lines from the current (blurb) dict.
+/show-dft-blurb-body {
+  gsave 
+    wd 2 div   near-top  moveto 
+    blurb-title
+    show-ctr-x
+  grestore
+  % put the lines below the title, in a (relatively) smaller font
+  gsave 
+    (italic) 80 r-use-font
+      /leading 2.2 em def 
+      /count 1 def
+      lines {
+        wd 2 div   near-top  moveto % start at the top, where the title is
+        0 leading neg count mul rmoveto % move down N lines
+        show-ctr-x
+        /count count 1 add def
+      } forall
+  grestore 
+  /leading discard
+  /count discard
+} def
+
+% allow for override of a default policy
+/show-blurb-body {
+  gsave  
+    /body is-known 
+      {body} 
+      {show-dft-blurb-body} 
+    ifelse  
+  grestore
+} def
+
+% x y [[xy]]    (or x y x y [[xy]] if there's 2 from-points)
+% in this document, all blines are horizontal-tree-blines.
+% this proc uses /from, /to, and /between from the bline's dict.
+/show-dft-bline {
+  true  % horizontal, not vertical
+  between % controls the vertical spacing between parents and childern
+  family-tree-bline
+} def
+
+% x y [[xy]]    (or x y x y [[xy]] if there's 2 from-points)
+% allows for an override of a default policy for showing a bline
+/show-bline {
+  gsave  
+    /draw is-known 
+      {draw} 
+      {show-dft-bline} 
+    ifelse  
+  grestore
+} def
+
+% id - the blurb's /id string
+% find a blurb using its /id, and then put the blurb on the operand stack
+/linked-blurb {  
+  2 dict begin
+    /target-id defi
+    /match-found false def
+    diagram /blurbs get {
+      dup % two blurb-dicts on the stack
+      /id get target-id eq {
+        % do nothing; leave the remaining blurb-dict on the stack
+        /match-found true def
+        exit
+      }  
+      {pop} % not a match; discard the remaining blurb-dict
+      ifelse
+    } forall
+    match-found not {
+      [(DUDE, YOU'RE LINKING TO AN UNKNOWN blurb-id: ) target-id] concat-any error-message
+    } if
+  end
+} def
+
+% blurb
+% return the (x,y) of the lower-left corner of the blurb's work-box, relative to the diagram's work-box
+/lower-left {
+  [/blurb] {
+    wd  blurb /wbox get 0 get  pct % llx
+    ht  blurb /wbox get 1 get  pct % lly
+  } def-tmp
+} def
+
+% pp blurb
+% pp is in the range [0,100) (perimeter point percentage)
+% return the (x,y) of a blurb's perim-point, with respect to the diagram's work-box (not the blurb's work-box)
+/find-perim-point {
+  [/pp /blurb] {
+    % dimensions of the blurb's work-box (wd and ht refer to the diagram's work-box)
+    /width  wd  blurb /wbox get 2 get   pct def
+    /height ht  blurb /wbox get 3 get   pct def
+    % rescale the pp value in [0,100) to the range [0, perim-length of the blurb's work-box)
+    /perim-length width height add 2 mul def 
+    /pp pp 0 100 perim-length rescale def
+    % (a,b,c,d) are perim-point values for the 4 corners of the blurb's work-box
+    /a width 0.5 mul def
+    /b width 0.5 mul height add def
+    /c width 1.5 mul height add def
+    /d width 1.5 mul height 2 mul add def
+    
+    % start with the smallest values for pp, then work your way up
+    % put dx on the stack first, then dy
+    % dx and dy are with respect to the lower-left of the blurb's work-box
+    pp 0 ge   pp a le  and {a pp sub   0} if 
+    pp a gt   pp b le  and {0    pp a sub} if  
+    pp b gt   pp c le  and {pp b sub   height} if 
+    pp c gt   pp d le  and {width   height pp c sub sub} if 
+    pp d gt                {width pp d sub sub   0} if  
+    /dy exch def
+    /dx exch def
+    % combine the dx dy with the position of the lower-left corner of the box, to get the final result
+    blurb lower-left
+    /lly exch def
+    /llx exch def
+    llx dx add 
+    lly dy add
+  } def-tmp 
+} def
+
+% pp blurb
+% pp is in the range [0,100) (perimeter point percentage)
+% return the (x,y) (with respect to the diagram's work-box) of a lower corner (either left or right) of the id/title of the blurb.
+% the y is taken from the baseline of the id/title.
+% the x is found using the the width of the id/title (and the midline of the blurb's work-box).
+% here, the pp value is used only to determine if the caller wants the lower-left or lower-right corner of the id/title.
+% (some might choose to change that, and simply pass a boolean instead of pp.)
+/find-start-end-of-text {
+  [/pp /blurb] {
+    /small-gap 1.0 ex def % so that lines don't collide with the text
+    % dimensions of the pathbbox of the id/title
+    blurb /title known {blurb /title get} {blurb /id get} ifelse
+    text-dim % dx dy
+    pop
+    % half-width of the text's pathbbox (plus a small gap):
+    0.5 mul small-gap add /half-width exch def
+    /is-left-side pp 50 le def
+    /midline-x   wd   blurb /wbox get 2 get   pct   2 div def  % half the blurb-wbox width
+    /midline-y   ht   blurb /wbox get 3 get   pct   1.5 em sub def % near the top of the midline
+    % the desired location, wrt the lower-left corner of the blurb-wbox 
+    /dx midline-x  half-width  is-left-side {neg} if  add   def
+    /dy midline-y  small-gap 0.7 mul add  def 
+    % finally, dx dy relative to the diagram's origin:
+    blurb lower-left % llx lly
+    [/llx /lly] defi
+    llx dx add 
+    lly dy add
+  } def-tmp 
+} def
+
+% x y [[xy]] between
+% x and y define the location of a from-point, as the root of the tree.
+% [[xy]] is an array-of-arrays containing 1..N to-points.
+% between determines where the midline is placed between parents and children.
+% draw a horizontal tree with 1 parent and 1..N children.
+% the parent can be above or below the group of children (according to the work-boxes of the blurbs in the tree).
+/horizontal-tree-bline {
+  9 dict begin 
+    /between defi % x y [[xy]]
+    3 1 roll % [[xy]] x y
+    [/to-points /from-x /from-y] defi
+    /pts-box to-points points-bbox def % [llx lly urx ury]
+    /min-x pts-box 0 get def
+    /max-x pts-box 2 get def
+    /max-y pts-box 3 get def
+    /min-y pts-box 1 get def
+    /midline-y % a horizontal line, so an y-value
+      from-y max-y gt  
+        {max-y from-y between pct-between}
+        {from-y min-y between pct-between}
+      ifelse 
+    def
+    % draw the midline from min-x to max-x (assumes from-x is between the two!)
+    min-x midline-y moveto
+    max-x midline-y lineto stroke
+    % draw from the from-point to the midline
+    from-x from-y moveto
+    from-x midline-y lineto stroke
+    % draw from each to-point to the midline
+    to-points {
+      % [xy]
+      aload pop % x y
+      exch dup % y x x
+      3 -1 roll % x x y
+      moveto % x 
+      midline-y lineto stroke
+    } forall
+  end
+} def
+
+% x y [[xy]]
+% x and y define the location of the single from-point.
+% [[xy]] is an array-of-arrays containing 1..N to-points.
+% draw a vertical tree with 1 parent and 1..N children.
+% the parent can be to the left or right of the children (according to the work-boxes of the blurbs in the tree).
+/vertical-tree-bline {
+  3 1 roll % [[xy]] x y
+  9 dict begin 
+    [/to-points /from-x /from-y] defi
+    /pts-box to-points points-bbox def % [llx lly urx ury]
+    /min-x pts-box 0 get def
+    /max-x pts-box 2 get def
+    /max-y pts-box 3 get def
+    /min-y pts-box 1 get def
+    /midline-x % a vertical line, so an x-value
+      from-x max-x gt  
+        {from-x max-x midpoint} 
+        {from-x min-x midpoint} 
+      ifelse 
+    def
+    % draw the midline from min-y to max-y (assumes from-y is between the two!) 
+    midline-x min-y moveto 
+    midline-x max-y lineto stroke 
+    % draw from the from-point to the midline
+    from-x from-y moveto  
+    midline-x from-y lineto stroke 
+    % draw from each to-point to the midline
+    to-points {
+      % [xy]
+      aload pop % x y
+      dup % x y y 
+      3 1 roll % y x y
+      moveto % y
+      midline-x  % y midline-x
+      exch % midline-x y
+      lineto stroke
+    } forall
+  end
+} def
+
+% x y x y [[xy]] is-horizontal between
+% x y x y define the location of 2 parents.
+% [[xy]] is an array-of-arrays containing 0..N children.
+% between is a pct, determines where the midline is placed between parents and children.
+% draw a genealogy for 1 family with 2 parents and 0..N children.
+% if there are no children then just the parents are joined together.
+/family-tree-bline {
+  4 dict begin
+    [/is-horizontal /between] defi
+    5 1 roll % [[xy]] x y x y  
+    4 array astore % [[xy]] [x y x y]
+    [/children /parents] defi
+    % draw the line between the 2 parents
+    parents 0 get   parents 1 get   moveto
+    parents 2 get   parents 3 get   lineto  gsave 2 setlinewidth stroke grestore
+    % if there are children, draw lines for them too
+    children length 0 gt {
+      % infer the midpoint of the line between the 2 parents (center of its bbox)
+      % then use that midpoint as the root
+      [
+        [parents 0 get   parents 1 get] 
+        [parents 2 get   parents 3 get]
+      ] 
+      children length 1 eq {
+        % single child: simple line to the child
+        center-of-bbox % x y 
+        moveto
+        children 0 get 0 get   
+        children 0 get 1 get   lineto stroke
+      } if
+      children length 1 gt {
+        % more than 1 child: draw a tree between the parents and children
+        center-of-bbox % x y 
+        children % x y [[xy]]
+        between % x y [[xy]] between
+        is-horizontal {horizontal-tree-bline} {vertical-tree-bline} ifelse
+      } if
+    } if
+  end
+} def
+
+% put the x y of the from-blurb perimeter-point(s) on the stack (for use down below)
+% puts either 1 or 2 x y points on the stack
+/put-from-points-on-the-stack {
+  from type /dicttype eq {
+    % put the 1 from-point on the stack: x y
+    from /perim get   
+    from /id get linked-blurb  % look up in the /blurbs array by matching on the id
+    find-start-end-of-text  
+  } if
+  from type /arraytype eq {
+    % put the 2 from-points on the stack: x y  x y
+    % (for mother and father - family trees)
+    from length 2 eq {  
+        from {
+          % <</id (Mother) /perim 0>>
+          /parent defi
+          parent /perim get  
+          parent /id get linked-blurb  
+          find-start-end-of-text  % x y 
+        } forall
+        /parent discard 
+      } 
+      {(THE bline's 'from' ARRAY IS NOT OF LENGTH 2. EXPECTING A MOTHER-FATHER PAIR.) error-message}
+    ifelse
+  } if
+} def
+
+% puts [[xy]] array-of-arrays on the stack
+/put-to-points-on-the-stack {
+  % there are 1..N to-blurbs, each being an end-point of a given bline
+  6 dict begin
+    /to-xys to length array def 
+    /index 0 def
+    to { % an array of dicts
+      % <</id (Two) /perim 50>>  example dict
+      /to-dict defi
+      /to-blurb   to-dict /id get linked-blurb   def
+      to-dict /perim get   to-blurb  find-perim-point  % to: x y
+      /to-xy 2 array def
+      to-xy astore pop
+      to-xys index to-xy put
+      /index index 1 add def
+    } forall % to-points
+    to-xys % put them on the stack
+  end
+} def
+
+% show blurbs, and the blines connecting them
+% uses /diagram in the currentdict
+/show-diagram {
+  (.....PROCESSING BLURBS...) here
+  diagram /blurbs get { % an array of dicts
+    % <</id (Two) /wbox [20 50 40 20] /border {} /body {}>>  example dict
+    gsave % save the 'old' origin of coords
+      begin % push the blurb-dict onto the dict stack - it becomes the new currentdict
+        % define a new work-box (new wd and ht entries in the currentdict; a new origin of coords)
+        wbox set-new-work-box
+        %show-blurb-border
+        show-blurb-body
+        id == % debugging
+        % more: recursive call!
+        /more is-known {
+          3 dict begin gsave  % needed when you have a new work-box: holds wd, ht, diagram
+            more /set-font get exec
+            more /wbox get set-new-work-box
+            /diagram   more /nested-diagram get  def % hide the old diagram for a while
+            show-diagram % uses things in the current dict in the usual way
+          grestore end
+        } if
+      end % pop the blurb-dict
+    grestore % restore the 'old' origin of coords
+  } forall
+  % do the blines separately; the computed (xy) points for the perimeter-points are expressed with 
+  % respect to the diagram's work-box (not a blurb's work-box)
+  (.....PROCESSING BLINES...) here
+  diagram /blines get { % an array of dicts
+    % <</from <</id (One) /perim 0>>  /to [<</id (Two) /perim 50>>] >> example bline-dict
+    gsave
+      begin % push the bline-dict onto the dict stack - it becomes the new currentdict
+        from 0 get /id get == % debugging
+        put-from-points-on-the-stack % x y     (or x y x y if two from-points)
+        put-to-points-on-the-stack % x y [[xy]]    (or x y x y [[xy]] if two from-points)
+        % the following call consumes all the points on the stack
+        show-bline
+      end % pop the temporary dict
+    grestore
+  } forall
+} def
+
+% str str x-pct y-level-idx [lines]
+% returns a 'standard' blurb dict.
+% the strs are the blurb id and the title.
+% this proc was created because of the need to make the wbox sensitive to the text inside it; it's also slightly more curt.
+% the wd of its wbox is sensitive to the length of the id/title str, subject to a minimum.
+% example 
+%   call:   (Grandpa Oberman) () 10 4 [(1880-01-01) (1960-12-31)] std-blurb
+%   output: <</id (Grandpa Oberman)  /wbox [10 20 5 10] /lines [(1880-01-01) (1960-12-31)]>>
+/std-blurb {
+  10 dict begin 
+    [/id /title /x-pct /y-level-idx /lines] defi
+    /std-blurb-wd-pct {
+      [id text-width   title text-width  (2015-01-31) text-width] max
+      wd div 100 mul % wd-pct
+    } def
+    % return [x y wd ht], a standardized wbox for the blurb
+    /std-blurb-box {
+      x-pct % x-pct
+      94  y-level-idx 9 mul  sub % x-pct  y-pct
+      std-blurb-wd-pct 5 % x-pct y-pct wd-pct ht-pct
+      4 array astore %  [x-pct y-pct wd-pct ht-pct]  
+    } def
+    /result 4 dict def % has 3-4 keys
+    result /id id put
+    result /wbox std-blurb-box put
+    result /lines lines put
+    title length 0 gt {
+      result /title title put
+    } if
+    result % put the dict on the operand stack
+  end
+} def
+    
+% left-parent right-parent [kid-ids] between
+% the standard bline for this diagram is a horizontal family-tree bline.
+% example 
+%   call:   (Jay Smith) (Kitty Doe) [(Abigail) (Arnie)] 50 std-bline
+%   output:
+%     <<
+%       /from [<</id (Jay Smith) /perim 75>> <</id (Kitty Doe) /perim 25>>]
+%       /to [<</id (Abigail) /perim 50>> <</id (Arnie) /perim 50>>] 
+%       /between 50
+%     >>
+% the output is that expected by the default drawing-procedure for blines.
+/std-bline {
+  7 dict begin
+    [/left-parent /right-parent /kid-ids /between] defi
+    /result 3 dict def
+    result /between between put
+    result /from [<</id left-parent /perim 75>> <</id right-parent /perim 25>>] put
+    /children kid-ids length array def
+    /count 0 def
+    kid-ids {
+      /kid-id exch def
+      children count <</id kid-id /perim 50>>  put
+      /count count 1 add def
+    } forall
+    result /to children put
+    result  % leave the tree on the stack
+  end
+} def
+
+/rostov-nested {
+  << 
+    /blurbs [
+      <</id (Ilia Rostov)          /wbox [14   90 30 20] /lines [(comte)]>>
+      <</id (Nathalie Chinchine)   /wbox [52.6 90 30 20] /lines [(comtesse)]>>
+      <</id (Nicolas)              /wbox [0    0  20 40] /lines [(20 ans)]>>
+      <</id (Vera)                 /wbox [20   0  20 40] /lines [(16 ans)]>>
+      <</id (Sonia)                /wbox [40   0  20 40] /lines [(15 ans)(nièce)]>>
+      <</id (Natacha)              /wbox [60   0  20 40] /lines [(13 ans)]>>
+      <</id (Petia)                /wbox [80   0  20 40] /lines [(9 ans)(Petrouchka)]>>
+    ] 
+    /blines [(Ilia Rostov) (Nathalie Chinchine) [(Nicolas) (Sonia) (Vera) (Natacha) (Petia)] 33 std-bline ]
+  >>
+} def
+
+/bolkonski-nested {
+  << 
+    /blurbs [
+      <</id (Nicolas Andreitch Bolkonski) /wbox [10  90 30 20] /lines [((prince))]>>
+      <</id (Wife1) /title (Femme)        /wbox [55  90 30 20] /lines [(morte)]>>
+      <</id (Maria)                       /wbox [10  0 20 40] /lines [(princesse)]>>
+      <</id (André)                       /wbox [55  0 20 40] /lines [(prince)]>>
+      <</id (Lise Meinen)                 /wbox [75  0 20 40] /lines [(la petite princesse)]>>
+      % other household members
+      <</id (Mlle Bourienne)              /wbox [110  80 20 40] /lines [(dame de compagnie)]>>
+      <</id (Tikhon)                      /wbox [110  30 20 40] /lines []>>
+      <</id (Michel Ivanovitch)           /wbox [110  0 20 40] /lines [(architecte)]>>
+    ] 
+    /blines [
+      (Nicolas Andreitch Bolkonski) (Wife1) [(Maria) (André)] 33 std-bline
+      (André) (Lise Meinen) [] 33 std-bline
+    ]
+  >>
+} def
+
+/bezoukhov-nested {
+  << 
+    /blurbs [
+      <</id (Cyrille Vladimirovitch Bezoukhov)   /wbox [10   90 30   20] /lines [(comte)]>>
+      <</id (Wife2) /title (Femme)               /wbox [56.6 90 30   20] /lines [(morte)]>>
+      <</id (Pierre Kirilovitch)                 /wbox [0    0  33.3 40] /lines []>>
+      <</id (Catherine Semionovna)               /wbox [33.3 0  33.3 40] /lines [(nièce) (Catiche) (princesse)]>>
+      <</id (Sophie)                             /wbox [66.6 0  33.3 40] /lines [(nièce) (princesse)]>>
+    ] 
+    /blines [ (Cyrille Vladimirovitch Bezoukhov) (Wife2) [(Pierre Kirilovitch) (Catherine Semionovna) (Sophie)] 33 std-bline ] 
+  >>
+} def
+
+/kouraguine-nested {
+  << 
+    /blurbs [
+      <</id (Vassili Kouraguine)   /wbox [14   90 30   20] /lines [(prince)]>>
+      <</id (Wife3) /title (Femme) /wbox [54.6 90 30   20] /lines [(princesse)]>>
+      <</id (Anatole)              /wbox [0    0  33.3 40] /lines [(prince)]>>
+      <</id (Hélène)               /wbox [33.3 0  33.3 40] /lines [(princesse)]>>
+      <</id (Hippolyte)            /wbox [66.6 0  33.3 40] /lines [(prince)]>>
+    ] 
+    /blines [ (Vassili Kouraguine) (Wife3) [(Anatole) (Hélène) (Hippolyte)] 33 std-bline ] 
+  >>
+} def
+
+/droubetzkoi-nested {
+  << 
+    /blurbs [
+      <</id (Anna Mikhaïlovna Droubetzkoï)  /wbox [10 90 30 20] /lines [(princesse)]>>
+      <</id (Husband1)                      /wbox [60 90 30 20] /lines [(mort)]>>
+      <</id (Boris)                         /wbox [48.25  0 20 40] /lines [(soupirant de Natacha)]>>
+    ] 
+    /blines [(Anna Mikhaïlovna Droubetzkoï) (Husband1) [(Boris)] 33 std-bline ]
+  >>
+} def
+
+/karaguine-nested {
+  << 
+    /blurbs [
+      <</id (Maria Lvovna Karaguine)  /wbox [10 90 30 20] /lines []>>
+      <</id (Husband2) /title (Mari)  /wbox [50 90 30 20] /lines [(mort)]>>
+      <</id (Julie)                   /wbox [43  0 20 40] /lines [(amie de Maria Bolkonski)]>>
+    ] 
+    /blines [(Maria Lvovna Karaguine) (Husband2) [(Julie)] 33 std-bline ]
+  >>
+} def
+
+/various-nested {
+  << 
+    /blurbs [
+      <</id (Anna Pavlovna Scherer)          /wbox [35 100 30 40] /lines [(demoiselle d'honneur)]>>
+      <</id (Maria Dmitrievna Akhrossimov)   /wbox [35  80 30 40] /lines [(parente de comte Rostov; stricte)]>>
+      <</id (Pierre Nicolaievitch Chinchine) /wbox [35  60 30 40] /lines [(cousin de la comtesse Rostov)]>>
+      <</id (Adolphe Berg)                   /wbox [35  40 30 40] /lines [(soupirant de Vera)]>>
+      <</id (Michel Ilarionovitch Koutouzov) /wbox [35  20 30 40] /lines [(général de l'armée russe)]>>
+      <</id (Maria Fédorovna)                /wbox [35   0 30 40] /lines [(l'impératrice douairière)]>>
+    ] 
+    /blines []
+  >>
+} def
+
+/header {
+  (bold) 75 use-font show-dft-blurb-body
+} def
+
+/details {
+ (regular) 50 use-font
+} def
+
+%%EndProlog 
+
+%%BeginSetup               
+  % modify items in the graphics state that won't be changed by initgraphics/showpage/erasepage
+  % often: userdict and setpagedevice 
+
+   % The original PDF standard allowed for extremely large PDFs, but later standards limit the size to 200 inches square.
+   % If you're not intending to print the output PDF, then you can use a smaller size.
+   % WARNING: These settings are repeated in the Document Structuring Convention comments near the top of this file (DocumentMedia, BoundingBox).
+  /page-width  8.5 72 mul def
+  /page-height 11 72 mul def % absolute values
+
+  % the tolerance is 5 units in each dimension
+  % the order of the width/height actually doesn't matter
+  <</PageSize [page-width  page-height]>> setpagedevice  
+  
+  % ALWAYS EMBED FONTS.
+  % This setting means no fonts will be prevented by GS from being embedded in the final PDF.
+  % https://stackoverflow.com/questions/79386904/postscript-text-outline-doesnt-match-the-text
+  << /NeverEmbed [ ] >> setdistillerparams
+  
+  true setstrokeadjust  % minimizes off-by-one-pixel line issues
+
+  % CORE TYPEFACES used in the Document
+  % these are all 'latinized': they use the ISOLatin1 encoding (same as 8859-1), instead of the default encoding
+  % WARNING: YOUR POSTCRIPT FILES MUST BE ENCODED IN 8859-1 AS WELL. 
+  % You can use Notepad++ to do conversions of the encoding of a file.
+  
+  % Courier: an Adobe Type 1 font, with FontMatrix [0.001 0 0 0.001 0 0]
+  %/MyRegular /Courier latinize
+  %/MyItalic /Courier-Oblique latinize
+  %/MyBold /Courier-Bold latinize
+  
+  % Helvetica: an Adobe Type 1 font, with FontMatrix [0.001 0 0 0.001 0 0]
+  /MyRegular /Helvetica latinize
+  /MyItalic /Helvetica-Oblique latinize
+  /MyBold /Helvetica-Bold latinize
+
+  % Georgia (on a Windows 11 PC): an Adobe Type 42 font, with FontMatrix [1 0 0 1 0 0]
+  %/MyRegular /Georgia        latinize
+  %/MyItalic  /Georgia-Italic latinize
+  %/MyBold    /Georgia-Bold   latinize
+  
+  /MyNumeric /Consolas   latinize
+  
+  /my-fonts <<
+    (regular) /MyRegular
+    (italic)  /MyItalic
+    (bold)    /MyBold
+    (numeric) /MyNumeric
+  >> def
+  
+  % changing this value will do a proportiate change to all of your fonts.
+  % HOWEVER, you'll likely have layout/postion adjustments to make if you do that.
+  /default-font-size page-height 2 pct def  
+
+%%EndSetup 
+
+%%Page: 1 1
+%%BeginPageSetup 
+ /pgsave save def     
+%%EndPageSetup
+
+  (Starting: page 1 of 1.) here
+  
+  % start with a default font
+  (regular) 60 use-font 
+  
+  1 setlinejoin % less jagged
+  2 setlinecap % less jagged
+
+  % create a new current dict to hold wd, ht, and the diagram-dict
+  3 dict begin 
+    gsave 
+
+    (Setting intial work-box as landscape.) here
+    % genealogy trees are usually best created as landscape, not portrait
+    3 set-initial-work-box-landscape % sets wd ht in currentdict
+    
+    % show the root-level work-box (it forms a pleasing border)
+    0 0 wd ht rectstroke 
+    
+    % the top-level diagram has only simple 'title' blurbs, 
+    % each of which has a nested diagram showing the corresponding details
+    % there are no blines at the top level, but there are blines at the nested level.
+    /diagram  << 
+      /blurbs [ 
+        <</id (Les principaux personnages au début de La Guerre et la Paix) 
+          /wbox [36 83 30 15]  
+          /lines[(Source: la traduction par Elisabeth Guertik, publié en Suisse \(1953\))] 
+          /body {header}
+        >>
+        <</id (Famille Rostov \(Moscou\))        
+          /wbox [10 75 30 15]  /lines [] /body {header}
+          /more  <</wbox [0 0 100 65]   /set-font {details} /nested-diagram rostov-nested>>
+        >>  
+        <</id (Famille Bolkonski \(Lissi Gori\))  
+          /wbox [10 52 30 15]  /lines [] /body {header}
+          /more  <</wbox [0 0 100 65]   /set-font {details} /nested-diagram bolkonski-nested>>
+        >>  
+        <</id (Famille Bezoukhov \(Moscou\))
+          /wbox [10 27 30 15]  /lines [] /body {header}
+          /more  <</wbox [0 0 100 65]   /set-font {details} /nested-diagram bezoukhov-nested>>
+        >>  
+        <</id (Famille Kouraguine \(Pétersbourg\)) 
+          /wbox [10 5 30 15]  /lines [] /body {header}
+          /more  <</wbox [0 0 100 65]   /set-font {details} /nested-diagram kouraguine-nested>>
+        >>  
+        <</id (Famille Droubetzkoï) 
+          /wbox [60 75 30 15]  /lines [] /body {header}
+          /more  <</wbox [0 0 100 65]   /set-font {details} /nested-diagram droubetzkoi-nested>>
+        >>  
+        <</id (Famille Karaguine)   
+          /wbox [60 50 30 15]  /lines [] /body {header} 
+          /more  <</wbox [0 0 100 65]   /set-font {details} /nested-diagram karaguine-nested>>
+        >>  
+        <</id (Autres personnages)  
+          /wbox [60 0 30 40]  /lines [] /body {header} 
+          /more  <</wbox [0 0 100 65]   /set-font {details} /nested-diagram various-nested>>
+        >>  
+      ] 
+      /blines [] 
+    >> def
+    show-diagram
+    
+    grestore
+  end 
+  
+  stack-should-be-empty 
+  
+  (Ending: page 1 of 1.) here
+
+pgsave restore
+showpage
+%%PageTrailer
+%%Trailer    
+%%EOF 
