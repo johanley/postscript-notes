@@ -95,6 +95,38 @@
   end
 } bind def
 
+% leading [[line]]
+%
+% Each [line] array contains strings and control codes, marked/executed in sequence: 
+%    [/R (This is regular text. This is one word of) /B (bold) /R (text.)]
+% The control codes are literal-names of procs. They change the font.
+% The strings are chopped into single words (split on whitespace), 
+% and marked with the 'show' operator in the usual way.
+%
+% This algorithm doesn't change the width of the whitespace character.
+% 
+% Before calling this proc, the BeginPage proc will have set the initial work-box for each page:
+%  - translates the origin of the CTM near the bottom left of the page
+%  - defines /wd and /ht for the width and height of the work-box
+%  - moves to a currentpoint at the top-left of the work-box (0 ht moveto)
+/fixed-line-breaks-control-codes {
+  2 dict begin
+    { def } forall 
+    currentpoint pop /x0 defi
+    lines { 
+       % an [] of strings and control codes
+      { dup
+        type /nametype eq {
+          cvx exec
+        } {
+          show % the string on one line
+        } ifelse
+      } forall % parts of the line
+      advance-the-line
+    } forall % lines
+  end
+} bind def
+
 % str
 % Render as small-caps text. 
 /CAP {
@@ -127,6 +159,21 @@
   (fixed-width-italic) 80 use-font show
   0 setcolor
 } bind def
+
+
+% Curt 'control codes' for changing font.
+% This is used by one of the implementations to make the input text more curt.
+
+% Small-caps font, as a DISTORTION of the currentfont.
+/SC {0 setcolor small-caps-font } bind def
+% Regular font.
+/R {0 setcolor (regular) 80 use-font } bind def
+% Italic font.
+/I {0 setcolor (italic) 80 use-font } bind def
+% Font for rendering code.
+/CD {0 setcolor (fixed-width) 80 use-font } bind def
+% Font for rendering code comments.
+/CM {0.33 setcolor (fixed-width-italic) 80 use-font } bind def
 
 %%EndProlog
 
@@ -168,6 +215,7 @@
   wd 10 pct  ht 100 pct  moveto  % the lines all start at this currentpoint.x
   % WARNING: a font needs to be present for the leading calc to work below
   (fixed-width) 80 use-font  
+  % this style uses procs for each contiguous run
   << 
     /leading 1.75 em  % this needs a font to be present!
     /lines [
@@ -183,6 +231,44 @@
       [ {(} bind def)CODE} ]
     ]
   >> fixed-line-breaks-N-fonts
+  
+  
+  0 1.75 em 2 mul neg rmoveto  
+  % this style uses 'control codes' to manage font changes
+  << 
+    /leading 1.75 em 
+    /lines [
+      [ /CM (% x-pct y-pct) ]
+      [ (% moveto, but expressed using percentages of) ]
+      [ (% the /page-width and /page-height) /CD ]
+      [ (/pmoveto {) ]
+      [ (  [/x-pct /y-pct] {) ]
+      [ (    page-width x-pct pct) ]
+      [ (    page-height y-pct pct) ]
+      [ (    moveto) /CM ( % a new position) /CD ]
+      [ (  } def-tmp) ]
+      [ (} bind def)]
+    ]
+  >> fixed-line-breaks-control-codes
+
+  
+  (fixed-width) 80 use-font  
+  0 1.75 em 3 mul neg rmoveto
+  % this style is less attractive visually, but you can copy-paste the source code directly
+  << 
+    /leading 1.75 em  
+    /lines   
+(% moveto, but expressed using percentages of
+% the /page-width and /page-height
+/pmoveto {
+  [/x-pct /y-pct] {
+    page-width x-pct pct
+    page-height y-pct pct
+    moveto  % a new position
+  } def-tmp
+} bind def)
+   >> fixed-line-breaks-1-font
+
 
   % This is tedious to enter.
   % Fancy Idea: temporarily redefine 'def' to take a proc-as-string; store the string; then cvx the string to make it a proc

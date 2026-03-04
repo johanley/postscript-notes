@@ -297,7 +297,9 @@
   (regular) 100 use-font
   
   0 wd pct ht 85 pct moveto
-  /init-cap-lines 0 def % this lives in userdict; temporary, writeable copies are made when probe-ahead is called
+  % this lives in userdict; 
+  % a temporary, writeable copy is created in a higher dict when probe-ahead is called
+  /init-cap-lines 0 def 
   
   ()   % no large initial letter
   2.5 em  % this needs a current font

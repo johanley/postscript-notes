@@ -102,21 +102,32 @@
 } bind def
 
 % str (ALL CAPS)
-% Like /show, but temporarily rescales the current font to reflect the small-caps style.
+% Like /show, but temporarily rescales the current font to make a good approximation 
+% of the small-caps style. This should really only be used if you have no access to a 
+% actual small-caps typeface.
 % Derived from the 'Tutorial and Cookbook':
 % https://archive.org/details/PSBlueBook/page/181/mode/2up?view=theater
 /show-small-caps { 
+    gsave
+      small-caps-font
+      show         % show the string with a temp small-caps font
+      currentpoint % ensure currentpoint behaves like 'show' (because grestore is about to revert it)
+    grestore % the old font
+    moveto   % the currentpoint (placed on the stack, above)
+} bind def
+
+% Distort the currentfont to give a fair approximation of a small-caps font.
+% Derived from the 'Tutorial and Cookbook':
+% https://archive.org/details/PSBlueBook/page/181/mode/2up?view=theater
+% 
+% This is used only when you DON'T have an explicit small-caps version of a font.
+/small-caps-font { 
   3 dict begin    
     /M 1 em def 
     /x 1 ex def 
     % (x + (M-x)/3) / M
     /y-scale x M x sub 3 div add M div def % the calc for the y-rescaling
-    gsave
-      % 90 percent in the x-direction, variable for the y-direction
-      currentfont [.9 0 0 y-scale 0 0] makefont setfont  
-      show         % show the string with a temp small-caps font
-      currentpoint % ensure currentpoint behaves like 'show' (grestore will revert it)
-    grestore % the old font
-    moveto   % the currentpoint (placed on the stack, above)
+    % 90 percent in the x-direction, variable for the y-direction
+    currentfont [.9 0 0 y-scale 0 0] makefont setfont  
   end 
 } bind def
