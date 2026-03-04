@@ -1,0 +1,91 @@
+%!PS-Adobe-3.0
+%%Title: Poppy
+%%Version: 1.0
+%%Creator: John O'Hanley
+%%CreationDate: 2026-03-03
+%%LanguageLevel: 3.0
+%%DocumentMedia: Plain 612.0 612.0 white ()
+%%DocumentNeededResources: font Helvetica
+%%BoundingBox: 0 0 612 612
+%%Orientation: Portrait 
+%%Pages: 1
+%%EndComments 
+
+%%BeginDefaults 
+%%EndDefaults
+
+%%BeginProlog
+
+% Needs the origin at center of the poppy.
+% Based on code in the Blue Book.
+/poppy-center {
+  /flower-petal {
+    newpath
+      0 0 moveto      % center
+      1 0 translate   % mark a straight line 
+      15 rotate       % rotate the axis (no mark)
+      0 15 sin translate  % go 'up' a bit, to the center of the arc
+      0 0 15 sin -90 90 arc  % mark the arc
+    closepath         % back to the center
+  } def
+  0.2 setlinewidth
+  12 {
+    gsave  
+      flower-petal gsave fill grestore  
+      stroke  
+    grestore
+    30 rotate
+  } repeat
+} def
+
+% r - pass the scale factor
+% The caller first translates to the center of the poppy.
+/poppy { 
+  3 dict begin
+    dup scale 
+  gsave
+    /a 100 def
+    /b 250 def
+    a neg a moveto % the starting point for the curves below
+    b neg b    b b   a a   curveto 
+    b b   b b neg   a a neg   curveto 
+    b b neg   b neg b neg    a neg a neg   curveto 
+    b neg b neg   b neg b  a neg a   curveto 
+    gsave stroke  grestore standard-gray setgray fill
+  grestore 
+    0 0 moveto  
+    30 30 scale
+    poppy-center
+    newpath % to leave no traces
+  end
+} def
+
+%%EndProlog 
+
+%%BeginSetup               
+  /page-width  612 def
+  /page-height 612 def 
+  <</PageSize [page-width  page-height]>> setpagedevice  
+  << /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
+  true setstrokeadjust  % minimizes off-by-one-pixel line issues
+%%EndSetup 
+
+%%Page: 1 1
+%%BeginPageSetup 
+ /pgsave save def     
+%%EndPageSetup
+
+  /Helvetica 15 selectfont
+  /standard-gray 0.5 def 
+  /inch {72 mul} def
+
+  % translate the center of the poppy
+  4.25 inch 4.25 inch translate
+  % pass in a scale factor
+  0.75 poppy
+
+pgsave restore
+showpage
+%%PageTrailer
+%%Trailer    
+%%EOF
