@@ -162,3 +162,17 @@
   } def-tmp
 } bind def
 
+% Return the currentpoint's x value.
+% The currentpoint must exist.
+/cp-x {
+  currentpoint pop
+} bind def
+
+% Return the currentpoint's y value.
+% The currentpoint must exist.
+/cp-y {
+  currentpoint exch pop 
+} bind def
+
+
+
