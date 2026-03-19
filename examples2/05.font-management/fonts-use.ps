@@ -48,6 +48,7 @@
   /MyItalic  /Helvetica-Oblique latinize
   /MyBold    /Helvetica-Bold latinize
   /MyNumeric /Courier   latinize  % this is also a built-in font
+  /MyGaramond /Garamond latinize
   % later, you'll be using the strings to identify which font you want to use:
   << 
     (regular) /MyRegular
@@ -55,6 +56,7 @@
     (bold)    /MyBold
     (numeric) /MyNumeric
     (symbol)  /Symbol  % not 'latinized'
+    (garamond) /MyGaramond
   >>
   page-height 1.5 pct 
   init-my-fonts
@@ -100,6 +102,11 @@
 
   10 55 pmoveto 
   (\341f \174 y\361) show 
+  
+  (garamond) 100 use-font
+  10 40 pmoveto 
+  (This is Garamond!) show 
+
 
 pgsave restore
 showpage

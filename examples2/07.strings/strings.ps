@@ -424,3 +424,10 @@
     words
   } def-tmp
 } bind def
+
+% str
+% This proc exists only because it's easy to forget that stringwidth 
+% returns both dx and dy.
+/str-width {
+  stringwidth pop
+} bind def
