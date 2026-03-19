@@ -6,7 +6,7 @@
 % ascenders/descenders can change the relative vertical position of text.
 
 % str -> num num 
-% Return the width/height (dx, dy) of the given text (in the current font).
+% Return the width/height (dx, dy) of the PATH of the given text (in the current font).
 % This is useful for centering in various ways
 % https://stackoverflow.com/questions/3618194/how-to-determine-string-height-in-postscript luser droog
 /text-dim {
@@ -22,14 +22,15 @@
 } bind def
 
 % str -> num
-% Return the width of the given string in the current font.
+% Return the width of the given string's PATH in the current font.
+% WARNING: stringwidth is an alternative to this proc, and gives a slightly different result.
 /text-width {
   text-dim % dx dy
   pop % dx
 } bind def
 
 % str -> num
-% Return the height of the given string in the current font.
+% Return the height of the given string's PATH in the current font.
 /text-height {
   text-dim % dx dy
   exch pop % dy 
