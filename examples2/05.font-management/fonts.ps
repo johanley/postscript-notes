@@ -55,13 +55,16 @@
 
 % Return the current font size.
 % The returned value may be a rounded value, slightly different from the expected value.
-% WARNING: this has only been tested with Type 1 and Type 42 fonts.
+% WARNING: this has only been tested with Type 1, Type 2, and Type 42 fonts.
 /current-font-size {
   % the font-size is part of the font-matrix
   % this depends on the fontmatrix, which in turn depends on the fonttype
   currentfont /FontMatrix get 0 get
-  currentfont /FontType get 1 eq {
-    % Adobe Type 1 fonts have a FontMatrix [0.001 0 0 0.001 0 0], not [1 0 0 1 0 0]
+  
+  currentfont /FontType get 1 eq    
+  currentfont /FontType get 2 eq or {
+    % Adobe Type 1 and Type 2 fonts have a FontMatrix [0.001 0 0 0.001 0 0], not [1 0 0 1 0 0]
+    % Adobe Caslon Pro is an example of a Type 2 font.
     1000 mul
   } if
   % DO ANY OTHER FONT TYPES HAVE A FONT MATRIX DIFFERENT FROM [1 0 0 1 0 0]?
