@@ -131,10 +131,11 @@ I think it's fair to say that PS provides what you might call a *minimalist* set
 That is, there's a *gap* between what's provided and what you might have wished for.
 For example, there are no operators explicitly for tables, text flow or charts.
 You either have to fill in these gaps yourself, or find some code on the web that does the job.
-This gap is not enormous, but I think it's fair to say that it exists.
 
-(This is the only real annoyance I've had with the language.
-On the other hand, filling in those gaps was actually rather educational, and taught me various aspects of PostScript.)
+(I'm actually surprised by how little code is needed to fill these gaps.
+I take that as a testimony to the intelligence of the folks who desiged the language.
+These gaps were the only real annoyance I had with the language.
+*On the other hand*, filling in the gaps was actually rather educational, and taught me important things about the language.)
 
 ## PS as a Programming Language
 * a special-purpose language for describing documents
