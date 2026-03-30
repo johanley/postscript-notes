@@ -132,10 +132,10 @@ That is, there's a *gap* between what's provided and what you might have wished 
 For example, there are no operators explicitly for tables, text flow or charts.
 You either have to fill in these gaps yourself, or find some code on the web that does the job.
 
-(I'm actually surprised by how little code is needed to fill these gaps.
+I'm actually surprised by how little code is needed to fill these gaps.
 I take that as a testimony to the intelligence of the folks who desiged the language.
 These gaps were the only real annoyance I had with the language.
-*On the other hand*, filling in the gaps was actually rather educational, and taught me important things about the language.)
+*On the other hand*, filling in the gaps was actually rather educational, and taught me important things about the language.
 
 ## PS as a Programming Language
 * a special-purpose language for describing documents
