@@ -133,8 +133,8 @@ For example, there are no operators explicitly for tables, text flow or charts.
 You either have to fill in these gaps yourself, or find some code on the web that does the job.
 This gap is not enormous, but I think it's fair to say that it exists.
 
-One the one hand, this is the only real annoyance I've experienced with the language.
-On the other hand, filling in those gaps is actually rather educational, in teaching you various aspects of PostScript.
+(This is the only real annoyance I've had with the language.
+On the other hand, filling in those gaps was actually rather educational, and taught me various aspects of PostScript.)
 
 ## PS as a Programming Language
 * a special-purpose language for describing documents
