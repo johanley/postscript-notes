@@ -1,11 +1,12 @@
 # Postscript Notes 
 Notes on using the [PostScript programming language](https://en.wikipedia.org/wiki/PostScript) (PS), 
-and numerous [practical examples](examples).
+along with [some examples](examples) to help you get started.
 
 This is not a complete tutorial. 
 These notes are meant to assist you in reading the Red Book (see below), and emphasize important ideas that you should pay attention to.
 
 <P>A short overview is <a href='https://johanley.github.io/postscript-notes/index.html'>here</a>.
+
 
 *"In general, at that time in the industry, printer protocols were encoded as static-data structures - or mark-up languages - that 
 defined a page... At Adobe we had a radical new idea: we would make programs written in PostScript the representation of a page."*
@@ -125,6 +126,15 @@ Also of interest:
 * [Ghostscript](https://www.ghostscript.com/) for creating, viewing, and converting PS files, and related tasks. **Very commonly used when developing with PS.**
 * Adobe Distiller in Adobe Acrobat converts PS files to PDF files. (I haven't used this yet, so I don't know much about it.)
 
+## Mind The Gap
+I think it's fair to say that PS provides what you might call a *minimalist* set of operators.
+That is, there's a *gap* between what's provided and what you might have wished for.
+For example, there are no operators explicitly for tables, text flow or charts.
+You either have to fill in these gaps yourself, or find some code on the web that does the job.
+This gap is not enormous, but I think it's fair to say that it exists.
+
+One the one hand, this is the only real annoyance I've experienced with the language.
+On the other hand, filling in those gaps is actually rather educational, in teaching you various aspects of PostScript.
 
 ## PS as a Programming Language
 * a special-purpose language for describing documents
