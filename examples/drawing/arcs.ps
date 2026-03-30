@@ -1,62 +1,68 @@
 %!PS-Adobe-3.0
+%%Title: Arcs
+%%Version: 1.0
+%%Creator: John O'Hanley
+%%CreationDate: 2026-03-03
+%%LanguageLevel: 3.0
+%%DocumentMedia: Plain 720.0 720.0 60 white ()
+%%DocumentNeededResources: font Helvetica
+%%BoundingBox: 0 0 720 720
+%%Orientation: Portrait 
+%%Pages: 1
+%%EndComments 
 
-% explore the 'arc' commands 
+%%BeginDefaults 
+%%EndDefaults
+
+
+% EXPLORE THE 'arc' COMMANDS.
 
 % arc:  angle1 < angle2; if not then angle2 is coerced +N*360; counter-clockwise from +x-axis
 % arcn: angle1 > angle2; if not then angle2 is coerced -N*360; clockwise         from +x-axis
-% when you switch the order of the angles AND arc <--> arcn, then the path is the same, but switches direction.
+% When you switch the order of the angles AND arc <--> arcn, then the path is the same, but switches direction.
 
-% angles can take negative values.
+% Angles can take negative values.
 
-% the path behaviour is very particular:
-%   arc APPENDS to the current path if it exists, otherwise it starts a NEW path
-%   at the end of the operation, the currentpoint is always the end of the arc.
-% when making a circle, pay attention to whether or not a currentpoint exists.
+% The path behaviour is very particular:
+%   - arc APPENDS to the current path if it exists, otherwise it starts a NEW path
+%   - at the end of the operation, the currentpoint is always the end of the arc.
+% When making a circle, pay attention to whether or not a currentpoint exists.
 
-% circles will be traced N times if the delta between the angles is really big.
+% Circles will be traced N times if the delta between the angles is really big.
 
-% arcs are implemented internally by Bézier curves!
+% Arcs are implemented internally by Bézier curves!
 
-% pass two numbers; a value and a percent
-% example '70 15 pct' is 15% of 70
-/pct {
- 0.01 mul mul
+
+%%BeginProlog
+
+(../02.using/using.ps) run
+(../01.base/base.ps) using
+
+% label y-pct
+% y is a pct of the work-box height.
+% Attach a helpful label to the row of drawings, so the drawings can be 
+% matched to source code.
+/start-row {
+  [/label /y-pct] {
+    wd 2 pct   ht y-pct pct moveto 
+    label show
+    newpath 
+  } def-tmp
 } bind def
 
-% label y
-% (y as pct of the page height)
-/start-row {
-2 dict begin
-  /y exch def
-  /label exch def
-  pg-wd 2 pct   pg-ht y pct moveto 
-  label show
-  newpath 
-end
-} def
-
-% {..} x  y  
-% with x y as percentages of the page dimensions, for a 'translate' operation
-% note that a proc literal {..} is passed to this proc
+% {..} x-pct y-pct  
+% Uses percentages of the work-box. 
+% Translates to the specified position, where the drawing is executed.
+% Note that an anonymous proc {..} is passed to this proc.
 /draw {
-2 dict begin
-  /y exch def
-  /x exch def
-  gsave 
-    pg-wd x pct   pg-ht y pct translate
-    newpath % ensures the currentpath/point is empty
-    exec  % execute the passed proc
-  grestore
-end
-} def 
-
-% 10 x 10 inches
-/pg-wd 720 def
-/pg-ht 720 def
-<</PageSize [pg-wd  pg-ht]>> setpagedevice  
-/Times-Roman 15 selectfont
-/dx pg-wd 5 pct def
-/dy pg-ht 5 pct def
+  [/x /y] {
+    gsave 
+      wd x pct  ht y pct translate
+      newpath % the currentpoint is set to undefined too
+      exec  % the passed proc
+    grestore
+  } def-tmp
+} bind def 
 
 /arc-360 {
  newpath
@@ -226,37 +232,65 @@ end
  fill
 } def
 
+%%EndProlog 
 
+%%BeginSetup               
+  /page-width  10 72 mul def
+  /page-height 10 72 mul def 
+  <</PageSize [page-width  page-height]>> setpagedevice  
+  << /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
+  true setstrokeadjust  % minimizes off-by-one-pixel line issues
 
-/row 90 def
-(1) row start-row
-{arc-360} 15 row draw
-{arc-0-to-90} 35 row draw 
-{arc-90-to-360} 55 row draw 
-{arcn-90-to-0} 75 row draw 
+  % set up a work-box
+  /wd page-width 80 pct def   
+  /ht page-height 90 pct def   
+  wd 10 pct  ht 5 pct translate
 
-/row 70 def
-(2) row start-row
-{arc-360-with-radius} 15 row draw
-{pie-slice} 35 row draw
-{half-circle} 55 row draw
+  /dx wd 5 pct def
+  /dy ht 5 pct def
+  
+%%EndSetup 
 
-/row 50 def
-(3) row start-row
-{ellipse} 15 row draw
-{windshield-wiper} 35 row draw
-{ring-doughnut} 55 row draw
+%%Page: 1 1
+%%BeginPageSetup 
+ /pgsave save def     
+%%EndPageSetup
 
-/row 30 def
-(4) row start-row
-{rounded-corner} 15 row draw
-{rounded-rectangle} 35 row draw
-{semi-rounded-rectangle} 75 row draw
+  /Helvetica 15 selectfont
 
-/row 10 def
-(5) row start-row
-{negative-args} 15 row draw
-{crescent-moon} 30 row draw
-{gibbous-moon} 55 row draw
+  /row 90 def
+  (1) row start-row
+  {arc-360} 15 row draw
+  {arc-0-to-90} 35 row draw 
+  {arc-90-to-360} 55 row draw 
+  {arcn-90-to-0} 75 row draw 
 
+  /row 70 def
+  (2) row start-row
+  {arc-360-with-radius} 15 row draw
+  {pie-slice} 35 row draw
+  {half-circle} 55 row draw
+
+  /row 50 def
+  (3) row start-row
+  {ellipse} 15 row draw
+  {windshield-wiper} 35 row draw
+  {ring-doughnut} 55 row draw
+
+  /row 30 def
+  (4) row start-row
+  {rounded-corner} 15 row draw
+  {rounded-rectangle} 35 row draw
+  {semi-rounded-rectangle} 75 row draw
+
+  /row 10 def
+  (5) row start-row
+  {negative-args} 15 row draw
+  {crescent-moon} 30 row draw
+  {gibbous-moon} 55 row draw
+
+pgsave restore
 showpage
+%%PageTrailer
+%%Trailer    
+%%EOF 

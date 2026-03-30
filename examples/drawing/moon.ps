@@ -1,18 +1,34 @@
 %!PS-Adobe-3.0
+%%Title: Moon
+%%Version: 1.0
+%%Creator: John O'Hanley
+%%CreationDate: 2026-03-03
+%%LanguageLevel: 3.0
+%%DocumentMedia: Plain 1500.0 1200.0 60 white ()
+%%DocumentNeededResources: font Helvetica
+%%BoundingBox: 0 0 1500 1200
+%%Orientation: Portrait 
+%%Pages: 1
+%%EndComments 
 
-% A drawing of the Moon, with dark patches representing the 'maria' on the Moon's surface.
+%%BeginDefaults 
+%%EndDefaults
 
-% 10 x 10 inches
-/pg-wd 1500 def
-/pg-ht 1200 def
-<</PageSize [pg-wd  pg-ht]>> setpagedevice  
+%%BeginProlog
+
+(../02.using/using.ps) run
+(../01.base/base.ps) using
 
 % light dark
-% pass in two shades of gray
+% Pass in two shades of gray.
+%
+% The data was obtained by using web tool for creating SVG files.
+% A photo of the Moon's light and dark areas was simply traced with a mouse. 
+% This gives a very rough approximation to the visual appearance of the Moon's surface.
 /moon-base-alpha {
-  /dark exch def
-  /light exch def
-  0 pg-ht translate
+  /dark defi
+  /light defi
+  0 page-height translate
   1 -1 scale
   -150 100 translate
 
@@ -244,7 +260,26 @@
 
 } def
 
-0.8 0.65
-moon-base-alpha
+%%EndProlog 
 
+%%BeginSetup               
+  /page-width  1500 def
+  /page-height 1200 def 
+  <</PageSize [page-width  page-height]>> setpagedevice  
+  << /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
+  true setstrokeadjust  % minimizes off-by-one-pixel line issues
+%%EndSetup 
+
+%%Page: 1 1
+%%BeginPageSetup 
+ /pgsave save def     
+%%EndPageSetup
+
+  0.8 0.65 
+  moon-base-alpha
+
+pgsave restore
 showpage
+%%PageTrailer
+%%Trailer    
+%%EOF 

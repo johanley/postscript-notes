@@ -1,78 +1,77 @@
-%!PS-Adobe-3.0
 
-% explore ways of making a pattern, and draw swatches for each example.
+%!PS-Adobe-3.0
+%%Title: Shading Pattern
+%%Version: 1.0
+%%Creator: John O'Hanley
+%%CreationDate: 2026-03-04
+%%LanguageLevel: 3.0
+%%DocumentMedia: Plain 612 792 60 white ()
+%%DocumentNeededResources: font Helvetica
+%%BoundingBox: 10 10 612 792
+%%Orientation: Portrait 
+%%Pages: 1
+%%EndComments 
+
+%%BeginDefaults 
+%%EndDefaults
+
+% Explore ways of making a pattern, and draw swatches for each example.
 % penrose.ps:
 % https://personal.math.ubc.ca/~cass/courses/m308-02b/projects/schweber/penrose.html#:~:text=Postscript%20Penrose%20tiling%20generator&text=It%20uses%20a%20set%20of,sides%20specify%20the%20matching%20rules.
 % https://www.ntg.nl/maps/18/23.pdf
 
-% pass two numbers; a value and a percent
-% example '70 15 pct' is 15% of 70
-/pct {
- 0.01 mul mul
-} bind def
+%%BeginProlog
 
-/where {0 0 moveto (x)show } def
+(../02.using/using.ps) run
+(../01.base/base.ps) using
 
-% pass a value N (can be a decimal)
-% range of the returned value is 0..N
+% num -> random number in [0..N]
+% num can be a decimal
 /random {
   rand  
   2147483648 1 sub   div mul
-} def
+} bind def
 
-
-% label y
-% (y as pct of the page height)
+% label y-pct
+% Place a label at the start of a row.
 /start-row {
-2 dict begin
-  /y exch def
-  /label exch def
-  pg-wd 2 pct   pg-ht y pct moveto label show
-end
-} def
+  [/label /y] {
+    pg-wd 2 pct  pg-ht y pct moveto 
+    label show
+  } def-tmp
+} bind def
 
-
+% Draw a small square with the current pattern.
 /show-swatch {
   0 0 dx dy rectfill
   0 setgray
   0.5 setlinewidth
   0 0 dx dy rectstroke
-} def
+} bind def
   
-% pass {} x  y  (with x y as percentages of the page dimensions, for a translate)
+% {} x-pct  y-pct
+% Execute a drawing procedure at the given location.
 /draw {
-2 dict begin
-  /y exch def
-  /x exch def
-  gsave 
-    pg-wd x pct   pg-ht y pct translate
-    newpath % ensures the currentpath/point is empty
-    exec  % execute the passed proc
-  grestore
-end
+  [/x /y] {
+    gsave 
+      pg-wd x pct   pg-ht y pct translate
+      newpath % ensures the currentpath/point is empty
+      exec  % execute the passed proc
+    grestore
+  } def-tmp
 } bind def 
-
-
-
-% 10 x 10 inches
-/pg-wd 720 def
-/pg-ht 720 def
-<</PageSize [pg-wd  pg-ht]>> setpagedevice  
-/Times-Roman 15 selectfont
-/dx pg-wd 5 pct def
-/dy pg-ht 5 pct def
 
 /simple-gray-box {
  0.8 setgray
  show-swatch
 } def
 
-% proc int (for scale of cell)
-% returns a Pattern dict
-% pass a proc that draws the pattern, and a number that defines the width/height of the tiling cell
-% randomness can't be used in the proc that draws; it must draw the same thing every time.
+% {} int - dict
+% Returns a Pattern dict.
+% Pass a proc that draws the pattern, and a number that defines the width/height of the tiling cell.
+% Randomness can't be used in the proc that draws; it must draw the same thing every time.
 /tile-with-cell {
-% using begin-end here blows up!
+  % using begin-end here blows up!
   /r exch def
   /draw-cell exch def
   << 
@@ -88,8 +87,7 @@ end
      end     % remove the pattern dict from the dict stack
    }
   >>
-} def
-
+} bind def
 
 /boxes-at-a-slant {
 5 dict begin 
@@ -206,7 +204,6 @@ end
 end
 } def
 
-
 /waves1 {
 5 dict begin
    /lw 0.5 def
@@ -242,7 +239,6 @@ end
   show-swatch
 end
 } def
-
 
 /stars {
   {gsave 
@@ -371,6 +367,9 @@ end
 end
 } def
 
+% (Instead of a pattern, you might choose to put one big 'Draft' word on the page.
+% In that case, it's likely better to use the /BeginPage proc, and setpagedevice, and write a proc
+% that outputs the 'Draft' word at the start of every page.)
 /draft {
   {gsave 
     /Times-Roman 3 selectfont
@@ -398,7 +397,6 @@ end
   setpattern
   show-swatch
 } def
-
 
 % without using a pattern
 /diagonal-squares-with-jiggle {
@@ -458,52 +456,68 @@ end
   show-swatch
 } def
 
+%%EndProlog
 
+%%BeginSetup               
+  /pg-wd 720 def
+  /pg-ht 720 def
+  <</PageSize [pg-wd  pg-ht]>> setpagedevice  
+  /Times-Roman 15 selectfont
+  << /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
+  true setstrokeadjust  % minimizes off-by-one-pixel line issues
+  
+  /dx pg-wd 5 pct def
+  /dy pg-ht 5 pct def
+%%EndSetup 
 
-/row 90 def
-(1) row start-row
-{simple-gray-box} 5 row draw
-{boxes-at-a-slant} 15 row draw 
-{2.5 lines-at-a-slant} 25 row draw 
-{5 lines-at-a-slant} 35 row draw 
+%%Page: 1 1
+%%BeginPageSetup 
+  /pgsave save def     
+%%EndPageSetup
 
-/row 80 def
-(2) row start-row
-{diagonal-squares} 5 row draw
-{diagonal-squares-alternating-colors} 15 row draw
-{plaid-like} 25 row draw
-{simple-stripes} 35 row draw
- 
-/row 70 def
-(3) row start-row
-{fortress} 5 row draw
-{stars} 15 row draw
-321321 srand
-{random-boxes} 25 row draw
-{draft} 35 row draw
-{waves1} 45 row draw
-{waves2} 55 row draw
+  /row 90 def
+  (1) row start-row
+  {simple-gray-box} 5 row draw
+  {boxes-at-a-slant} 15 row draw 
+  {2.5 lines-at-a-slant} 25 row draw 
+  {5 lines-at-a-slant} 35 row draw 
 
-/row 60 def
-(4) row start-row
-{question-mark} 5 row draw
-{diagonal-squares-with-jiggle} 15 row draw
-{weave} 25 row draw
-{asterisk} 35 row draw
+  /row 80 def
+  (2) row start-row
+  {diagonal-squares} 5 row draw
+  {diagonal-squares-alternating-colors} 15 row draw
+  {plaid-like} 25 row draw
+  {simple-stripes} 35 row draw
+   
+  /row 70 def
+  (3) row start-row
+  {fortress} 5 row draw
+  {stars} 15 row draw
+  321321 srand
+  {random-boxes} 25 row draw
+  {draft} 35 row draw
+  {waves1} 45 row draw
+  {waves2} 55 row draw
 
-/row 50 def
-(5) row start-row
-{stars-7-points} 5 row draw
-{stars-7-points-better} 15 row draw
+  /row 60 def
+  (4) row start-row
+  {question-mark} 5 row draw
+  {diagonal-squares-with-jiggle} 15 row draw
+  {weave} 25 row draw
+  {asterisk} 35 row draw
 
-/row 40 def
-(6) row start-row
-{5 5 stars-n-points} 5 row draw
-{6 5 stars-n-points} 15 row draw
-{7 5 stars-n-points} 25 row draw
- 
-% gradient could be added
- 
+  /row 50 def
+  (5) row start-row
+  {stars-7-points} 5 row draw
+  {stars-7-points-better} 15 row draw
+
+  /row 40 def
+  (6) row start-row
+  {5 5 stars-n-points} 5 row draw
+  {6 5 stars-n-points} 15 row draw
+  {7 5 stars-n-points} 25 row draw
+   
+pgsave restore
 showpage
 %%PageTrailer
 %%Trailer    

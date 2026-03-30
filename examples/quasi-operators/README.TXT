@@ -1,1 +1,0 @@
-These simple procs could be thought of as "operators" that might have been included in the language.
