@@ -1,5 +1,6 @@
 # Postscript Notes 
-Notes on using the [PostScript programming language](https://en.wikipedia.org/wiki/PostScript) (PS).
+Notes on using the [PostScript programming language](https://en.wikipedia.org/wiki/PostScript) (PS), 
+and numerous [practical examples](examples).
 
 This is not a complete tutorial. 
 These notes are meant to assist you in reading the Red Book (see below), and emphasize important ideas that you should pay attention to.
