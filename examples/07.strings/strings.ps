@@ -35,19 +35,15 @@
 } bind def
 
 % Return an array of character codes (ints), corresponding to whitespace characters.
-% WARNING: includes 240, the non-breaking space in the CE and ISOLatin1 encoding. 
+% WARNING: includes 160, the non-breaking space in the CE and ISOLatin1 encoding. 
 /str-whitespace {
   % Red Book 3rd ed. page 27 and page 783 
-  % I'm including 160 here because of the prevalence of ISOLatin1.  
-  [
-    0 % null
-    9 % tab
-    10 % line feed
-    12 % form feed
-    13 % carriage return
-    32 % space (the final frontier...)
-    160 % non-breaking space, in the CE and ISOLatin1 encoding 
-  ] % character codes 
+  0 1 33 { % control codes 0..32, plus space char 33
+    % just leave them on the stack
+  } for
+  160 % NBSP
+  35 array % where to store the ints
+  astore % copies the ints into the array, and leaves it on the stack
 } bind def
 
 % char-code (int) -> bool
