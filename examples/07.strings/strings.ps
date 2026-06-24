@@ -1,5 +1,6 @@
 
 % SIMPLE PROC'S FOR STRINGS THAT ARE 'MISSING' FROM PostScript.
+% WARNING: THIS VERSION WAS CREATED FOR THE ISOLatin1 encoding.
 
 (../01.base/base.ps) using
 
@@ -37,7 +38,7 @@
 % WARNING: includes 240, the non-breaking space in the CE and ISOLatin1 encoding. 
 /str-whitespace {
   % Red Book 3rd ed. page 27 and page 783 
-  % I'm including 240 here because of the prevalence of ISOLatin1.  
+  % I'm including 160 here because of the prevalence of ISOLatin1.  
   [
     0 % null
     9 % tab
@@ -45,7 +46,7 @@
     12 % form feed
     13 % carriage return
     32 % space (the final frontier...)
-    240 % non-breaking space, in the CE and ISOLatin1 encoding 
+    160 % non-breaking space, in the CE and ISOLatin1 encoding 
   ] % character codes 
 } bind def
 
