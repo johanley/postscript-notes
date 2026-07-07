@@ -31,6 +31,7 @@
     [[( )] {str-is-whitespace?} [true]   ] 
     [[(  )] {str-is-whitespace?} [true]   ] 
     [[(\r\n\t  )] {str-is-whitespace?} [true]   ] 
+    [ [(!)] {str-is-whitespace?} [false] ]
     % using octal literals
     [[(\000)] {str-is-whitespace?} [true]   ] 
     [[(\001)] {str-is-whitespace?} [true]   ] 

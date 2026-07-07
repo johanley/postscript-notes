@@ -39,13 +39,13 @@
 % Return an array of character codes (ints), corresponding to whitespace characters.
 % IMPORTANT: this proc is called by other procs in several places.
 /str-whitespace {
-  0 1 33 { % control codes 0..32, plus space char 33
+  0 1 32 { % control codes 0..31, plus space char 32
     % just leave them on the stack
   } for
   127 % DEL
   160 % NBSP
   173 % SHY - soft hyphen
-  37 array % where to store the ints
+  36 array % where to store the ints
   astore % copies the 37 ints into the array, and leaves it on the stack
 } bind def
 
