@@ -29,6 +29,15 @@
     [ [[(a)]] {first} [(a)] ]
     [ [[]] {first} [null] ]
 
+    [ [[] 1] {append-to-array} [[1]] ]
+    [ [[] (a)] {append-to-array} [[(a)]] ]
+    [ [[1] 2] {append-to-array} [[1 2]] ]
+    [ [[1 2] 3] {append-to-array} [[1 2 3]] ]
+    [ [[1] 1] {append-to-array} [[1 1]] ]
+    [ [[(a) (a)] (b)] {append-to-array} [[(a) (a) (b)]] ]
+    [ [[(a) 10 true] (b)] {append-to-array} [[(a) 10 true (b)]] ]
+    [ [[(a) 10 true] false] {append-to-array} [[(a) 10 true false]] ]
+
     [ [1 1] {deep-eq?} [true] ]
     [ [(a) (a)] {deep-eq?} [true] ]
     [ [(a) /a] {deep-eq?} [true] ]  % valid! see the docs for 'eq'

@@ -113,6 +113,23 @@
   ifelse
 } bind def
 
+% [] any -> []
+% Return a new array, whose size is incremented by appending 'any' to the end of the given array.
+% Here, 'any' refers to simple scalar data, not an array or dict.
+/append-to-array { 
+  [/orig /any] {
+    % make a new result array (len + 1) to hold the result
+    /result  orig length 1 add  array def
+    % copy the existing data into the result
+    0 1  orig length 1 sub {
+      /idx defi
+      result  idx  orig idx get  put
+    } for
+    result  orig length  any  put % the last item into the result
+    result % is left on the stack for the caller
+  } def-tmp
+} bind def
+
 % a b /target-type -> bool
 % Return true iff both a and b have the given target-type, such as /arraytype.
 /same-type? {
