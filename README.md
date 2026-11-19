@@ -81,6 +81,7 @@ the document while retaining device independence: it was no longer a program its
 
 * PLRM - PostScript Language Reference Manual (link below), the Red Book. Treated as Sacred Writ.
 * [Document Structuring Conventions (DSC)](https://en.wikipedia.org/wiki/Document_Structuring_Conventions) - a standard way of laying out PS files, centered on separating pages explicitly.
+(In the case of using PS to create PDFs, it doesn't seem necessary to follow these conventions.)
 * **distilling** a PS document means changing it from code+data to just data only, roughly speaking. A PS file is "distilled" into a PDF file. A PDF file is a 
 static data structure, essentially a tree of dictionaries, not really meant for direct human consumption as a text file.
 * the built-in **operators** are the core of the language. There are about 385 of them in Language Level 3, but 80% of the time you use 20% of the operators.
@@ -90,8 +91,8 @@ at the start of a page, and then restoring that state when the page has been com
 * **device independence** is the idea that the printed output doesn't depend on the printer.
 * **prolog**: the start of a PS file, containing <em>procedures</em> that help build pages. The prolog is usually written "by hand".
 * **script**: placed after the prolog, a script builds pages by passing data to the procedures defined previously in the prolog.
-The script is typically generated programmatically (by a *driver* application).
-* **driver**: the program that creates the final output PS file, usually by dynamically building the script
+The script can be written by hand, or perhaps generated programmatically (by a *driver* application).
+* **driver**: a program that creates the final output PS file, usually by dynamically building the script
 * **translator**: a specialized tool that translates one page description language (PCL, DVI) into another (PostScript)
 * **treat as data** in PostScript means *push it on to the operand stack* 
 * **the stack**, in unqualified form, refers to the *operand stack* (see below)
