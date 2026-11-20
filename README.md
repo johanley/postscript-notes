@@ -141,13 +141,14 @@ These gaps were the only real annoyance I had with the language.
 ## PS as a Programming Language
 * a special-purpose language for describing documents
 * plain text files; interpreted, not compiled; garbage collection
-* remarkably little syntax
+* **remarkably little syntax**
 * **no reserved words**; you can re-define the behaviour of built-in operators
 * **postfix syntax** is used, with the params coming before the operator/procedure
 * **code is data and data is code** is central to the language: anonymous procedures are passed around as data
 * composite data structures: dictionaries, arrays, strings 
 * strings can contain binary data (with ASCII encodings)! **there's no 'character' data type as such**  
 * strings are arrays of numbers in the range 0..255 (a character's number is determined by the *encoding* you've chosen to use)
+* friendly to single-byte encodings for text; double-byte encodings for text require more work (I don't have experience with that, personally) 
 * a procedure is defined as an *executable array* of tokens 
 * it has a dynamic namespace, implemented by the dictionary stack
 * it doesn't seem to have much for implementing modularity (the `run` operator includes one PS file in another)
