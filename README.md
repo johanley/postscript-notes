@@ -434,7 +434,7 @@ Here, a simple literal is passed to the `show` operator:
 It's important to understand how the system marks the letter 'H' on the page:
 * the system **passes a number to `show`**, not a character! **There is no 'character' data type in PS.** *In PS, 'string' means a string of numbers, all in the range 0..255.*, that are using
 an encoding
-* the number comes *from the file's encoding of the character*. For English/French, your file encoding should very likely be Latin-1 (8859-1).
+* the number comes *from the file's encoding of the character*. For English/French, your file encoding might be windows-1252, for example.
 * that number is passed to the `show` operator. PS calls this number the *character code*.
 * the current font has all of its info in a font-dictionary. One entry in that dictionary defines how it maps an incoming 
 number (the character code) to a glyph that it knows how to draw.
