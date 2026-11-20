@@ -148,7 +148,7 @@ These gaps were the only real annoyance I had with the language.
 * composite data structures: dictionaries, arrays, strings 
 * strings can contain binary data (with ASCII encodings)! **there's no 'character' data type as such**  
 * strings are arrays of numbers in the range 0..255 (a character's number is determined by the *encoding* you've chosen to use)
-* friendly to single-byte encodings for text; double-byte encodings for text require more work (I don't have experience with that, personally) 
+* friendly to single-byte encodings for text; double-byte encodings for text can be used, but they require more work 
 * a procedure is defined as an *executable array* of tokens 
 * it has a dynamic namespace, implemented by the dictionary stack
 * it doesn't seem to have much for implementing modularity (the `run` operator includes one PS file in another)
