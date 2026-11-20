@@ -380,7 +380,7 @@ Data exists only in these places:
 * the conversion from PS to PDF for the final output is a non-issue, since it's handled by well-known and stable tools (Ghostscript and Adobe Acrobat/Distiller).
 * there appears to be no significant community of users producing libraries for it
 * there's little discussion of PS amongst modern programmers. Given the ubiquity of PDF and EPS, this is rather strange.
-* outputs in English and French that can use the single-byte encodings are straightforward (see below).
+* outputs in English and French that can use a single-byte encoding are straightforward (see below).
 * outputs in Chinese, Japanese, Korean and so on are possible, but more complicated.
 
 In Language Level 3, there are about 385 operators listed in the manual.
