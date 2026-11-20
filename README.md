@@ -401,7 +401,7 @@ There are some common items that you may feel should have been part of the langu
 PostScript seems to have been designed to implement the core operations as robustly as possible, and to 
 leave higher-level considerations such as text flow to the application programmer.
 
-However, with the possible exception of general text flow, implementing the above items is straightforward given PostScript's 
+However, with the exception of fully justified text flow, implementing the above items is straightforward given PostScript's 
 built-in operators.   
 
 
