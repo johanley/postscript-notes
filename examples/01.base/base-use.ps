@@ -1,75 +1,65 @@
 %!PS-Adobe-3.0
-%%Title: Use base.ps.
-%%Version: 1.0
-%%Creator: John O'Hanley
-%%CreationDate: 2026-02-23
-%%LanguageLevel: 3.0
-%%DocumentMedia: Plain 612.0 792.0 60 white ()
-%%DocumentNeededResources: font Helvetica
-%%BoundingBox: 0 0 612 792
-%%Orientation: Portrait 
-%%Pages: 1
-%%EndComments 
-
-%%BeginDefaults 
-%%EndDefaults
-
-%%BeginProlog
 
 (../02.using/using.ps) run
-(base.ps) using
+(base.ps) using % now you can use the proc's in base.ps
 
-% now you can use the proc's in base.ps:
+/page-width  8.5 72 mul def
+/page-height 11 72 mul def 
+<</PageSize [page-width  page-height]>> setpagedevice  
+<< /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
+true setstrokeadjust  % minimizes off-by-one-pixel line issues
 
 % str str -> sum of their lengths
 /total-length {
-  [/a /b] { % I like this way of def'ing things
+  [/a /b] { 
     a length b length add
-  } def-tmp
+  } def-tmp % def-tmp is a nice, compact way of defining things
 } def
 
-% any any -> bool
-% return true iff both args are 'deeply equal'
-/are-they-deeply-equal? { 
-  deep-eq?
-} def
+/pgsave save def     
 
-%%EndProlog 
-
-%%BeginSetup               
-  /page-width  8.5 72 mul def
-  /page-height 11 72 mul def % absolute values
-  <</PageSize [page-width  page-height]>> setpagedevice  
-  << /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
-  true setstrokeadjust  % minimizes off-by-one-pixel line issues
-%%EndSetup 
-
-%%Page: 1 1
-%%BeginPageSetup 
- /pgsave save def     
-%%EndPageSetup
-
-  % set the font, and show some text near the top of the page
+  % set the font, and use 'pct' to show some text near the top of the page
   /Helvetica 15 selectfont
-  page-width 10 pct  % pct is in base.ps
+  page-width 10 pct 
   page-height 90 pct moveto 
   (Hello Bratislava.) show
 
-  % to stdout  
+  % the rest is just emitting things to stdout  
   (Hello) (Bratislava) total-length == 
-  (Hello) (Bratislava) are-they-deeply-equal? == 
-  (Hello) (Hello) are-they-deeply-equal? == 
-  [1 2 3 (Four)]  [1 2 3 (Four)]  are-they-deeply-equal? == 
-  [1 2 3 (Four)]  [1 2 3 (four)]  are-they-deeply-equal? == 
-  [1 2 3 <<(a) true>>]  [1 2 3 <</a true>>]  are-they-deeply-equal? == 
+  
+  (Hello) (Bratislava) deep-eq? == 
+  (Hello) (Hello) deep-eq? == 
+  [1 2 3 (Four)]  [1 2 3 (Four)]  deep-eq? == 
+  [1 2 3 (Four)]  [1 2 3 (four)]  deep-eq? == 
+  [1 2 3 <<(a) true>>]  [1 2 3 <</a true>>]  deep-eq? == 
   
   % show the current point
   5.25 15.06 moveto 
-  cp-x ==
-  cp-y ==
+  cp-x == 
+  cp-y == 
+  
+  /total-length is-known? == % true
+  /total-length discard 
+  /total-length is-known? == % false
+
+  % inverted define: 1 thing
+  3.14159 /star-trek defi
+  /star-trek is-known? == % true
+
+  % inverted define: N things
+  2252 (Enterprise) [/the-year /the-name] defi
+  the-year == % 2252
+  the-name == % Enterprise
+  
+  % first and last things in an array
+  /the-array [1 2 3] def
+  the-array first == % 1
+  the-array last == % 3
+  
+  % append to an array
+  the-array 4 append-to-array == % [1 2 3 4]
+  
+  the-array (hello) /arraytype same-type? == % false
 
 pgsave restore
 showpage
-%%PageTrailer
-%%Trailer    
-%%EOF 
