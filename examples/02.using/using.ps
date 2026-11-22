@@ -6,7 +6,7 @@
 %   (using.ps) run 
 %
 % This creates a table in userdict, used to flag files that have been 'run' already.
-% After this call, you can would usually use 'using' calls (see below) instead of 'run' calls.
+% After this call, you would usually use 'using' calls (see below) instead of 'run' calls.
 
 % A table to remember which files have already been passed to the 'run' operator.
 % The key to this table is actually the 'simple' file name 'blah.ps' instead of '../other/blah.ps' (or similar).
@@ -19,8 +19,9 @@ userdict /using-table <<(using.ps) true>> put
 % The file-sep-int is the integer corresponding to the file separator on your operating system.
 % IS THERE ANY WAY OF DETECTING WHAT THE OS IS? 
 % (One option is to use the nix version regardless of OS; it seems to work fine on Windows anyway).
-% 92 = \134 octal is '\' Windows
-% 47 = \057 octal is '/' Nix
+% With the windows-1252 encoding (and similar): 
+%   92 = \134 octal is '\' Windows
+%   47 = \057 octal is '/' Nix
 /simple-file-name {
   3 dict begin
     /sep exch def
@@ -41,18 +42,19 @@ userdict /using-table <<(using.ps) true>> put
 % (file-name) -> .
 % Use the 'run' operator on the given file name, but only once.
 % Here, '..\other\blah.ps' is treated the same as 'blah.ps' (for example); only the simple file name matters.
+% WARNING: THIS IMPLEMENTATION IS HARD-CODED TO USE '92' TO IDENTIFY THE SEPARATION CHARACTER.
 /using {
   
-  % IMPORTANT: the code below uses only the operand stack, and no dictionaries.
+  % IMPORTANT: the code below uses only the operand stack, and no temporary dictionaries.
   % The 'run' invocations below are intended to 'def' things into userdict.
   % If you define a temp dict here, then the def's will be against the temp dict, not userdict.
   %
   % In addition, nothing is def'd here: if a 'run' invocation below results in a recursive call to this proc, 
   % then the def'd data would be overwritten. But the operand stack can handle those shenanigans.
   
-  dup == % fn (log the full file reference)
+  dup == % fn (just logging the full file reference)
   dup % fn fn 
-  92 simple-file-name % fn sfn 
+  92 simple-file-name % fn sfn   92 (47) is backslash '\' (slash '/') in windows-1252 and many other encodings
   dup  % fn sfn sfn
   using-table exch known not 
     {using-table exch true put

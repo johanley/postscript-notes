@@ -1,0 +1,16 @@
+%!PS-Adobe-3.0
+
+(using.ps) run 
+
+% Just exercise the proc that extracts the simple file name from the full file name.
+
+% Windows: 92 is \ in most encodings.
+% PostScript strings need to escape the '\' character.
+(blah1.ps) 92 simple-file-name  == 
+(..\\other\\blah2.ps) 92 simple-file-name  == 
+
+% Nix: 47 is / in most encodings.
+(blah3.ps) 47 simple-file-name  == 
+(../other/blah4.ps) 47 simple-file-name  == 
+
+quit

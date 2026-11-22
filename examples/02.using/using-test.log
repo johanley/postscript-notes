@@ -1,0 +1,12 @@
+C:\johanley\ProjectsPhoton\postscript-notes\examples\02.using>C:\ghostscript\gs10.08.0\bin\gswin64c.exe -dNOSAFER using-test.ps
+GPL Ghostscript 10.08.0 (2026-09-08)
+Copyright (C) 2026 Artifex Software, Inc.  All rights reserved.
+This software is supplied under the GNU AGPLv3 and comes with NO WARRANTY:
+see the file COPYING for details.
+(using.ps is initializing...)
+(blah1.ps)
+(blah2.ps)
+(blah3.ps)
+(blah4.ps)
+
+C:\johanley\ProjectsPhoton\postscript-notes\examples\02.using>
