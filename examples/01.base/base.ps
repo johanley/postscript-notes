@@ -20,7 +20,7 @@
 } bind def
 
 % key -> .
-% 'un-def' the given key from the currentdict.
+% 'undef' the given key from the currentdict.
 % If you only have 1-2 new items def'd in a proc, then instead of using a begin-end temporary dict,
 % you might choose to just use the currentdict, and remove (discard) the items at the end of the proc.
 /discard {
@@ -34,13 +34,13 @@
 % def's /name_i with any_i, with any_N being the next N items on the stack
 %
 % An "inverted" version of 'def', with the arguments reversed.
-% Adds items to the currentdict
+% Adds items to the currentdict.
 % This replaces the very common:
 %   /a exch def
 % with the slightly more curt:
 %   /a defi
 % 
-% If you need to def multiple items, then passing an array of names provides more savings:
+% If you need to def multiple items, then passing an array of names provides even more savings:
 %   [/a /b /c] defi
 % Inspired by code seen here: https://github.com/denismm/dmmlib
 /defi {
@@ -51,7 +51,7 @@
   type /arraytype eq
   {
     % any1 any2 [/name1 /name2]
-    % this silly random name avoids collisions with the currentdict (can't use a temp dict here)
+    % a long random name avoids collisions with names def'd by the caller
     /names-axnlywdthdenoonpartst exch def % any1 any2
     % iterate backwards over the names-array, in order to match with the 'any_i' items
     names-axnlywdthdenoonpartst length 1 sub  -1   0 {
@@ -71,16 +71,18 @@
 % Populate the temp dict using the given name-array, by consuming values already on the operand stack (below the name-array).
 % This encapsulates a common pattern for the body of many procs:
 %  10 dict begin 
-%     def'ing 1..N items from the operand stack.  
+%     def'ing 1..N items from the operand stack in a repetitive manner.
 %  end
 % The given name-array needs to have at least 1 item.
 % Inside the proc, the caller can add more items to the temp dict created internally by this proc (in Language Level 2 or greater).
+% THIS PROC IS PARTICULARLY PLEASING TO USE.
 /def-tmp {
   exch dup length dict begin 
     exch        % [/name] {...}
-    /proc defi  % [/name] 
+    % a long random name avoids collisions with names def'd by the caller
+    /proc-axnlywdthdenoonpartst defi  % [/name] 
     defi
-    proc % this exec's the proc
+    proc-axnlywdthdenoonpartst % this exec's the proc
   end
 } def
 
@@ -105,7 +107,7 @@
 
 % array
 % Return the first item in an array.
-% If the array is empty, then return the null literal
+% If the array is empty, then return the null literal.
 /first {
   dup length 0 eq 
     {pop null}
@@ -140,7 +142,7 @@
 } bind def
 
 % any any -> bool
-% A 'deep', recursive version of the eq operator
+% A deep, recursive version of the eq operator.
 % Special handling for pairs of arrays and pairs dicts.
 /deep-eq? {
   [/a /b] {
@@ -190,6 +192,3 @@
 /cp-y {
   currentpoint exch pop 
 } bind def
-
-
-
