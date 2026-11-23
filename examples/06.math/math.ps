@@ -3,14 +3,17 @@
 
 (../01.base/base.ps) using
 
-% num num -> num 
+% NOTE: base.ps has a 'pct' proc which you might prefer to move here into math.ps.
+% 'pct' was placed in base.ps because it is so widely used.
+
+% num num -> num   (...a very tasty proc!..)
 % Return the arithmetic mean of two numbers.
 /midpoint {
   add 2 div
 } bind def
 
 % num num pct -> num
-% Example: 10 20 50 pct-between returns 15 (halfway between 10 and 20).
+% Example:  4 8 50 pct-between  returns 6 (halfway between 4 and 8).
 % Returns null iff the pct value is negative.
 /pct-between {
   [/a /b /percent] { 
@@ -68,9 +71,10 @@
   } ifelse
 } bind def
 
-% val min max linear-range
-% Returns (val - min)/(max - min) * linear-range.
-% linearly maps a problem-domain value from the range [min..max] into the range [0..linear-range].
+% in: val min max linear-range
+% out: return (val - min)/(max - min) * linear-range.
+% linearly maps a problem-domain value (val) from the range [min..max] into the range [0..linear-range].
+% The idea here is to linearly map some problem domain value into a position in the document (usually for a chart of some sort).
 % The first 3 args represent problem-domain data; the last arg represents some linear measure in the document.
 /rescale {
   [/val /min /max /linear-range] {
@@ -96,13 +100,13 @@
       } forall % the remaining points
       pathbbox % llx lly urx ury
       4 array astore % [llx lly urx ury]
-      newpath % remove the currentpath used to do the calc (the grestore makes this redundant)
+      newpath % remove the currentpath used to do the calc (the grestore makes this redundant, I think)
     grestore
   } def-tmp
 } bind def
 
-% [[xy]] - an array of points
-% Return the center x y of the bounding-box of the given points.
+% [[xy]] -> x y 
+% Return the center x y of the bounding-box of the given array of points.
 /center-of-bbox {
   1 dict begin
     points-bbox % [llx lly urx ury]
@@ -111,4 +115,3 @@
     box 1 get  box 3 get  midpoint % x y 
   end
 } bind def
-
