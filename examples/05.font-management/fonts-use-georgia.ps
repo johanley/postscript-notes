@@ -1,20 +1,4 @@
 %!PS-Adobe-3.0
-%%Title: Font Management (Georgia, a non-default font)
-%%Version: 1.0
-%%Creator: John O'Hanley
-%%CreationDate: 2026-02-24
-%%LanguageLevel: 3.0
-%%DocumentMedia: Plain 612.0 792.0 60 white ()
-%%DocumentNeededResources: font Georgia Georgia-Italic Georgia-Bold Courier Symbol
-%%BoundingBox: 0 0 612 792
-%%Orientation: Portrait 
-%%Pages: 1
-%%EndComments 
-
-%%BeginDefaults 
-%%EndDefaults
-
-%%BeginProlog
 
 (../02.using/using.ps) run
 (../01.base/base.ps) using
@@ -23,57 +7,49 @@
 % THIS EXAMPLE USES NON-DEFAULT FONTS THAT ARE INSTALLED SOMEWHERE ON YOUR SYSTEM.
 % You need to inform your tools where to find such fonts.
 
-  % x-pct y-pct 
-  % Moveto, but using percentages of /page-width and /page-height.
-  /pmoveto {
-    page-height exch pct % x-pct y
-    exch % y x-pct
-    page-width exch pct % y x
-    exch % x y 
-    moveto 
-  } bind def
+% If you use fonts that aren't part of the small set of default fonts that come with PostScript/PDF, 
+% then you'll need to tell your tools where to find fonts on your system.
+% For Ghostscript, you can:
+%
+%    - set the GS_FONTPATH environment variable
+%    - set the '-sFONTPATH=' command line switch.
+%
+% On Windows OS, fonts are usually in C:\Windows\Fonts
 
-%%EndProlog 
+% x-pct y-pct 
+% Moveto, but using percentages of /page-width and /page-height.
+/pmoveto {
+  page-height exch pct % x-pct y
+  exch % y x-pct
+  page-width exch pct % y x
+  exch % x y 
+  moveto 
+} bind def
 
-%%BeginSetup               
+/page-width  8.5 72 mul def
+/page-height 11 72 mul def % absolute values
+<</PageSize [page-width  page-height]>> setpagedevice  
+<< /NeverEmbed [ ] >> setdistillerparams
+true setstrokeadjust  % minimizes off-by-one-pixel line issues
 
-  /page-width  8.5 72 mul def
-  /page-height 11 72 mul def % absolute values
-  <</PageSize [page-width  page-height]>> setpagedevice  
-  << /NeverEmbed [ ] >> setdistillerparams
-  true setstrokeadjust  % minimizes off-by-one-pixel line issues
-
-  % If you use fonts that aren't part of the small set of default fonts that come with PostScript/PDF, 
-  % then you'll need to tell your tools where to find fonts on your system.
-  % For Ghostscript, you can:
-  %
-  %    - set the GS_FONTPATH environment variable
-  %    - set the '-sFONTPATH=' command line switch.
-  %
-  % On Windows OS, fonts are usually in C:\Windows\Fonts
+% Define new fonts that are usually 'windowized' versions of an existing font.
+% The font named 'Georgia' comes installed on a Windows PC, but is not in the set of base fonts known to PostScript.
+/MyRegular /Georgia windowize
+/MyItalic  /Georgia-Italic windowize
+/MyBold    /Georgia-Bold windowize
+/MyNumeric /Courier   windowize  % this is a built-in font
+% later, you'll be using the strings to identify which font you want to use:
+<< 
+  (regular) /MyRegular
+  (italic)  /MyItalic
+  (bold)    /MyBold
+  (numeric) /MyNumeric
+  (symbol)  /Symbol  % not 'windowized'
+>>
+page-height 1.5 pct 
+init-my-fonts
   
-  % Define new fonts that are usually 'latinized' versions of an existing font.
-  /MyRegular /Georgia latinize
-  /MyItalic  /Georgia-Italic latinize
-  /MyBold    /Georgia-Bold latinize
-  /MyNumeric /Courier   latinize  % this isa built-in font
-  % later, you'll be using the strings to identify which font you want to use:
-  << 
-    (regular) /MyRegular
-    (italic)  /MyItalic
-    (bold)    /MyBold
-    (numeric) /MyNumeric
-    (symbol)  /Symbol  % not 'latinized'
-  >>
-  page-height 1.5 pct 
-  init-my-fonts
-  
-%%EndSetup 
-
-%%Page: 1 1
-%%BeginPageSetup 
- /pgsave save def     
-%%EndPageSetup
+/pgsave save def     
 
   % the 'use-font' proc uses a size as a percent of /default-font-size
   (regular) 100 use-font 
@@ -112,6 +88,3 @@
 
 pgsave restore
 showpage
-%%PageTrailer
-%%Trailer    
-%%EOF 

@@ -1,9 +1,9 @@
-C:\johanley\ProjectsPhoton\postscript-notes\examples2\05.font-management>echo %GS_FONTPATH%
-C:\Windows\Fonts
+C:\johanley\ProjectsPhoton\postscript-notes\examples\05.font-management>echo %GS_FONTPATH%
+C:\Windows\Fonts;C:\Users\Owner\AppData\Local\Microsoft\Windows\Fonts
 
-C:\johanley\ProjectsPhoton\postscript-notes\examples2\05.font-management>C:\ghostscript\gs10.04.0\bin\gswin64c.exe -dNOSAFER -sDEVICE=pdfwrite -o fonts-use-georgia.pdf fonts-use-georgia.ps
-GPL Ghostscript 10.04.0 (2024-09-18)
-Copyright (C) 2024 Artifex Software, Inc.  All rights reserved.
+C:\johanley\ProjectsPhoton\postscript-notes\examples\05.font-management>C:\ghostscript\gs10.08.0\bin\gswin64c.exe -dNOSAFER -sDEVICE=pdfwrite  -o fonts-use-georgia.pdf fonts-use-georgia.ps
+GPL Ghostscript 10.08.0 (2026-09-08)
+Copyright (C) 2026 Artifex Software, Inc.  All rights reserved.
 This software is supplied under the GNU AGPLv3 and comes with NO WARRANTY:
 see the file COPYING for details.
 (using.ps is initializing...)
@@ -16,8 +16,8 @@ see the file COPYING for details.
 Scanning C:\Windows\Fonts for fonts... 380 files, 188 scanned, 166 new fonts.
 Can't find (or can't open) font file %rom%Resource/Font/%rom%Re.
 Can't find (or can't open) font file Georgia.
-Loading Georgia font from C:\Windows\Fonts/georgia.ttf... 6365480 4990588 2425888 1086469 1 done.
-(Latinized font. /FontName:)
+Loading Georgia font from C:\Windows\Fonts/georgia.ttf... 6331984 4957306 2425888 1085935 1 done.
+(Windowized font. /FontName:)
 (Georgia)
 (/FontType:)
 42
@@ -25,8 +25,8 @@ Loading Georgia font from C:\Windows\Fonts/georgia.ttf... 6365480 4990588 242588
 1.0
 Can't find (or can't open) font file %rom%Resource/Font/%rom%Resource/.
 Can't find (or can't open) font file Georgia-Italic.
-Loading Georgia-Italic font from C:\Windows\Fonts/georgiai.ttf... 6385680 5000428 2850980 1491993 1 done.
-(Latinized font. /FontName:)
+Loading Georgia-Italic font from C:\Windows\Fonts/georgiai.ttf... 6352184 4967210 2850980 1496524 1 done.
+(Windowized font. /FontName:)
 (Georgia-Italic)
 (/FontType:)
 42
@@ -34,20 +34,20 @@ Loading Georgia-Italic font from C:\Windows\Fonts/georgiai.ttf... 6385680 500042
 1.0
 Can't find (or can't open) font file %rom%Resource/Font/%rom%Resourc.
 Can't find (or can't open) font file Georgia-Bold.
-Loading Georgia-Bold font from C:\Windows\Fonts/georgiab.ttf... 6385680 5006834 3281012 1904291 1 done.
-(Latinized font. /FontName:)
+Loading Georgia-Bold font from C:\Windows\Fonts/georgiab.ttf... 6352184 4973680 3301212 1916999 1 done.
+(Windowized font. /FontName:)
 (Georgia-Bold)
 (/FontType:)
 42
 (/FontMatrix scale-x:)
 1.0
-Loading NimbusMonoPS-Regular font from %rom%Resource/Font/NimbusMonoPS-Regular... 6580592 5206850 3301212 1920197 1 done.
-(Latinized font. /FontName:)
+Loading NimbusMonoPS-Regular font from %rom%Resource/Font/NimbusMonoPS-Regular... 6567296 5182251 3321412 1936964 1 done.
+(Windowized font. /FontName:)
 /Courier
 (/FontType:)
 1
 (/FontMatrix scale-x:)
 0.001
-Loading StandardSymbolsPS font from %rom%Resource/Font/StandardSymbolsPS... 6696328 5323928 3361812 1977908 2 done.
+Loading StandardSymbolsPS font from %rom%Resource/Font/StandardSymbolsPS... 6716344 5332043 3361812 1985149 2 done.
 
-C:\johanley\ProjectsPhoton\postscript-notes\examples2\05.font-management>
+C:\johanley\ProjectsPhoton\postscript-notes\examples\05.font-management>

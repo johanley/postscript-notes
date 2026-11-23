@@ -22,13 +22,13 @@
 } bind def
 
 % re-encode Times-Roman
-/my-lovely-font /Times-Roman latinize
+/my-lovely-font /Times-Roman windowize
 
 % now /my-lovely-font can be used like any other font
 /my-lovely-font 12 selectfont
 
 /left 3 def
-(File encoding 8859-1 (Latin-1).) left 90 show-it
+(File encoding windows-1252.) left 90 show-it
 (Accented chars: à ç é è À Ç) left 80 show-it
 (- Ça va bien, Madame Brontë?) left 75 show-it
 
