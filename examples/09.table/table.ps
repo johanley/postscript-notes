@@ -1,16 +1,22 @@
 
 % BASIC TABLES. 
-% THE CELLS ARE IMPLEMENTED AS PROCS, NOT AS DATA.
+% THE CELLS ARE IMPLEMENTED AS PROCS, NOT AS DATA. This makes them more flexible.
+% 
+% In this implementation, row heights are fixed, and column widths are variable. 
+%
+% I think this file demonstrates that PostScript lets you implement quite a lot for tables, 
+% even with relatively little code.
 
 (../01.base/base.ps) using
 (../04.debug/debug.ps) using
 (../08.text-align/text-align.ps) using
 
-% table-dict
-% See table-use.ps for an example dict.
+% table-dict -> [xs] [ys]
+% See table-use.ps for an example of table-dict.
+%
 % Render a table as a collection of cells. Each cell is a proc.
 % Return xs and ys on the stack, for the coords of all grid lines, in case the caller wants to render them in some custom manner.
-% The caller translates the origin to the top left corner of the table.
+% The caller translates the origin to the top left corner of the table before calling this proc.
 % The cells [[]] is an array of rows, top-down and left-to-right.
 % Drawing in each cell is clipped to its rectangular box.
 /basic-table {
@@ -140,6 +146,8 @@
   /TXT {/Helvetica 12 selectfont} def
 
   % Mark all of the cells.
+  % The origin of the CTM is temporarily translated to the bottom left of each cell.
+  % Marks are clipped to each cell's rectangle.
   /mark-cells {
     0  1   cells length 1 sub {
       % over rows
@@ -184,4 +192,3 @@
   ys 
 end
 } bind def
-

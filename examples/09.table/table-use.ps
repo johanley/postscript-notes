@@ -50,6 +50,8 @@ ht 90 pct moveto (Example Table: ) show
 
 wd 10 pct 
 ht 85 pct translate % to the top-left of the table  
+
+% pass in a table-dict to the /basic-table proc
 <<  
   /row-ht 4 ex
   /col-widths [wd 10 pct  wd 10 pct  wd 10 pct  wd 10 pct]
@@ -62,7 +64,8 @@ ht 85 pct translate % to the top-left of the table
   ]
 >>
 basic-table
-pop pop % because we don't use the returned xs and ys in this case
+
+pop pop % because here we don't use the returned xs and ys
   
 pgsave restore
 showpage
