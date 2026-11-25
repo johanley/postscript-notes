@@ -39,11 +39,13 @@
     [[(\012)] {str-is-whitespace?} [true]   ] 
     [[(\014)] {str-is-whitespace?} [true]   ] 
     [[(\015)] {str-is-whitespace?} [true]   ] 
-    [[(\040)] {str-is-whitespace?} [true]   ] 
-    
+    [[(\040)] {str-is-whitespace?} [true]   ]  % SPACE
     [[(\041)] {str-is-whitespace?} [false]   ]   
     [[(\042)] {str-is-whitespace?} [false]   ] 
-    
+    [[(\176)] {str-is-whitespace?} [false]   ]  
+    [[(\177)] {str-is-whitespace?} [true]   ]  % DEL
+    [[(\240)] {str-is-whitespace?} [true]   ]  % NBSP
+    [[(\255)] {str-is-whitespace?} [true]   ]  % SHY
     [[(\000\011\012\014\015\040)] {str-is-whitespace?} [true]   ] 
     [[(\000\011\012\014\015\040 )] {str-is-whitespace?} [true]   ] 
     [[(\000\011\012\014\015\040 A)] {str-is-whitespace?} [false]   ] 
