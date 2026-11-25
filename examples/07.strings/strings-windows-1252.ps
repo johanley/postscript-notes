@@ -1,0 +1,41 @@
+
+% String procs specific to the windows-1252 encoding, also known as CP-1252.
+% https://en.wikipedia.org/wiki/Windows-1252
+%
+% For convenience, you may wish to embed these procs directly into strings.ps.
+
+(../01.base/base.ps) using
+
+% Return an array of character codes (ints), corresponding to whitespace characters.
+% Included: control codes 0..31, space character 32, delete 127, non-breaking space 160, and 173 soft hyphen.
+/str-whitespace {
+  0 1 32 { % control codes 0..31, plus space char 32
+    % just leave them on the stack
+  } for
+  127 160 173 % DEL, NBSP, and SHY (soft hyphen)
+  36 array % where to store the ints
+  astore % copies the 37 ints into the array, and leaves it on the stack
+} bind def
+
+% str -> str
+% Return a lower-case string. 
+/str-lower-case {
+  [/str] {
+    /result str    [65   90] 32 str-swap-char-code-range def  % A..Z maps to a..z  
+    /result result [192 214] 32 str-swap-char-code-range def  % accented chars (interrupted by x sign)
+    /result result [216 222] 32 str-swap-char-code-range def  % accented chars
+    result
+  } def-tmp
+} bind def
+
+% str -> str
+% Return an upper-case string. 
+/str-upper-case {
+  [/str] {
+    /result str    [ 97 122] -32 str-swap-char-code-range def  % a..z maps to A..Z  
+    /result result [224 246] -32 str-swap-char-code-range def  % accented chars (interrupted by x sign) 
+    /result result [248 254] -32 str-swap-char-code-range def  % accented chars  
+    result
+  } def-tmp
+} bind def
+

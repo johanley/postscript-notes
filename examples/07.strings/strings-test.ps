@@ -2,6 +2,8 @@
 
 (../02.using/using.ps) run 
 (strings.ps) using
+% In general, the tests below will depend on the encoding:
+(strings-windows-1252.ps) using
 (../03.unit-test/unit-test.ps) using
 (../01.base/base.ps) using
 
@@ -38,6 +40,10 @@
     [[(\014)] {str-is-whitespace?} [true]   ] 
     [[(\015)] {str-is-whitespace?} [true]   ] 
     [[(\040)] {str-is-whitespace?} [true]   ] 
+    
+    [[(\041)] {str-is-whitespace?} [false]   ]   
+    [[(\042)] {str-is-whitespace?} [false]   ] 
+    
     [[(\000\011\012\014\015\040)] {str-is-whitespace?} [true]   ] 
     [[(\000\011\012\014\015\040 )] {str-is-whitespace?} [true]   ] 
     [[(\000\011\012\014\015\040 A)] {str-is-whitespace?} [false]   ] 

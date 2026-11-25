@@ -1,6 +1,18 @@
 
 % SIMPLE PROC'S FOR STRINGS THAT ARE 'MISSING' FROM PostScript.
-% WARNING: THIS VERSION WAS CREATED FOR THE ISOLatin1 encoding.
+%
+% AT RUNTIME, YOU ALSO NEED TO SUPPLY IMPLEMENTATIONS OF THE FOLLOWING PROCS (see the windows-1252 example):
+%   str-whitespace
+%   str-lower-case
+%   str-upper-case
+% 
+% Some string procs depend on the specifics of an encoding, while others do not.
+% In order to emphasize that you need to pay attention to the specific details of an encoding, 
+% in these examples the string procs are separated into two files:
+%   - strings.ps, with procs that are INDEPENDENT of the encoding
+%   - a second file (like strings-windows-1252.ps), with procs that are DEPENDENT on the encoding
+%
+% In practice, you may want to simply place the encoding-dependent procs directly into strings.ps.
 
 (../01.base/base.ps) using
 
@@ -16,7 +28,7 @@
 } bind def
 
 % [any] -> str
-% Convert items to strings using cvs (if necessary), and concatenate the strings together.
+% Convert items in an array to strings using cvs (if necessary), and concatenate the strings together.
 % WARNING: items converted here using cvs must have a max string-length of 500.
 /any-concat {
   [/anys] {
@@ -34,20 +46,8 @@
   } def-tmp
 } bind def
 
-% Return an array of character codes (ints), corresponding to whitespace characters.
-% WARNING: includes 160, the non-breaking space in the CE and ISOLatin1 encoding. 
-/str-whitespace {
-  % Red Book 3rd ed. page 27 and page 783 
-  0 1 33 { % control codes 0..32, plus space char 33
-    % just leave them on the stack
-  } for
-  160 % NBSP
-  35 array % where to store the ints
-  astore % copies the ints into the array, and leaves it on the stack
-} bind def
-
 % char-code (int) -> bool
-% Return true iff the character code corresponds to a whitespace character code.
+% Return true iff the character code is in the /str-whitespace array.
 /str-is-cc-whitespace? { 
   [/cc] {
     false % default result
@@ -60,7 +60,7 @@
 } bind def
 
 % str -> bool
-% Return true iff all character codes in the given string are white-space character codes.
+% Return true iff all character codes in the given string are in the /str-whitespace array.
 /str-is-whitespace? {
   % scan each element of the string
   true exch % default return value
@@ -70,7 +70,8 @@
   } forall
 } def
 
-% Return an array of character codes (ints), corresponding to newline characters.
+% Return the array [10 13] of character codes (ints), corresponding to newline characters.
+% (It's assumed here that this result is independent of the encoding.)
 /str-newline {
   % Red Book 3rd ed. page 27 and page 783 
   [
@@ -80,8 +81,7 @@
 } bind def
 
 % char-code (int) -> bool
-% Return true iff the character code corresponds to a newline character code.
-% TODO CONSOLIDATE WITH THE WHITESPACE VERSION OF THIS PROC.
+% Return true iff the character code is in the /str-newline array.
 /str-is-cc-newline? { 
   [/cc] {
     false % default result
@@ -94,17 +94,17 @@
 } bind def
 
 % str -> str
-% Remove any whitespace from the start and end of a string.
+% Remove any whitespace from the start and end of a string, using /str-is-whitespace?
 /str-trim {
   [/str] {
-    /first -1 def % idx of first non-space
-    /last -1 def % idx of last non-space
+    /a -1 def % idx of first non-space
+    /b -1 def % idx of last non-space
     % move forward from the start, to find the first non-whitespace:
     0 1 str length 1 sub {
       /idx defi
       str idx 1 getinterval  
       str-is-whitespace? not {
-        /first idx def
+        /a idx def
         exit
       } if
     } for
@@ -113,16 +113,17 @@
       /idx defi
       str idx 1 getinterval  
       str-is-whitespace? not {
-        /last idx def
+        /b idx def
         exit
       } if
     } for
     % return a substring of the given string
-    first -1 eq 
+    a -1 eq 
       {()}
       { 
-        str first
-        last first sub 1 add
+        str 
+        a
+        b a sub 1 add
         getinterval 
       }
     ifelse
@@ -130,8 +131,11 @@
 } bind def
 
 % str [a b] delta -> str
-% Helper proc for implementing uppercase and lowercase for ISOLatin1.
-% Return a str with the same length, but re-map (linearly) character codes from range [a b] to range [a+delta b+delta].
+% Helper proc for implementing uppercase and lowercase.
+% Return a str with the same length, but re-map (linearly) character codes from the range:
+%   [a b] 
+% to the range 
+%   [a + delta   b + delta]
 /str-swap-char-code-range {
   [/str /range /delta] {
     range length 2 ne {
@@ -150,28 +154,6 @@
       result idx cc put
       /idx idx 1 add def
     } forall
-    result
-  } def-tmp
-} bind def
-
-% str -> str
-% Return a lower-case string. 
-% WARNING: THIS APPLIES TO ISOLatin1 ONLY.
-/str-lower-case {
-  [/str] {
-    /result str    [65   90] 32 str-swap-char-code-range def  % A..Z maps to a..z  101..132 octal
-    /result result [192 221] 32 str-swap-char-code-range def  % accented chars     300..335 octal
-    result
-  } def-tmp
-} bind def
-
-% str -> str
-% Return an upper-case string. 
-% WARNING: THIS APPLIES TO ISOLatin1 ONLY.
-/str-upper-case {
-  [/str] {
-    /result str    [ 97 122] -32 str-swap-char-code-range def  % a..z maps to A..Z  141..172 octal
-    /result result [224 253] -32 str-swap-char-code-range def  % accented chars     340..375 octal
     result
   } def-tmp
 } bind def
@@ -334,7 +316,7 @@
 
 % a b -> int 
 % Return 0 iff strings a and b are equal according to the 'eq' operator.
-% Return -1 if as is before b, +1 if a is after b.
+% Return -1 if a is before b, +1 if a is after b.
 % The comparison is a pair-wise comparison of character codes.
 % This proc can be used to implement a sorting algorithm for strings.
 /str-compare {
@@ -356,21 +338,21 @@
           { 1 add} 
         ifelse
       } if % still no decision after pair-wise comparisons
-    } if % not equal
+    } if % a and b are not equal
   } def-tmp
 } bind def
 
 % str proc -> int
-% Return the number of parts that result after splitting a string on certain character codes.
-% Proc takes a character code (int), and returns a 'true' iff the character is a 'splitting' char.
+% Return the number of parts that result after splitting a string on a certain character code.
+% The proc argument takes a character code (int), and returns a 'true' iff the character is a 'splitting' char.
 /str-num-parts {
-  [/is-split-char] {
+  [/is-split-char?] {
     /curr false def % whether a char-code is 'kept' or not, as determined by the proc
     /prev false def
     0 % default result
     exch
     { % 0..255
-      is-split-char not /curr defi
+      is-split-char? not /curr defi
       % only one transition is detected:
       curr prev not and {1 add} if
       /prev curr def
@@ -422,9 +404,10 @@
   } def-tmp
 } bind def
 
-% str
-% This proc exists only because it's easy to forget that stringwidth 
-% returns both dx and dy.
+% str -> dx
+% Return the width of the given string, dx. 
+% This proc exists only because it is easy to forget that the built-in operator 
+% 'stringwidth' returns both dx and dy.
 % See also text-align.ps.
 /str-width {
   stringwidth pop

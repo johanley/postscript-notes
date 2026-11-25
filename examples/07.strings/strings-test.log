@@ -1,6 +1,6 @@
-C:\johanley\ProjectsPhoton\postscript-notes\examples2\07.strings>C:\ghostscript\gs10.04.0\bin\gswin64c.exe -dNOSAFER strings-test.ps
-GPL Ghostscript 10.04.0 (2024-09-18)
-Copyright (C) 2024 Artifex Software, Inc.  All rights reserved.
+C:\johanley\ProjectsPhoton\postscript-notes\examples\07.strings>C:\ghostscript\gs10.08.0\bin\gswin64c.exe -dNOSAFER strings-test.ps
+GPL Ghostscript 10.08.0 (2026-09-08)
+Copyright (C) 2026 Artifex Software, Inc.  All rights reserved.
 This software is supplied under the GNU AGPLv3 and comes with NO WARRANTY:
 see the file COPYING for details.
 (using.ps is initializing...)
@@ -8,13 +8,19 @@ see the file COPYING for details.
 (  running...)
 (../01.base/base.ps)
 (  running...)
+(strings-windows-1252.ps)
+(  running...)
+(../01.base/base.ps)
+(  already run)
 (../03.unit-test/unit-test.ps)
 (  running...)
 (../01.base/base.ps)
 (  already run)
+(../01.base/base.ps)
+(  already run)
 (Num tests: )
-118
+130
 (Num fails: )
 0
 
-C:\johanley\ProjectsPhoton\postscript-notes\examples2\07.strings>
+C:\johanley\ProjectsPhoton\postscript-notes\examples\07.strings>strings.ps
