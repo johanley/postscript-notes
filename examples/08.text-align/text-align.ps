@@ -2,7 +2,7 @@
 % TEXT DIMENSIONS, AND TEXT ALIGNMENT WITH RESPECT TO THE CURRENTPOINT.
 % The dimensions of text depend on the current font.
 %
-% Note that vertical alignment can often give mediocre results: the presence or absence of 
+% WARNING: vertical alignment can often give mediocre results; the presence or absence of 
 % ascenders/descenders can change the relative vertical position of text.
 
 % str -> num num 
@@ -70,7 +70,7 @@
 } bind def
 
 % str
-% Show text centered horizontally AND vertically at the currentpoint, and show it.
+% Show text centered horizontally AND vertically at the currentpoint.
 % WARNING: centering text vertically can give mediocre results (variations in ascenders, descenders etc.)
 /show-ctr-xy {
   dup text-dim % text dx dy
