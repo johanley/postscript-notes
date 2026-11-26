@@ -1,23 +1,7 @@
 %!PS-Adobe-3.0
-%%Title: Page Numbering
-%%Version: 1.0
-%%Creator: John O'Hanley
-%%CreationDate: 2026-03-02
-%%LanguageLevel: 3.0
-%%DocumentMedia: Plain 612.0 792.0 60 white ()
-%%DocumentNeededResources: font Helvetica 
-%%BoundingBox: 0 0 612 792
-%%Orientation: Portrait 
-%%Pages: 4
-%%EndComments 
-
-%%BeginDefaults 
-%%EndDefaults
-
-%%BeginProlog
 
 % Number pages using the /BeginPage proc in the pagedevice dictionary.
-% Example implementations given here:
+% The example implementations given here:
 %  - center the page number at the top of the page.
 %  - put the page number at the top-right or top-left, alternatively.
 %  - number in two styles, roman numerals first, then regular numbers.
@@ -28,9 +12,9 @@
 (../07.strings/strings.ps) using
 (../08.text-align/text-align.ps) using
 
-% int - number of times showpage has been called: 0, 1,...
-% The passed int can be used to provide a page number.
-% For each new page, the initgraphics operator is called; that resets many items, 
+% int - number of times the built-in /showpage operator has been called: 0, 1,...
+% The passed int can be used to derive a page number.
+% For each new page, PostScript will call the /initgraphics operator; that resets many things, 
 % including the CTM, path, and currentpoint. The font is not affected, however.
 /start-new-page {
   % nothing should happen for the final call to showpage, because 
@@ -40,10 +24,11 @@
     % the work-box needs to be re-set for each new page
     wd 10 pct   ht 5 pct translate % bottom left of the work-box
     1 add 
+    % choose a proc to mark the page number somewhere on the page
     page-number-centered
     %page-number-parity
     %page-number-roman-then-hindu-arabic
-    0 ht moveto % where the text will start
+    0 ht moveto % where the body of text on the page will start
   } if
 } bind def
 
@@ -51,7 +36,7 @@
 % Example: '-14-' placed at the top-middle of the page.
 /page-number-centered {
   (Centering the page number at the top.) here
-  wd 50 pct  ht 102 pct  moveto  % bit above the work-box
+  wd 50 pct  ht 102 pct  moveto  % a bit above the work-box
   4 string cvs (-) str-concat 
   (-) exch str-concat
   show-ctr-x
@@ -91,64 +76,43 @@
   } def-tmp
 } bind def
 
-%%EndProlog
+% {} 
+% Pass a proc that marks the main body of text on the page (but not the page numbers).
+% Implements a simple template design pattern.
+% This is used simply to remove code repetition.
+/page-body {
+  /pgsave save def     
+  exec % the proc 
+  pgsave restore
+  showpage
+} bind def
 
-%%BeginSetup               
-  % this has to be set early, such that a font is active when drawing page 1:
-  /Helvetica 18 selectfont 
+% this has to be set early, such that a font is active when drawing page 1:
+/Helvetica 18 selectfont 
   
-  /page-width  8.5 72 mul def
-  /page-height 11 72 mul def 
-  /wd page-width 80 pct def   
-  /ht page-height 90 pct def   
-  <<
-    /PageSize [page-width  page-height]
-    /BeginPage {start-new-page}  % the proc executed with each new page
-  >> setpagedevice  
-  << /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
-  true setstrokeadjust  % minimizes off-by-one-pixel line issues
+/page-width  8.5 72 mul def
+/page-height 11 72 mul def 
+/wd page-width 80 pct def   
+/ht page-height 90 pct def   
+<<
+  /PageSize [page-width  page-height]
+  /BeginPage {start-new-page}  % THE PROC EXECUTED WITH EACH NEW PAGE
+>> setpagedevice  
+<< /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
+true setstrokeadjust  % minimizes off-by-one-pixel line issues
   
-%%EndSetup 
+{ 0 wd pct  ht 85 pct moveto
+  (This is page 1.) show 
+} page-body
 
-%%Page: 1 1
-%%BeginPageSetup 
-/pgsave save def     
-%%EndPageSetup
-  0 wd pct  ht 85 pct moveto
-  (This is page 1.) show
-pgsave restore
-showpage
-%%PageTrailer
-
-%%Page: 2 2
-%%BeginPageSetup 
-/pgsave save def     
-%%EndPageSetup
-  0 wd pct  ht 85 pct moveto
+{ 0 wd pct  ht 85 pct moveto
   (This is page 2.) show
-pgsave restore
-showpage
-%%PageTrailer
+} page-body
 
-%%Page: 3 3
-%%BeginPageSetup 
-/pgsave save def     
-%%EndPageSetup
-  0 wd pct  ht 85 pct moveto
+{ 0 wd pct  ht 85 pct moveto
   (This is page 3.) show
-pgsave restore
-showpage
-%%PageTrailer
+} page-body
 
-%%Page: 4 4 
-%%BeginPageSetup 
-/pgsave save def     
-%%EndPageSetup
-  0 wd pct  ht 85 pct moveto
+{ 0 wd pct  ht 85 pct moveto
   (This is page 4.) show
-pgsave restore
-showpage
-%%PageTrailer
-
-%%Trailer    
-%%EOF 
+} page-body
