@@ -1,26 +1,14 @@
 %!PS-Adobe-3.0
-%%Title: Fixed Line Breaks
-%%Version: 1.0
-%%Creator: John O'Hanley
-%%CreationDate: 2026-02-25
-%%LanguageLevel: 3.0
-%%DocumentMedia: Plain 612.0 792.0 60 white ()
-%%DocumentNeededResources: font Helvetica Helvetica-Bold Helvetica-Oblique Consolas Consolas-Italic
-%%BoundingBox: 0 0 612 792
-%%Orientation: Portrait 
-%%Pages: 4
-%%EndComments 
 
-%%BeginDefaults 
-%%EndDefaults
-
-%%BeginProlog
-
-% RENDER TEXT WITH KNOWN LINE BREAKS.
+% RENDER TEXT WITH KNOWN LINE BREAKS (FOR EXAMPLE: CODE LISTINGS, POETRY).
 % This is the simplest case for laying out lines of text on a page.
+% Example command line:
+% 
+%  C:\ghostscript\gs10.08.0\bin\gswin64c.exe -dNOSAFER -sDEVICE=pdfwrite -o fixed-line-breaks.pdf fixed-line-breaks.ps
+% 
+% There are three separate implementations shown here.
 
 (../02.using/using.ps) run
-
 (../01.base/base.ps) using
 (../04.debug/debug.ps) using
 (../05.font-management/fonts.ps) using
@@ -28,15 +16,15 @@
 (../08.text-align/text-align.ps) using
 
 % dict
-% Render multiple lines of text with fixed line breaks, using the current font.
+% SEE EXAMPLE DICT BELOW.
+% Render multiple lines of text with fixed line breaks, using only the current font.
 % The current point must exist. 
 % The currentpoint.x is retained for all lines.
 % New pages are created if the text extends beyond one page.
-% SEE EXAMPLE DICT BELOW.
 /fixed-line-breaks-1-font {
   4 dict begin
     { def } forall 
-    currentpoint pop /x0 defi
+    cp-x /x0 defi
     lines str-lines {
       show % the whole line
       advance-the-line % might cause a new page
@@ -48,7 +36,7 @@
 % This can cause a new-page as well.
 /advance-the-line {
   x0 % always align with the original x-position
-  currentpoint exch pop % x0 y 
+  cp-y % x0 y 
   leading sub % x0 y-minus-one-line
   dup 0 lt {
     pop pop % discard the stack
@@ -60,7 +48,7 @@
 
 % int - number of times /showpage has been called: 0, 1,...
 % The passed int can be used to provide a page number.
-% For each new page, the initgraphics operator is called; that resets many items, 
+% For each new page, the initgraphics operator is called; that resets many things, 
 % including the CTM, path, and currentpoint. The font is not affected, however.
 % SEE SETPAGEDEVICE BELOW.
 /start-new-page {
@@ -68,34 +56,33 @@
   (Starting new page...) here
   % the work-box needs to be re-set for each new page
   wd 10 pct   ht 5 pct translate % origin is bottom left of the work-box
-  0  currentdict /x0 known {x0 add (indent with x0)== }if 
+  0  currentdict /x0 known {x0 add (indent with x0)== } if 
   ht 
   moveto % the top-left of the work-box (maybe indented to x0)
 } bind def
 
 % dict
+% SEE EXAMPLE DICT BELOW.
 % Render multiple lines of text with fixed line breaks, with possibly multiple fonts per line.
 % The current point must exist. 
 % The currentpoint.x is retained for all lines.
 % New pages are created if the text extends beyond one page.
-% SEE EXAMPLE DICT BELOW.
 /fixed-line-breaks-N-fonts {
   4 dict begin
     { def } forall 
-    currentpoint pop /x0 defi
+    cp-x /x0 defi
     lines { 
       % [procs]
-      % a single line is  an array of procs
+      % a single line is an array of procs
       % one proc for each 'run' of contiguous text that shares one font
-      { 
-        exec 
-      } forall % procs in a line
+      { exec } forall % procs in a line
       advance-the-line
     } forall % lines
   end
 } bind def
 
-% leading [[line]]
+% dict
+% SEE EXAMPLE DICT BELOW.
 %
 % Each [line] array contains strings and control codes, marked/executed in sequence: 
 %    [/R (This is regular text. This is one word of) /B (bold) /R (text.)]
@@ -112,9 +99,9 @@
 /fixed-line-breaks-control-codes {
   2 dict begin
     { def } forall 
-    currentpoint pop /x0 defi
+    cp-x /x0 defi
     lines { 
-       % an [] of strings and control codes
+       % an [] of strings and 'control codes' (proc names)
       { dup
         type /nametype eq {
           cvx exec
@@ -175,41 +162,34 @@
 % Font for rendering code comments.
 /CM {0.33 setcolor (fixed-width-italic) 80 use-font } bind def
 
-%%EndProlog
+/page-width  8.5 72 mul def
+/page-height 11 72 mul def
+/wd page-width 80 pct def   
+/ht page-height 90 pct def   
+<<
+  /PageSize [page-width  page-height]
+  /BeginPage {start-new-page}  % THE PROC EXECUTED WITH EACH NEW PAGE
+>> setpagedevice  
+<< /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
+true setstrokeadjust  % minimizes off-by-one-pixel line issues
 
-%%BeginSetup               
-  /page-width  8.5 72 mul def
-  /page-height 11 72 mul def
-  /wd page-width 80 pct def   
-  /ht page-height 90 pct def   
-  <<
-    /PageSize [page-width  page-height]
-    /BeginPage {start-new-page}  % the proc executed with each new page
-  >> setpagedevice  
-  << /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
-  true setstrokeadjust  % minimizes off-by-one-pixel line issues
+/MyRegular /Helvetica windowize
+/MyCapital /Helvetica-Bold windowize
+/MyItalic /Helvetica-Oblique windowize
+/MyFixedWidth /Consolas windowize
+/MyFixedWidthItalic /Consolas-Italic windowize
+<< 
+  (regular) /MyRegular
+  (capital) /MyCapital
+  (italic) /MyItalic
+  (fixed-width) /MyFixedWidth
+  (fixed-width-italic) /MyFixedWidthItalic
+>>
+page-height 1.5 pct 
+init-my-fonts
 
-  /MyRegular /Helvetica latinize
-  /MyCapital /Helvetica-Bold latinize
-  /MyItalic /Helvetica-Oblique latinize
-  /MyFixedWidth /Consolas latinize
-  /MyFixedWidthItalic /Consolas-Italic latinize
-  << 
-    (regular) /MyRegular
-    (capital) /MyCapital
-    (italic) /MyItalic
-    (fixed-width) /MyFixedWidth
-    (fixed-width-italic) /MyFixedWidthItalic
-  >>
-  page-height 1.5 pct 
-  init-my-fonts
 
-%%EndSetup 
-
-%%Page: 1 1
-%%BeginPageSetup 
- /pgsave save def     
-%%EndPageSetup
+/pgsave save def     
 
 
   wd 10 pct  ht 100 pct  moveto  % the lines all start at this currentpoint.x
@@ -271,7 +251,8 @@
 
 
   % This is tedious to enter.
-  % Fancy Idea: temporarily redefine 'def' to take a proc-as-string; store the string; then cvx the string to make it a proc
+  % Fancy Idea: temporarily redefine 'def' to take a proc-as-string; 
+  % store the string; then cvx the string to make it a proc
   % That way the original string is available for documentation.
   0 1.75 em 2 mul neg rmoveto  
   << 
@@ -286,7 +267,7 @@
  [{(/fixed-line-breaks-1-font { ) CODE}]
  [{(  4 dict begin) CODE}]
  [{(    { def } forall ) CODE}]
- [{(    currentpoint pop /x0 defi) CODE}]
+ [{(    cp-x /x0 defi) CODE}]
  [{(    lines str-lines {) CODE}]
  [{(      show) CODE} {( % the whole line) COM}]
  [{(      advance-the-line) CODE} { ( % might cause a new page) COM}]
@@ -298,7 +279,7 @@
 [{(% This can cause a new-page as well.) COM}]
 [{(/advance-the-line {) CODE}]
 [{(  x0 ) CODE} {( % always align with the original x-position]) COM} ]
-[{(  currentpoint exch pop) CODE} {( % x0 y ) COM}]
+[{(  cp-y) CODE} {( % x0 y ) COM}]
 [{(  leading sub ) CODE} {( % x0 y-minus-one-line) COM}]
 [{(  dup 0 lt {) CODE}]
 [{(    pop pop) CODE} {( % discard the stack) COM}]
@@ -339,7 +320,7 @@
 /fixed-line-breaks-1-font {
   4 dict begin
     { def } forall 
-    currentpoint pop /x0 defi
+    cp-x /x0 defi
     lines str-lines {
       show % the whole line
       advance-the-line % might cause a new page
@@ -351,7 +332,7 @@
 % This can cause a new-page as well.
 /advance-the-line {
   x0 % always align with the original x-position
-  currentpoint exch pop % x0 y 
+  cp-y % x0 y 
   leading sub % x0 y-minus-one-line
   dup 0 lt {
     pop pop % discard the stack
@@ -487,6 +468,3 @@ And sight of men.)
 
 pgsave restore
 showpage
-%%PageTrailer
-%%Trailer    
-%%EOF 
