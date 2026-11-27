@@ -1,24 +1,8 @@
 %!PS-Adobe-3.0
-%%Title: Embed A JPG Image In A Document
-%%Version: 1.0
-%%Creator: John O'Hanley
-%%CreationDate: 2026-02-15
-%%LanguageLevel: 3.0
-%%DocumentMedia: Plain 612.0 792.0 60 white ()
-%%DocumentNeededResources: font Helvetica
-%%BoundingBox: 0 0 612 792
-%%Orientation: Portrait 
-%%Pages: 1
-%%EndComments 
-
-%%BeginDefaults 
-%%EndDefaults
-
-%%BeginProlog
 
 % EMBED A JPG IMAGE IN A DOCUMENT. 
 % Example command line:
-%   C:\stuff\postscript-notes\examples\image\jpg>C:\ghostscript\gs10.04.0\bin\gswin64c.exe -dNOSAFER -sDEVICE=pdfwrite -o jpg.pdf jpg.ps
+%  C:\stuff\postscript-notes\examples\image\jpg>C:\ghostscript\gs10.08.0\bin\gswin64c.exe -dNOSAFER -sDEVICE=pdfwrite -o jpg.pdf jpg.ps
 %
 % In this example, you reference a file (an image) somewhere on your system.
 % Note how Ghostscript finds files:
@@ -27,11 +11,15 @@
 (../02.using/using.ps) run
 (../01.base/base.ps) using
 
-% width (name-of-file) px-width px-height
+% width (file-name) px-width px-height
+%
 % Show a color .jpg image file, with its bottom left at the current origin.
+% width: the width of the image after it is placed in the document, using the current CTM.
+% px-width: the pixel-width of the underlying image.
 % This proc uses the recommended style of using a unit square as an intermediate geometry.
 %
 % Ghostscript needs the -dNOSAFER option for this to operate correctly.
+% Note the /ImageMatrix values:
 %   [w 0 0 h 0 0]  - scan L to R and B to T
 %   [w 0 0 -h 0 h] - scan L to R and T to B (JPEG's apparently use this style)
 /show-jpg {
@@ -42,12 +30,14 @@
       width 
       width px-h px-w div mul  
       scale 
+      
       /DeviceRGB setcolorspace
+      
       <<
        /ImageType 1 % opaque
        /Width px-w
        /Height px-h
-       /BitsPerComponent 8  % not BPP!; BPP = 8 bits/component * 3 components = BPP 24, for typical color JPEGs
+       /BitsPerComponent 8  % not BPP!; BPP = 8 bits/component * 3 components = 24, for typical color JPEGs
        /Decode [0 1 0 1 0 1]  % standard, fixed
        /ImageMatrix [px-w 0 0 px-h neg 0 px-h] % transform array; maps FROM the unit square TO the underlying image geometry
        % opens the file and reads in the image data; this filter is specific to JPEG files:
@@ -68,20 +58,13 @@
   } def-tmp
 } bind def
 
-%%EndProlog
+/page-width  8.5 72 mul def
+/page-height 11 72 mul def % absolute values
+<</PageSize [page-width  page-height]>> setpagedevice  
+<< /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
+true setstrokeadjust  % minimizes off-by-one-pixel line issues
 
-%%BeginSetup 
-  /page-width  8.5 72 mul def
-  /page-height 11 72 mul def % absolute values
-  <</PageSize [page-width  page-height]>> setpagedevice  
-  << /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
-  true setstrokeadjust  % minimizes off-by-one-pixel line issues
-%%EndSetup 
-
-%%Page: 1 1
-%%BeginPageSetup 
- /pgsave save def     
-%%EndPageSetup
+/pgsave save def     
 
   /Helvetica 18 selectfont 
   
@@ -89,14 +72,12 @@
 
   50 480 translate % to the bottom-left of the image
 
+  % embed a jpg image into the document:
   250            % the intended width of the image in the current CTM (not the pixel-width!)    
-  (galaxy.jpg)  % the file name (in the current directory, in this case)
+  (galaxy.jpg)   % the file name (in the current directory, in this case)
   450            % the image-width in pixels
   450            % the image-height in pixels
   show-jpg
 
 pgsave restore
 showpage
-%%PageTrailer
-%%Trailer    
-%%EOF 
