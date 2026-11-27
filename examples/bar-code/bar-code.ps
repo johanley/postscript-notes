@@ -1,20 +1,4 @@
 %!PS-Adobe-3.0
-%%Title: Bar Code
-%%Version: 1.0
-%%Creator: John O'Hanley
-%%CreationDate: 2026-02-13
-%%LanguageLevel: 3.0
-%%DocumentMedia: Plain 612.0 792.0 60 white ()
-%%DocumentNeededResources: font Helvetica
-%%BoundingBox: 0 0 612 792
-%%Orientation: Portrait 
-%%Pages: 1
-%%EndComments 
-
-%%BeginDefaults 
-%%EndDefaults
-
-%%BeginProlog
 
 % USE TERRY BURTON'S EXCELLENT BAR CODE LIBRARY TO RENDER A BAR CODE.
 % 
@@ -30,20 +14,13 @@
 %  *** Warning: GenericResourceDir doesn't point to a valid resource directory.
 %               the -sGenericResourceDir=... option can be used to set this.
 
-%%EndProlog 
+/page-width  8.5 72 mul def
+/page-height 11 72 mul def % absolute values
+<</PageSize [page-width  page-height]>> setpagedevice  
+<< /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
+true setstrokeadjust  % minimizes off-by-one-pixel line issues
 
-%%BeginSetup               
-  /page-width  8.5 72 mul def
-  /page-height 11 72 mul def % absolute values
-  <</PageSize [page-width  page-height]>> setpagedevice  
-  << /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
-  true setstrokeadjust  % minimizes off-by-one-pixel line issues
-%%EndSetup 
-
-%%Page: 1 1
-%%BeginPageSetup 
- /pgsave save def     
-%%EndPageSetup
+/pgsave save def     
 
   /Helvetica 15 selectfont
 
@@ -60,6 +37,3 @@
 
 pgsave restore
 showpage
-%%PageTrailer
-%%Trailer    
-%%EOF 
