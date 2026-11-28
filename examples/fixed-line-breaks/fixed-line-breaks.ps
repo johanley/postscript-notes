@@ -6,7 +6,10 @@
 % 
 %  C:\ghostscript\gs10.08.0\bin\gswin64c.exe -dNOSAFER -sDEVICE=pdfwrite -o fixed-line-breaks.pdf fixed-line-breaks.ps
 % 
-% There are three separate implementations shown here.
+% There are three separate implementations shown here, which differ in the data structure 
+%  - string: fixed-line-breaks-1-font
+%  - array of procs: fixed-line-breaks-N-fonts
+%  - array of strings and proc-names: fixed-line-breaks-control-codes
 
 (../02.using/using.ps) run
 (../01.base/base.ps) using
