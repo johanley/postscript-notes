@@ -1,26 +1,14 @@
-
 %!PS-Adobe-3.0
-%%Title: Shading Pattern
-%%Version: 1.0
-%%Creator: John O'Hanley
-%%CreationDate: 2026-03-04
-%%LanguageLevel: 3.0
-%%DocumentMedia: Plain 612 792 60 white ()
-%%DocumentNeededResources: font Helvetica
-%%BoundingBox: 10 10 612 792
-%%Orientation: Portrait 
-%%Pages: 1
-%%EndComments 
 
-%%BeginDefaults 
-%%EndDefaults
+% VARIOUS PATTERNS.
+
+% Example command line:
+%  C:\ghostscript\gs10.08.0\bin\gswin64c.exe -dNOSAFER -sDEVICE=pdfwrite -o pattern-library.pdf pattern-library.ps
 
 % Explore ways of making a pattern, and draw swatches for each example.
-% penrose.ps:
-% https://personal.math.ubc.ca/~cass/courses/m308-02b/projects/schweber/penrose.html#:~:text=Postscript%20Penrose%20tiling%20generator&text=It%20uses%20a%20set%20of,sides%20specify%20the%20matching%20rules.
-% https://www.ntg.nl/maps/18/23.pdf
-
-%%BeginProlog
+% Ref:
+%  https://personal.math.ubc.ca/~cass/courses/m308-02b/projects/schweber/penrose.html#:~:text=Postscript%20Penrose%20tiling%20generator&text=It%20uses%20a%20set%20of,sides%20specify%20the%20matching%20rules
+%  https://www.ntg.nl/maps/18/23.pdf
 
 (../02.using/using.ps) run
 (../01.base/base.ps) using
@@ -456,24 +444,17 @@ end
   show-swatch
 } def
 
-%%EndProlog
+/pg-wd 720 def
+/pg-ht 720 def
+<</PageSize [pg-wd  pg-ht]>> setpagedevice  
+/Times-Roman 15 selectfont
+<< /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
+true setstrokeadjust  % minimizes off-by-one-pixel line issues
 
-%%BeginSetup               
-  /pg-wd 720 def
-  /pg-ht 720 def
-  <</PageSize [pg-wd  pg-ht]>> setpagedevice  
-  /Times-Roman 15 selectfont
-  << /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
-  true setstrokeadjust  % minimizes off-by-one-pixel line issues
-  
-  /dx pg-wd 5 pct def
-  /dy pg-ht 5 pct def
-%%EndSetup 
+/dx pg-wd 5 pct def
+/dy pg-ht 5 pct def
 
-%%Page: 1 1
-%%BeginPageSetup 
-  /pgsave save def     
-%%EndPageSetup
+/pgsave save def     
 
   /row 90 def
   (1) row start-row
@@ -519,6 +500,3 @@ end
    
 pgsave restore
 showpage
-%%PageTrailer
-%%Trailer    
-%%EOF

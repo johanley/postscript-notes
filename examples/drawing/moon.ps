@@ -1,20 +1,9 @@
 %!PS-Adobe-3.0
-%%Title: Moon
-%%Version: 1.0
-%%Creator: John O'Hanley
-%%CreationDate: 2026-03-03
-%%LanguageLevel: 3.0
-%%DocumentMedia: Plain 1500.0 1200.0 60 white ()
-%%DocumentNeededResources: font Helvetica
-%%BoundingBox: 0 0 1500 1200
-%%Orientation: Portrait 
-%%Pages: 1
-%%EndComments 
 
-%%BeginDefaults 
-%%EndDefaults
+% A SCHEMATIC DRAWING OF THE FULL MOON.
 
-%%BeginProlog
+% Example command line:
+%  C:\ghostscript\gs10.08.0\bin\gswin64c.exe -dNOSAFER -sDEVICE=pdfwrite -o moon.pdf moon.ps
 
 (../02.using/using.ps) run
 (../01.base/base.ps) using
@@ -24,7 +13,7 @@
 %
 % The data was obtained by using web tool for creating SVG files.
 % A photo of the Moon's light and dark areas was simply traced with a mouse. 
-% This gives a very rough approximation to the visual appearance of the Moon's surface.
+% This gives a very rough approximation to the visual appearance of the full Moon.
 /moon-base-alpha {
   /dark defi
   /light defi
@@ -260,26 +249,17 @@
 
 } def
 
-%%EndProlog 
 
-%%BeginSetup               
-  /page-width  1500 def
-  /page-height 1200 def 
-  <</PageSize [page-width  page-height]>> setpagedevice  
-  << /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
-  true setstrokeadjust  % minimizes off-by-one-pixel line issues
-%%EndSetup 
+/page-width  1500 def
+/page-height 1200 def 
+<</PageSize [page-width  page-height]>> setpagedevice  
+<< /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
+true setstrokeadjust  % minimizes off-by-one-pixel line issues
 
-%%Page: 1 1
-%%BeginPageSetup 
- /pgsave save def     
-%%EndPageSetup
+/pgsave save def     
 
   0.8 0.65 
   moon-base-alpha
 
 pgsave restore
 showpage
-%%PageTrailer
-%%Trailer    
-%%EOF 

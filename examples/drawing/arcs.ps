@@ -1,21 +1,8 @@
 %!PS-Adobe-3.0
-%%Title: Arcs
-%%Version: 1.0
-%%Creator: John O'Hanley
-%%CreationDate: 2026-03-03
-%%LanguageLevel: 3.0
-%%DocumentMedia: Plain 720.0 720.0 60 white ()
-%%DocumentNeededResources: font Helvetica
-%%BoundingBox: 0 0 720 720
-%%Orientation: Portrait 
-%%Pages: 1
-%%EndComments 
-
-%%BeginDefaults 
-%%EndDefaults
-
 
 % EXPLORE THE 'arc' COMMANDS.
+% Example command line:
+%  C:\ghostscript\gs10.08.0\bin\gswin64c.exe -dNOSAFER -sDEVICE=pdfwrite -o arcs.pdf arcs.ps
 
 % arc:  angle1 < angle2; if not then angle2 is coerced +N*360; counter-clockwise from +x-axis
 % arcn: angle1 > angle2; if not then angle2 is coerced -N*360; clockwise         from +x-axis
@@ -32,16 +19,13 @@
 
 % Arcs are implemented internally by Bézier curves!
 
-
-%%BeginProlog
-
 (../02.using/using.ps) run
 (../01.base/base.ps) using
 
 % label y-pct
 % y is a pct of the work-box height.
-% Attach a helpful label to the row of drawings, so the drawings can be 
-% matched to source code.
+% Attaches a helpful label to the row of drawings, so the drawings can be 
+% matched more easily to source code.
 /start-row {
   [/label /y-pct] {
     wd 2 pct   ht y-pct pct moveto 
@@ -53,12 +37,12 @@
 % {..} x-pct y-pct  
 % Uses percentages of the work-box. 
 % Translates to the specified position, where the drawing is executed.
-% Note that an anonymous proc {..} is passed to this proc.
+% Note that an anonymous proc {..} is passed to this procedure.
 /draw {
   [/x /y] {
     gsave 
       wd x pct  ht y pct translate
-      newpath % the currentpoint is set to undefined too
+      newpath % this sets the currentpoint to undefined
       exec  % the passed proc
     grestore
   } def-tmp
@@ -119,8 +103,8 @@
 } def
 
 % 'insideness' depends on which of two rules is in effect!
-% non-zero winding number rule (used by 'fill'; more versatile) - ring: the circle-senses are opposite
-% even-odd rule - ring: the circle-senses are the same; the 'eofill' operator uses this style
+%  - non-zero winding number rule - ring: the circle-senses are opposite (used by 'fill'; more versatile) 
+%  - even-odd rule - ring: the circle-senses are the same (the 'eofill' operator uses this style)
 /ring-doughnut {
   0.5 setgray
   newpath
@@ -144,7 +128,7 @@
 
 /rounded-rectangle {
 10 dict begin
-  %starting point on the bottom left
+  % starting point on the bottom left
   /x 10 def
   /y 10 def
   /h 60 def
@@ -180,7 +164,7 @@ end
 % rounded only at the top
 /semi-rounded-rectangle {
 10 dict begin
-  %starting point on the bottom left
+  % starting point on the bottom left
   /x 10 def
   /y 10 def
   /h 120 def
@@ -232,29 +216,23 @@ end
  fill
 } def
 
-%%EndProlog 
 
-%%BeginSetup               
-  /page-width  10 72 mul def
-  /page-height 10 72 mul def 
-  <</PageSize [page-width  page-height]>> setpagedevice  
-  << /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
-  true setstrokeadjust  % minimizes off-by-one-pixel line issues
+/page-width  10 72 mul def
+/page-height 10 72 mul def 
+<</PageSize [page-width  page-height]>> setpagedevice  
+<< /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
+true setstrokeadjust  % minimizes off-by-one-pixel line issues
 
-  % set up a work-box
-  /wd page-width 80 pct def   
-  /ht page-height 90 pct def   
-  wd 10 pct  ht 5 pct translate
+% set up a work-box
+/wd page-width 80 pct def   
+/ht page-height 90 pct def   
+wd 10 pct  ht 5 pct translate
 
-  /dx wd 5 pct def
-  /dy ht 5 pct def
+/dx wd 5 pct def
+/dy ht 5 pct def
   
-%%EndSetup 
 
-%%Page: 1 1
-%%BeginPageSetup 
- /pgsave save def     
-%%EndPageSetup
+/pgsave save def     
 
   /Helvetica 15 selectfont
 
@@ -291,6 +269,3 @@ end
 
 pgsave restore
 showpage
-%%PageTrailer
-%%Trailer    
-%%EOF 

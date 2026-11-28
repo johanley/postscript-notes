@@ -1,21 +1,11 @@
 %!PS-Adobe-3.0
-%%Title: Snowflake
-%%Version: 1.0
-%%Creator: John O'Hanley
-%%CreationDate: 2026-03-03
-%%LanguageLevel: 3.0
-%%DocumentMedia: Plain 612 792 60 white ()
-%%DocumentNeededResources: font Times-Roman
-%%BoundingBox: 10 10 612 792
-%%Orientation: Portrait 
-%%Pages: 1
-%%EndComments 
 
-%%BeginDefaults 
-%%EndDefaults
+% KOCH SNOWFLAKE.
+% Ref: https://stackoverflow.com/questions/12381887/understanding-recursive-koch-snowflake-function-in-postscript
 
-%%BeginProlog
-% https://stackoverflow.com/questions/12381887/understanding-recursive-koch-snowflake-function-in-postscript
+% Example command line:
+%  C:\ghostscript\gs10.08.0\bin\gswin64c.exe -dNOSAFER -sDEVICE=pdfwrite -o snowflake.pdf snowflake.ps
+
 /kochR {
   2 copy ge {dup 0 rlineto}
     {
@@ -30,22 +20,14 @@
     } ifelse
     pop pop
 } def
-%%EndProlog 
 
-%%BeginSetup               
-  /page-width  612 def
-  /page-height 792 def 
-  <</PageSize [page-width  page-height]>> setpagedevice  
-  << /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
-  true setstrokeadjust  % minimizes off-by-one-pixel line issues
-%%EndSetup 
+/page-width  612 def
+/page-height 792 def 
+<</PageSize [page-width  page-height]>> setpagedevice  
+<< /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
+true setstrokeadjust  % minimizes off-by-one-pixel line issues
 
-%%Page: (First Round) 1
-%%BeginPageSetup 
-  /pgsave save def     
-  /Times-Roman 15 selectfont
-%%EndPageSetup
-
+/pgsave save def     
 
   page-width 0.5 mul  page-height 0.8 mul translate 
 
@@ -64,6 +46,3 @@
 
 pgsave restore
 showpage
-%%PageTrailer
-%%Trailer    
-%%EOF

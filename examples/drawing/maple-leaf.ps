@@ -1,20 +1,10 @@
 %!PS-Adobe-3.0
-%%Title: Maple Leaf
-%%Version: 1.0
-%%Creator: John O'Hanley
-%%CreationDate: 2026-03-03
-%%LanguageLevel: 3.0
-%%DocumentMedia: Plain 612.0 612.0 60 white ()
-%%DocumentNeededResources: font Helvetica
-%%BoundingBox: 0 0 612 612
-%%Orientation: Portrait 
-%%Pages: 1
-%%EndComments 
 
-%%BeginDefaults 
-%%EndDefaults
+% DRAW THE MAPLE LEAF USED IN THE CANADIAN FLAG.
+% Based on SVG data taken from: https://en.m.wikipedia.org/wiki/File:Flag_of_Canada_(leaf).svg
 
-%%BeginProlog
+% Example command line:
+%  C:\ghostscript\gs10.08.0\bin\gswin64c.exe -dNOSAFER -sDEVICE=pdfwrite -o maple-leaf.pdf maple-leaf.ps
 
 (../02.using/using.ps) run
 (../01.base/base.ps) using
@@ -89,7 +79,7 @@
 end
 } bind def
 
-% Returns the outline of the maple leaf on the canadian flag.
+% Returns the outline of the maple leaf on the Canadian flag.
 % Starts at the bottom, moves up along the left side to the top, and then down the right side.
 %
 % WARNING: the impl is hard-coded to absolute values.
@@ -171,22 +161,14 @@ end
   closepath
 } bind def 
 
-%%EndProlog 
 
-%%BeginSetup               
-  /page-width  8.5 72 mul def
-  /page-height 8.5 72 mul def 
-  <</PageSize [page-width  page-height]>> setpagedevice  
-  << /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
-  true setstrokeadjust  % minimizes off-by-one-pixel line issues
-%%EndSetup 
+/page-width  8.5 72 mul def
+/page-height 8.5 72 mul def 
+<</PageSize [page-width  page-height]>> setpagedevice  
+<< /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
+true setstrokeadjust  % minimizes off-by-one-pixel line issues
 
-%%Page: 1 1
-%%BeginPageSetup 
- /pgsave save def     
-%%EndPageSetup
-
-  /Helvetica 15 selectfont % (in case needed at some point)
+/pgsave save def     
 
   % translate to the center of the page
   page-width 50 pct  page-height 50 pct  translate
@@ -200,6 +182,3 @@ end
 
 pgsave restore
 showpage
-%%PageTrailer
-%%Trailer    
-%%EOF 

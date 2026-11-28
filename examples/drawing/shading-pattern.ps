@@ -1,35 +1,17 @@
 %!PS-Adobe-3.0
-%%Title: Shading Pattern
-%%Version: 1.0
-%%Creator: John O'Hanley
-%%CreationDate: 2026-03-04
-%%LanguageLevel: 3.0
-%%DocumentMedia: Plain 612 792 60 white ()
-%%DocumentNeededResources: font Helvetica
-%%BoundingBox: 10 10 612 792
-%%Orientation: Portrait 
-%%Pages: 1
-%%EndComments 
 
-%%BeginDefaults 
-%%EndDefaults
+% GRADIENT SHADING PATTERN.
 
-%%BeginProlog
-%%EndProlog
+% Example command line:
+%  C:\ghostscript\gs10.08.0\bin\gswin64c.exe -dNOSAFER -sDEVICE=pdfwrite -o shading-pattern.pdf shading-pattern.ps
 
-%%BeginSetup               
-  /page-width  612 def
-  /page-height 792 def 
-  <</PageSize [page-width  page-height]>> setpagedevice  
-  << /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
-  true setstrokeadjust  % minimizes off-by-one-pixel line issues
-%%EndSetup 
+/page-width  612 def
+/page-height 792 def 
+<</PageSize [page-width  page-height]>> setpagedevice  
+<< /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
+true setstrokeadjust  % minimizes off-by-one-pixel line issues
 
-%%Page: 1 1
-%%BeginPageSetup 
-  /pgsave save def     
-  /Times-Roman 15 selectfont
-%%EndPageSetup
+/pgsave save def     
 
   % KenS: 
   % https://stackoverflow.com/questions/40112220/type-3-function-procedure-in-post-script
@@ -46,7 +28,7 @@
       /Domain[0 1]     %  typical for interpolation functions
       /C0 [0.2]
       /C1 [0.8]
-      /N 1             % simple affine function in this case
+      /N 1             % simple affine function in this case: y=0.2 + 0.6x
     >> def
     
     <<
@@ -65,7 +47,7 @@
     >>
     matrix makepattern setpattern
 
-    % draw a box and fill it with the shading pattern    
+    % draw a box and fill it with the current pattern defined above
     10 10 moveto
     10 500 lineto
     300 500 lineto
@@ -76,6 +58,3 @@
 
 pgsave restore
 showpage
-%%PageTrailer
-%%Trailer    
-%%EOF

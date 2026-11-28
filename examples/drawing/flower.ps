@@ -1,20 +1,9 @@
 %!PS-Adobe-3.0
-%%Title: Flower
-%%Version: 1.0
-%%Creator: John O'Hanley
-%%CreationDate: 2026-03-03
-%%LanguageLevel: 3.0
-%%DocumentMedia: Plain 612.0 792.0 60 white ()
-%%DocumentNeededResources: font Helvetica
-%%BoundingBox: 0 0 612 792
-%%Orientation: Portrait 
-%%Pages: 1
-%%EndComments 
 
-%%BeginDefaults 
-%%EndDefaults
+% Example command line:
+%  C:\ghostscript\gs10.08.0\bin\gswin64c.exe -dNOSAFER -sDEVICE=pdfwrite -o flower.pdf flower.ps
 
-%%BeginProlog
+% Based on the Blue Book (Tutorial and Cookbook), page 133.
 
 % in order to use inches instead the default points
 /inch {
@@ -46,21 +35,13 @@
 end
 } def
 
+/page-width  612 def
+/page-height 792 def 
+<</PageSize [page-width  page-height]>> setpagedevice  
+<< /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
+true setstrokeadjust  % minimizes off-by-one-pixel line issues
 
-%%EndProlog 
-
-%%BeginSetup               
-  /page-width  612 def
-  /page-height 792 def 
-  <</PageSize [page-width  page-height]>> setpagedevice  
-  << /NeverEmbed [ ] >> setdistillerparams  % always embed fonts
-  true setstrokeadjust  % minimizes off-by-one-pixel line issues
-%%EndSetup 
-
-%%Page: 1 1
-%%BeginPageSetup 
- /pgsave save def     
-%%EndPageSetup
+/pgsave save def     
 
   /Helvetica 15 selectfont % (in case needed at some point)
 
@@ -70,6 +51,3 @@ end
 
 pgsave restore
 showpage
-%%PageTrailer
-%%Trailer    
-%%EOF 
